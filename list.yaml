@@ -1,0 +1,15 @@
+1. Activity model is missing:
+
+2. Managing Roles and Permissions:
+
+    - Each user has his own role.
+    - Each role has its own permissions.
+    - If we want to add any new permissions to a user,
+         we have to create new role to assign it to that user.
+
+3. Notification System: YouTube
+    https://youtu.be/7vVqMR96T5o?si=AwjFXtTMbM4Pwmt1
+    https://youtu.be/1BfCnjr_Vjg?si=6qMf50dsylWRwQa6
+
+4. Managing roles in frontend React.js : YouTube 
+    https://youtu.be/kvbmaS8o9Lw?si=B6ecwsy24AUPrUl5

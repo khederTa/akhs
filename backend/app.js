@@ -20,7 +20,6 @@ app.use("/packages", require("./routes/package"));
 app.use("/departments", require("./routes/department"));
 app.use("/addresses", require("./routes/address"));
 app.use("/permissions", require("./routes/permission"));
-app.use("/userpermissions", require("./routes/userpermission"));
 app.use("/attendees", require("./routes/attendees"));
 app.use("/logs", require("./routes/log"));
 

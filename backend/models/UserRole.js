@@ -1,13 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-    const UserPermission = sequelize.define('UserPermission', {
+    const UserRole = sequelize.define('UserRole', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       userId: { type: DataTypes.INTEGER, references: { model: 'Users', key: 'userId' }},
-      permissionId: { type: DataTypes.INTEGER, references: { model: 'Permissions', key: 'id' }}
+      roleId: { type: DataTypes.INTEGER, references: { model: 'Roles', key: 'id' }}
     }, {
-      tableName: 'UserPermissions',
+      tableName: 'UserRoles',
       timestamps: false
     });
   
-    return UserPermission;
+    return UserRole;
   };
   

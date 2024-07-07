@@ -21,9 +21,15 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
+    
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
 
-    if (!user || !(await user.validatePassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    const isMatch = await user.validatePassword(password);
+
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password Incorrect" });
     }
 
     const accessToken = jwt.sign({ userId: user.userId }, jwtSecret, {
