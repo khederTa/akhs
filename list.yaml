@@ -2,10 +2,12 @@
 
 2. Managing Roles and Permissions:
 
-    - Each user has his own role.
-    - Each role has its own permissions.
-    - If we want to add any new permissions to a user,
-         we have to create new role to assign it to that user.
+    - Direct User-Permission Associations: Allow users to be directly associated with permissions in addition to roles. 
+                                           This way, you can assign specific permissions to individual users without creating new roles.
+    
+    - Role-Based and Direct Permissions: Use roles to manage common sets of permissions but provide the ability to grant additional individual permissions directly to users.
+    
+    - Permission Groups: Group related permissions together and assign these groups to roles or users to simplify management.
 
 3. Notification System: YouTube
     https://youtu.be/7vVqMR96T5o?si=AwjFXtTMbM4Pwmt1

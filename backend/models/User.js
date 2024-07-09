@@ -38,14 +38,11 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     User.hasMany(models.UserRole, { foreignKey: "userId" });
+    User.hasMany(models.UserPermission, { foreignKey: "userId" }); // New association
   };
 
   User.prototype.validatePassword = async function (password) {
-    // const salt = await bcrypt.genSalt(10);
-    // const hashedPassword = await bcrypt.hash(password, salt);
-    console.log(password);
     const comp = await bcrypt.compare(password, this.password);
-    console.log(comp);
     return comp;
   };
 
