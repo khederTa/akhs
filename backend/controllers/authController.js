@@ -21,7 +21,7 @@ exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
-    
+
     if (!user) {
       return res.status(401).json({ message: "User Not Found" });
     }
@@ -66,5 +66,23 @@ exports.refreshToken = async (req, res) => {
     res.json({ accessToken });
   } catch (error) {
     res.sendStatus(403);
+  }
+};
+
+exports.logout = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
+
+    user.refreshToken = null;
+    await user.save();
+
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 };

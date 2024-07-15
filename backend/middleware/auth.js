@@ -2,7 +2,8 @@ const jwt = require('jsonwebtoken');
 const { jwtSecret } = require('../config/auth');
 
 const authenticateToken = (req, res, next) => {
-  const token = req.header('Authorization').replace('Bearer ', '');
+  const token = req.header('Authorization').split(" ")[1]
+  console.log(token);
   if (!token) return res.sendStatus(401);
 
   try {
