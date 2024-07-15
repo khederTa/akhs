@@ -10,8 +10,7 @@ const jwt = require("jsonwebtoken");
 exports.register = async (req, res) => {
   try {
     const user = await User.create(req.body);
-    this.login(req, res);
-    //res.status(201).json(user);
+    return this.login(req, res); // Ensure login after registration
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -26,9 +25,11 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "User Not Found" });
     }
 
+    console.log(`User found: ${user.email}`);
     const isMatch = await user.validatePassword(password);
 
     if (!isMatch) {
+      console.log("Password Incorrect");
       return res.status(401).json({ message: "Password Incorrect" });
     }
 

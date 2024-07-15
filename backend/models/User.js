@@ -11,7 +11,11 @@ module.exports = (sequelize, DataTypes) => {
       },
       fname: DataTypes.STRING,
       lname: DataTypes.STRING,
-      email: DataTypes.STRING,
+      email: {
+        type: DataTypes.STRING,
+        unique: true,
+        allowNull: false,
+      },
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
@@ -24,14 +28,16 @@ module.exports = (sequelize, DataTypes) => {
           if (user.password) {
             const salt = await bcrypt.genSalt(10);
             user.password = await bcrypt.hash(user.password, salt);
+            console.log(`Password hashed during create: ${user.password}`);
           }
         },
-        beforeUpdate: async (user) => {
-          if (user.password) {
-            const salt = await bcrypt.genSalt(10);
-            user.password = await bcrypt.hash(user.password, salt);
-          }
-        },
+        // beforeUpdate: async (user) => {
+        //   if (user.password) {
+        //     const salt = await bcrypt.genSalt(10);
+        //     user.password = await bcrypt.hash(user.password, salt);
+        //     console.log(`Password hashed during update: ${user.password}`);
+        //   }
+        // },
       },
     }
   );
@@ -42,12 +48,8 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   User.prototype.validatePassword = async function (password) {
-    
-    // Logging for debugging
-    console.log("Plain password:", password);
-    console.log("Hashed password:", this.password);
-
     const isMatch = await bcrypt.compare(password, this.password);
+    console.log(`Comparing: ${password} with ${this.password} -> ${isMatch}`);
     return isMatch;
   };
 
