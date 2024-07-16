@@ -9,7 +9,7 @@ const authenticateToken = (req, res, next) => {
   if (!token) return res.sendStatus(401);
 
   try {
-    const decoded = jwt.verify(token, jwtSecret);
+    const decoded = jwt.verify(token, jwtSecret); // for example decoded = { userId: 15, iat: 1721163872, exp: 1721167472 } 
     req.user = decoded;
     next();
   } catch (error) {

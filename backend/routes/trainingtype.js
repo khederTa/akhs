@@ -1,11 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const trainingTypeController = require('../controllers/trainingTypeController');
+const authenticateToken = require("../middleware/auth");
 
-router.get('/', trainingTypeController.getAllTrainingTypes);
-router.post('/', trainingTypeController.createTrainingType);
-router.get('/:id', trainingTypeController.getTrainingTypeById);
-router.put('/:id', trainingTypeController.updateTrainingType);
-router.delete('/:id', trainingTypeController.deleteTrainingType);
+router.get('/', authenticateToken, trainingTypeController.getAllTrainingTypes);
+router.post('/', authenticateToken, trainingTypeController.createTrainingType);
+router.get('/:id', authenticateToken, trainingTypeController.getTrainingTypeById);
+router.put('/:id', authenticateToken, trainingTypeController.updateTrainingType);
+router.delete('/:id', authenticateToken, trainingTypeController.deleteTrainingType);
 
 module.exports = router;
