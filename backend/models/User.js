@@ -16,9 +16,15 @@ module.exports = (sequelize, DataTypes) => {
         unique: true,
         allowNull: false,
       },
+      addressId: {
+        type: DataTypes.INTEGER,
+        references: { model: "Addresses", key: "id" },
+      },
+
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
+      roleId: { type: DataTypes.INTEGER, references: { model: 'Roles', key: 'id' }}
     },
     {
       tableName: "Users",
@@ -43,7 +49,6 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (models) => {
-    User.hasMany(models.UserRole, { foreignKey: "userId" });
     User.hasMany(models.UserPermission, { foreignKey: "userId" }); // New association
   };
 
