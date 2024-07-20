@@ -24,7 +24,10 @@ module.exports = (sequelize, DataTypes) => {
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
-      roleId: { type: DataTypes.INTEGER, references: { model: 'Roles', key: 'id' }}
+      roleId: {
+        type: DataTypes.INTEGER,
+        references: { model: "Roles", key: "id" },
+      },
     },
     {
       tableName: "Users",
