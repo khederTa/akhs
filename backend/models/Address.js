@@ -18,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
       timestamps: false,
     }
   );
+  Address.associate = models => {
+    Address.hasOne(models.Person, { foreignKey: 'AddressId' });
+   
+  };
 
   return Address;
 };

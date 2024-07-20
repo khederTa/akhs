@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       lastname: DataTypes.STRING,
       Mname: DataTypes.STRING,
       phone: DataTypes.STRING,
-      address: DataTypes.STRING,
+      AddressId: { type: DataTypes.INTEGER, references: { model: 'Address', key: 'id' }},
       email: DataTypes.STRING,
       bDate: DataTypes.DATE,
       gender: DataTypes.STRING,
@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     Person.associate = models => {
       Person.hasMany(models.ServiceProvider, { foreignKey: 'personId' });
       Person.hasMany(models.Volunteer, { foreignKey: 'personId' });
+      Person.belongsTo(models.Address, { foreignKey: 'AddressId' });
+
     };
   
     return Person;
