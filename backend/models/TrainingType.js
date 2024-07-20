@@ -13,5 +13,11 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  TrainingType.associate = (models) => {
+    TrainingType.hasMany(models.Activity, {
+      foreignKey: "trainingtypeId",
+    });
+  };
+
   return TrainingType;
 };

@@ -3,7 +3,6 @@ module.exports = (sequelize, DataTypes) => {
     "Activity",
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-      trainingtypeId: { type: DataTypes.INTEGER },
       sessionsId: { type: DataTypes.JSON },
       done: { type: DataTypes.BOOLEAN },
     },
