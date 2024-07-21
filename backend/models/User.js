@@ -9,18 +9,6 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      fname: DataTypes.STRING,
-      lname: DataTypes.STRING,
-      email: {
-        type: DataTypes.STRING,
-        unique: true,
-        allowNull: false,
-      },
-      addressId: {
-        type: DataTypes.INTEGER,
-        references: { model: "Addresses", key: "id" },
-      },
-
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
@@ -53,6 +41,7 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     User.hasMany(models.UserPermission, { foreignKey: "userId" }); // New association
+    User.belongsTo(models.Person, { foreignKey: "personId" }); // New association
   };
 
   User.prototype.validatePassword = async function (password) {

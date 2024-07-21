@@ -1,7 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     const Volunteer = sequelize.define('Volunteer', {
       volunteerId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      personId: { type: DataTypes.INTEGER, references: { model: 'Persons', key: 'id' }},
       disable: DataTypes.BOOLEAN,
       disable_status: DataTypes.STRING
     }, {

@@ -1,5 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-    const Person = sequelize.define('Person', {
+  const Person = sequelize.define(
+    "Person",
+    {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       fname: DataTypes.STRING,
       lastname: DataTypes.STRING,
@@ -10,19 +12,20 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-      historyId: DataTypes.INTEGER
-    }, {
-      tableName: 'Persons',
-      timestamps: false
-    });
-  
-    Person.associate = models => {
-      Person.hasMany(models.ServiceProvider, { foreignKey: 'personId' });
-      Person.hasMany(models.Volunteer, { foreignKey: 'personId' });
-      Person.belongsTo(models.Address, { foreignKey: 'AddressId' });
-      
-    };
-  
-    return Person;
-  };
-  
+      historyId: DataTypes.INTEGER,
+    },
+    {
+      tableName: "Persons",
+      timestamps: false,
+    }
+  );
+
+  Person.associate = (models) => {
+    Person.hasOne(models.ServiceProvider, { foreignKey: "personId" });
+    Person.hasOne(models.Volunteer, { foreignKey: "personId" });
+    Person.hasOne(models.User, { foreignKey: "personId" });
+    Person.belongsTo(models.Address, { foreignKey: "AddressId" });
+        };
+
+  return Person;
+};
