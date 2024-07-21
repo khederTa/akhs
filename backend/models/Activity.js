@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       sessionsId: { type: DataTypes.JSON },
       done: { type: DataTypes.BOOLEAN },
+
     },
     {
       tableName: "Activities",
@@ -14,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Activity.associate = (models) => {
     Activity.belongsTo(models.TrainingType, {
-      foreignKey: "trainingtypeId",
+      foreignKey: "trainingTypeId",
     });
   };
 

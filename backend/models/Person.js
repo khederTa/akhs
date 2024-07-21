@@ -7,24 +7,25 @@ module.exports = (sequelize, DataTypes) => {
       lastname: DataTypes.STRING,
       Mname: DataTypes.STRING,
       phone: DataTypes.STRING,
-      address: DataTypes.STRING,
+      AddressId: { type: DataTypes.INTEGER, references: { model: 'Address', key: 'id' }},
       email: DataTypes.STRING,
       bDate: DataTypes.DATE,
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-      historyId: DataTypes.INTEGER,
-    },
-    {
-      tableName: "Persons",
-      timestamps: false,
-    }
-  );
+      historyId: DataTypes.INTEGER
+    }, {
+      tableName: 'Persons',
+      timestamps: false
+    });
+  
+    Person.associate = models => {
+      Person.hasMany(models.ServiceProvider, { foreignKey: 'personId' });
+      Person.hasMany(models.Volunteer, { foreignKey: 'personId' });
+      Person.belongsTo(models.Address, { foreignKey: 'AddressId' });
 
-  Person.associate = (models) => {
-    Person.hasMany(models.ServiceProvider, { foreignKey: "personId" });
-    Person.hasMany(models.Volunteer, { foreignKey: "personId" });
+    };
+  
+    return Person;
   };
-
-  return Person;
-};
+  

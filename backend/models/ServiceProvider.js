@@ -2,6 +2,7 @@ module.exports = (sequelize, DataTypes) => {
     const ServiceProvider = sequelize.define('ServiceProvider', {
       providerId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       personId: { type: DataTypes.INTEGER, references: { model: 'Persons', key: 'id' }},
+      position: DataTypes.STRING,
       role: DataTypes.STRING
     }, {
       tableName: 'ServiceProviders',
@@ -14,4 +15,4 @@ module.exports = (sequelize, DataTypes) => {
   
     return ServiceProvider;
   };
-  
+ 
