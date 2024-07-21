@@ -1,9 +1,10 @@
+
+
 module.exports = (sequelize, DataTypes) => {
   const Activity = sequelize.define(
     "Activity",
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-      sessionsId: { type: DataTypes.JSON },
       done: { type: DataTypes.BOOLEAN },
 
     },
@@ -17,6 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     Activity.belongsTo(models.TrainingType, {
       foreignKey: "trainingTypeId",
     });
+
+    Activity.hasMany(models.Session, { foreignKey: "ActivityId" ,});
+
+
   };
 
   return Activity;

@@ -13,6 +13,13 @@ module.exports = (sequelize, DataTypes) => {
       tableName: 'Sessions',
       timestamps: false
     });
+
+    Session.associate = (models) => {
+
+      Session.belongsTo(models.Activity, {foreignKey: "ActivityId",} );
+  
+  
+    };
   
     return Session;
   };
