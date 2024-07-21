@@ -20,7 +20,6 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         references: { model: "Addresses", key: "id" },
       },
-
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
