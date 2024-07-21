@@ -3,11 +3,16 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
       department: DataTypes.STRING,
-      trainingTypes: DataTypes.JSON,
     }, {
       tableName: 'Packages',
       timestamps: false
     });
+
+    Package.associate = (models) => {
+      Package.hasMany(models.TrainingType, {
+        foreignKey: "packageId",
+      });
+    };
   
     return Package;
   };

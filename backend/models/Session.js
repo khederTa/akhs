@@ -4,8 +4,6 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       date: DataTypes.DATE,
       hall_name: DataTypes.STRING,
-      address: DataTypes.STRING,
-      trainerId: DataTypes.INTEGER,
       providerId: DataTypes.INTEGER,
       startTime: DataTypes.TIME,
       endTime: DataTypes.TIME
@@ -15,8 +13,11 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Session.associate = (models) => {
-
       Session.belongsTo(models.Activity, {foreignKey: "ActivityId",} );
+      Session.belongsTo(models.Address, {foreignKey: "AddressId",} );
+      Session.belongsToMany(models.ServiceProvider, { through: 'ServiceProviderSessions' });
+      Session.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedSessions' });
+
   
   
     };

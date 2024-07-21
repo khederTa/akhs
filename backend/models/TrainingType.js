@@ -17,6 +17,9 @@ module.exports = (sequelize, DataTypes) => {
     TrainingType.hasMany(models.Activity, {
       foreignKey: "trainingTypeId",
     });
+    TrainingType.hasMany(models.Package, {
+      foreignKey: "packageId",
+    });
   };
 
   return TrainingType;

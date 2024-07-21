@@ -10,6 +10,7 @@ module.exports = (sequelize, DataTypes) => {
   
     Volunteer.associate = models => {
       Volunteer.belongsTo(models.Person, { foreignKey: 'personId' });
+      Volunteer.belongsToMany(models.Session, { through: 'VolunteerAttendedSessions' });
     };
   
     return Volunteer;

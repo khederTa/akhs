@@ -1,12 +1,9 @@
-
-
 module.exports = (sequelize, DataTypes) => {
   const Activity = sequelize.define(
     "Activity",
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       done: { type: DataTypes.BOOLEAN },
-
     },
     {
       tableName: "Activities",
@@ -19,9 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "trainingTypeId",
     });
 
-    Activity.hasMany(models.Session, { foreignKey: "ActivityId" ,});
-
-
+    Activity.hasMany(models.Session, { foreignKey: "ActivityId" });
   };
 
   return Activity;

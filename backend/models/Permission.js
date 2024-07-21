@@ -9,5 +9,10 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: false
   });
 
+  Permission.associate = (models) => {
+    Permission.belongsToMany(models.Role, { through: 'RolePermission' });
+    Permission.belongsToMany(models.User, { through: 'UserPermission' });
+  };
+
   return Permission;
 };

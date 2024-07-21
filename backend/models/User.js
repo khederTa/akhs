@@ -40,8 +40,11 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   User.associate = (models) => {
-    User.hasMany(models.UserPermission, { foreignKey: "userId" }); // New association
-    User.belongsTo(models.Person, { foreignKey: "personId" }); // New association
+    User.hasMany(models.Log, {foreignKey: "userId"})
+    User.belongsTo(models.Person, { foreignKey: "personId" }); 
+    User.belongsTo(models.Department, { foreignKey: "departmentId" }); 
+    User.hasOne(models.Department, { foreignKey: "managerId" }); 
+    User.belongsToMany(models.Permission, { through: "UserPermission" });
   };
 
   User.prototype.validatePassword = async function (password) {

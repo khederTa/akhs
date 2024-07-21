@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-      historyId: DataTypes.INTEGER,
+    
     },
     {
       tableName: "Persons",
@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     Person.hasOne(models.Volunteer, { foreignKey: "personId" });
     Person.hasOne(models.User, { foreignKey: "personId" });
     Person.belongsTo(models.Address, { foreignKey: "AddressId" });
+    Person.hasMany(models.History, { foreignKey: 'historyId' });
         };
 
   return Person;
