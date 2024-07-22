@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Activity.associate = (models) => {
-    Activity.belongsTo(models.TrainingType, {
-      foreignKey: "trainingTypeId",
+    Activity.belongsTo(models.ActivityType, {
+      foreignKey: "activityTypeId",
     });
 
     Activity.hasMany(models.Session, { foreignKey: "ActivityId" });

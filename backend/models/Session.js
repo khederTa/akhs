@@ -4,7 +4,6 @@ module.exports = (sequelize, DataTypes) => {
       name: DataTypes.STRING,
       date: DataTypes.DATE,
       hall_name: DataTypes.STRING,
-      providerId: DataTypes.INTEGER,
       startTime: DataTypes.TIME,
       endTime: DataTypes.TIME
     }, {

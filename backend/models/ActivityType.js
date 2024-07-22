@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const TrainingType = sequelize.define(
-    "TrainingType",
+  const ActivityType = sequelize.define(
+    "ActivityType",
     {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
@@ -8,19 +8,19 @@ module.exports = (sequelize, DataTypes) => {
       prerequest: DataTypes.JSON,
     },
     {
-      tableName: "TrainingTypes",
+      tableName: "ActivityTypes",
       timestamps: false,
     }
   );
 
-  TrainingType.associate = (models) => {
-    TrainingType.hasMany(models.Activity, {
-      foreignKey: "trainingTypeId",
+  ActivityType.associate = (models) => {
+    ActivityType.hasMany(models.Activity, {
+      foreignKey: "ActivityTypeId",
     });
-    TrainingType.hasMany(models.Package, {
+    ActivityType.hasMany(models.Package, {
       foreignKey: "packageId",
     });
   };
 
-  return TrainingType;
+  return ActivityType;
 };

@@ -1,19 +1,25 @@
 module.exports = (sequelize, DataTypes) => {
-    const Package = sequelize.define('Package', {
+  const Package = sequelize.define(
+    "Package",
+    {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
-      department: DataTypes.STRING,
-    }, {
-      tableName: 'Packages',
-      timestamps: false
+    },
+    {
+      tableName: "Packages",
+      timestamps: false,
+    }
+  );
+
+  Package.associate = (models) => {
+    Package.hasMany(models.ActivityType, {
+      foreignKey: "packageId",
     });
 
-    Package.associate = (models) => {
-      Package.hasMany(models.TrainingType, {
-        foreignKey: "packageId",
-      });
-    };
-  
-    return Package;
+    Package.belongsTo(models.Department, {
+      foreignKey: "departmentId",
+    });
   };
-  
+
+  return Package;
+};
