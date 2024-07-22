@@ -12,8 +12,8 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Session.associate = (models) => {
-      Session.belongsTo(models.Activity, {foreignKey: "ActivityId",} );
-      Session.belongsTo(models.Address, {foreignKey: "AddressId",} );
+      Session.belongsTo(models.Activity, {foreignKey: "activityId",} );
+      Session.belongsTo(models.Address, {foreignKey: "addressId",} );
       Session.belongsToMany(models.ServiceProvider, { through: 'ServiceProviderSessions' });
       Session.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedSessions' });
 

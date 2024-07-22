@@ -16,7 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "activityTypeId",
     });
 
-    Activity.hasMany(models.Session, { foreignKey: "ActivityId" });
+    Activity.hasMany(models.Session, { foreignKey: "activityId" });
   };
 
   return Activity;

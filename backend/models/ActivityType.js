@@ -5,7 +5,6 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
       description: DataTypes.STRING,
-      prerequest: DataTypes.JSON,
     },
     {
       tableName: "ActivityTypes",
@@ -15,10 +14,18 @@ module.exports = (sequelize, DataTypes) => {
 
   ActivityType.associate = (models) => {
     ActivityType.hasMany(models.Activity, {
-      foreignKey: "ActivityTypeId",
+      foreignKey: "activityTypeId",
     });
     ActivityType.hasMany(models.Package, {
       foreignKey: "packageId",
+    });
+
+    // Self-referential many-to-many relationship for prerequisites
+    ActivityType.belongsToMany(ActivityType, {
+      as: "Prerequisites",
+      through: "ActivityTypePrerequisites",
+      foreignKey: "activityTypeId",
+      otherKey: "prerequisiteId",
     });
   };
 

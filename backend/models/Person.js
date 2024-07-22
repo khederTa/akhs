@@ -24,7 +24,7 @@ module.exports = (sequelize, DataTypes) => {
     Person.hasOne(models.ServiceProvider, { foreignKey: "personId" });
     Person.hasOne(models.Volunteer, { foreignKey: "personId" });
     Person.hasOne(models.User, { foreignKey: "personId" });
-    Person.belongsTo(models.Address, { foreignKey: "AddressId" });
+    Person.belongsTo(models.Address, { foreignKey: "addressId" });
     Person.hasMany(models.History, { foreignKey: 'historyId' });
         };
 
