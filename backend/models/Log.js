@@ -1,8 +1,11 @@
 module.exports = (sequelize, DataTypes) => {
     const Log = sequelize.define('Log', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-      actionname: DataTypes.STRING,
-      date: DataTypes.DATE
+      action: DataTypes.STRING,
+      resourceName: DataTypes.STRING,
+      resourceId: DataTypes.STRING,
+      date: DataTypes.DATE,
+      time: DataTypes.TIME
     }, {
       tableName: 'Logs',
       timestamps: false

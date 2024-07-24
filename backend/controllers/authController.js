@@ -4,11 +4,13 @@ const {
   jwtExpiration,
   jwtRefreshExpiration,
 } = require("../config/auth");
-const { User } = require("../models");
+const { User, Person } = require("../models");
 const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
+    const person = await Person.create(req.body);
+    req.body.personId = person.id;
     const user = await User.create(req.body);
     return this.login(req, res); // Ensure login after registration
   } catch (error) {
@@ -19,13 +21,14 @@ exports.register = async (req, res) => {
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const person = await Person.findOne({ where: { email } });
 
-    if (!user) {
+    if (!person) {
       return res.status(401).json({ message: "User Not Found" });
     }
 
-    console.log(`User found: ${user.email}`);
+    const user = await User.findOne({ where: { personId: person.id } });
+    console.log(person, user);
     const isMatch = await user.validatePassword(password);
 
     if (!isMatch) {

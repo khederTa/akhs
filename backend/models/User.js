@@ -12,10 +12,6 @@ module.exports = (sequelize, DataTypes) => {
       position: DataTypes.STRING,
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
-      roleId: {
-        type: DataTypes.INTEGER,
-        references: { model: "Roles", key: "id" },
-      },
     },
     {
       tableName: "Users",
@@ -41,7 +37,9 @@ module.exports = (sequelize, DataTypes) => {
 
   User.associate = (models) => {
     User.hasMany(models.Log, {foreignKey: "userId"})
+    User.hasMany(models.SpecificAttributePermission, {foreignKey: "userId"})
     User.belongsTo(models.Person, { foreignKey: "personId" }); 
+    User.belongsTo(models.Role, { foreignKey: "roleId" }); 
     User.belongsTo(models.Department, { foreignKey: "departmentId" }); 
     User.hasOne(models.Department, { foreignKey: "managerId" }); 
     User.belongsToMany(models.Permission, { through: "UserPermission" });
