@@ -16,6 +16,9 @@
 4. Managing roles in frontend React.js : YouTube 
     https://youtu.be/kvbmaS8o9Lw?si=B6ecwsy24AUPrUl5
 
-
-
-activity -> trainingtypeId
+- For users access
+    1. auth => user 
+    2. blacklist ? block() : next()
+    3. Roles => posseh1 ? go() : next()
+    4. Permission for resourse's action => posseh2 ? go() : next()
+    5. permission for a specific resourse's action => posseh3 ? go() : block()

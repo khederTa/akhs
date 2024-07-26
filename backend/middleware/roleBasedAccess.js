@@ -3,19 +3,18 @@ const { User, Role, Permission } = require("../models"); // Adjust the path as n
 
 const authenticateRole = async (req, res, next) => {
   try {
-    const token = req.headers.authorization.split(" ")[1];
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId, {
+    
+    const user = await User.findByPk(req.user.userId, {
       include: [Role],
     });
-
-    console.log(user);
+    console.log("roleId => ");
+    console.log(user.dataValues.roleId);
     if (!user) {
       return res.status(401).json({ message: "User not found" });
     }
 
     const userRole = user.Role.name;
-    if (userRole !== requiredRole) {
+    if (userRole !== "admin" ) {
       return res.status(403).json({ message: "Access denied" });
     }
 
