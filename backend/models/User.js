@@ -24,13 +24,7 @@ module.exports = (sequelize, DataTypes) => {
             console.log(`Password hashed during create: ${user.password}`);
           }
         },
-        // beforeUpdate: async (user) => {
-        //   if (user.password) {
-        //     const salt = await bcrypt.genSalt(10);
-        //     user.password = await bcrypt.hash(user.password, salt);
-        //     console.log(`Password hashed during update: ${user.password}`);
-        //   }
-        // },
+
       },
     }
   );

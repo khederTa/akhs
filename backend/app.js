@@ -18,7 +18,7 @@ app.use("/activityTypes", require("./routes/activityType"));
 app.use("/activities", require("./routes/activity"));
 app.use("/packages", require("./routes/package"));
 app.use("/departments", require("./routes/department"));
-app.use("/addresses", require("./routes/address"));
+app.use("/address", require("./routes/address"));
 app.use("/permissions", require("./routes/permission"));
 app.use("/attendees", require("./routes/attendees"));
 app.use("/logs", require("./routes/log"));

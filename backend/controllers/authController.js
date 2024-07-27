@@ -28,7 +28,6 @@ exports.login = async (req, res) => {
     }
 
     const user = await User.findOne({ where: { personId: person.id } });
-    console.log(person, user);
     const isMatch = await user.validatePassword(password);
 
     if (!isMatch) {

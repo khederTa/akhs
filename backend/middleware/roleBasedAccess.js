@@ -1,58 +1,67 @@
 const jwt = require("jsonwebtoken");
-const { User, Role, Permission } = require("../models"); // Adjust the path as needed
+const { User, Permission } = require("../models"); // Adjust the path as needed
+const db = require("../models");
+const { QueryTypes } = require("sequelize");
+const { utils } = require("../utils/utils");
 
 const authenticateRole = async (req, res, next) => {
   try {
-    
-    const user = await User.findByPk(req.user.userId, {
-      include: [Role],
-    });
-    console.log("roleId => ");
-    console.log(user.dataValues.roleId);
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
+    const { resourceName, action } = utils(req);
+    const permissions = await db.sequelize.query(
+      `SELECT * FROM Permissions WHERE id IN (
+        SELECT permissionId FROM RolePermission WHERE roleId = (
+          SELECT roleId FROM Users WHERE userId = :userId
+        )
+      )`,
+      {
+        replacements: { userId: req.user.userId },
+        type: QueryTypes.SELECT,
+      }
+    );
 
-    const userRole = user.Role.name;
-    if (userRole !== "admin" ) {
+    if (
+      permissions.length === 0 ||
+      !permissions.some(
+        (permission) =>
+          permission.action === action && permission.resource === resourceName
+      )
+    ) {
       return res.status(403).json({ message: "Access denied" });
     }
 
-    req.user = user;
+    next();
+  } catch (error) {
+    res.status(401).json({ message: "Authentication failed" });
+  }
+};
+const authenticatePermission = async (req, res, next) => {
+  try {
+    const { resourceName, action } = utils(req);
+    const permissions = await db.sequelize.query(
+      `SELECT * FROM Permissions WHERE id IN (
+        SELECT permissionId FROM userpermission WHERE UserUserId = :userId
+      )`,
+      {
+        replacements: { userId: req.user.userId },
+        type: QueryTypes.SELECT,
+      }
+    );
+
+    if (
+      permissions.length === 0 ||
+      !permissions.some(
+        (permission) =>
+          permission.action === action && permission.resource === resourceName
+      )
+    ) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+
     next();
   } catch (error) {
     res.status(401).json({ message: "Authentication failed" });
   }
 };
 
-const authenticatePermission = (requiredPermission) => {
-  return async (req, res, next) => {
-    try {
-      const token = req.headers.authorization.split(" ")[1];
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findByPk(decoded.userId, {
-        include: [Permission],
-      });
-
-      console.log(user);
-
-      if (!user) {
-        return res.status(401).json({ message: "User not found" });
-      }
-
-      const userPermissions = user.Permissions.map(
-        (permission) => permission.action
-      );
-      if (!userPermissions.includes(requiredPermission)) {
-        return res.status(403).json({ message: "Access denied" });
-      }
-
-      req.user = user;
-      next();
-    } catch (error) {
-      res.status(401).json({ message: "Authentication failed" });
-    }
-  };
-};
 
 module.exports = { authenticateRole, authenticatePermission };
