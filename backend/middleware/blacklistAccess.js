@@ -19,18 +19,18 @@ const blacklistAccess = async (req, res, next) => {
       }
     );
 
-    if (!blacklists || blacklists.length === 0) {
+    if (blacklists.length === 0) {
       return next();
     }
 
-    if (resourceId) {
-      const filteredBlacklists = blacklists.filter(
-        (item) => item.resourceId === resourceId && item.action === action
-      );
-      if (!filteredBlacklists || filteredBlacklists.length === 0) {
-        return next();
-      }
-    }
+    // if (resourceId) {
+    //   const filteredBlacklists = blacklists.filter(
+    //     (item) => item.resourceId === resourceId && item.action === action
+    //   );
+    //   if (!filteredBlacklists || filteredBlacklists.length === 0) {
+    //     return next();
+    //   }
+    // }
 
     return res.status(403).json({ message: "Access denied" });
   } catch (error) {

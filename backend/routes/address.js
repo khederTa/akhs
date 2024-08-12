@@ -1,13 +1,26 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const addressController = require('../controllers/addressController');
+const addressController = require("../controllers/addressController");
 const authenticateToken = require("../middleware/auth");
-const { authenticatePermission } = require('../middleware/roleBasedAccess');
+const specificPermissionAccess = require("../middleware/specificPermissionAccess");
+const blacklistAccess = require("../middleware/blacklistAccess");
 
-router.get('/', authenticateToken, authenticatePermission, addressController.getAllAddresses);
-router.post('/', authenticateToken, addressController.createAddress);
-router.get('/:id', authenticateToken, authenticatePermission, addressController.getAddressById);
-router.put('/:id', authenticateToken, addressController.updateAddress);
-router.delete('/:id', authenticateToken, addressController.deleteAddress);
+router.get(
+  "/",
+  authenticateToken,
+  blacklistAccess,
+  specificPermissionAccess,
+  addressController.getAllAddresses
+);
+router.post("/", authenticateToken, addressController.createAddress);
+router.get(
+  "/:id",
+  authenticateToken,
+  blacklistAccess,
+  specificPermissionAccess,
+  addressController.getAddressById
+);
+router.put("/:id", authenticateToken, addressController.updateAddress);
+router.delete("/:id", authenticateToken, addressController.deleteAddress);
 
 module.exports = router;
