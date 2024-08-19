@@ -15,12 +15,19 @@
     "@hookform/resolvers": "^3.9.0",
     "@mui/icons-material": "^5.16.6",
     "@mui/material": "^5.16.6",
+    "axios": "^1.7.4",
     "i18next": "^23.12.2",
+    "js-cookie": "^3.0.5",
+    "jwt-decode": "^4.0.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-hook-form": "^7.52.2",
     "react-i18next": "^15.0.1",
     "react-pro-sidebar": "^1.1.0",
-    "zod": "^3.23.8"
+    "react-router-dom": "^6.26.1",
+    "simple-zustand-devtools": "^1.1.0",
+    "zod": "^3.23.8",
+    "zustand": "^4.5.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
