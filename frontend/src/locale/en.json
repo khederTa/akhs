@@ -1,4 +1,18 @@
 {
   "welcome to the dashboard": "Welcome to the Dashboard",
-  "dashboard": "Dashboard"
+  "dashboard": "Dashboard",
+  "login": "Login",
+  "register": "Register",
+  "email": "Email",
+  "password": "Password",
+  "confirm password": "Confirm Password",
+  "fname": "First Name",
+  "mname": "Middle Name",
+  "lname": "Last Name",
+  "study": "Study",
+  "position": "Position",
+  "gender": "Gender",
+  "role": "Role",
+  "phone": "Phone",
+  "bDate": "Birth Date"
 }

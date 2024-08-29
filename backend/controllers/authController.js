@@ -9,6 +9,7 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
+    console.log(req)
     const person = await Person.create(req.body);
     req.body.personId = person.id;
     const user = await User.create(req.body);
@@ -35,10 +36,10 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Password Incorrect" });
     }
 
-    const accessToken = jwt.sign({ userId: user.userId }, jwtSecret, {
+    const accessToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtSecret, {
       expiresIn: jwtExpiration,
     });
-    const refreshToken = jwt.sign({ userId: user.userId }, jwtRefreshSecret, {
+    const refreshToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtRefreshSecret, {
       expiresIn: jwtRefreshExpiration,
     });
 
@@ -59,10 +60,10 @@ exports.refreshToken = async (req, res) => {
 
     const decoded = jwt.verify(refreshToken, jwtRefreshSecret);
     const user = await User.findByPk(decoded.userId);
-
+    const person = await Person.findOne({where: {id: user.personId}})
     if (!user || user.refreshToken !== refreshToken) return res.sendStatus(403);
 
-    const accessToken = jwt.sign({ userId: user.userId }, jwtSecret, {
+    const accessToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtSecret, {
       expiresIn: jwtExpiration,
     });
 

@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useLanguage } from "./components/useLanguage/useLanguage"; // Adjust the import path
 import { Navbar } from "./components/navbar/Navbar";
 import { Login } from "./components/login/Login";
-import { SidebarComponent } from "./components/sidebarComponent/SidebarComponent";
+import { Register } from "./components/register/Register";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { PageContainer } from "./components/pageContainer/PageContainer";
 
@@ -99,7 +99,6 @@ function App() {
               path="/"
               element={
                 <PageContainer>
-                  {" "}
                   <h2>{t("welcome to the dashboard")}</h2>
                 </PageContainer>
               }
@@ -108,8 +107,17 @@ function App() {
               path="/login"
               element={
                 <>
-                <Navbar />
-                <Login />
+                  <Navbar />
+                  <Login />
+                </>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <>
+                  <Navbar />
+                  <Register />
                 </>
               }
             />

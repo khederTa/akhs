@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { login } from "../../utils/auth";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuthStore } from "../../store/auth";
+import { FormGroup } from "../formGroup/FormGroup";
 
 // Validation schema
 const schema = z.object({
@@ -53,74 +54,35 @@ export function Login() {
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-[var(--main-background-color)] dark:bg-[var(--main-background-dark-color)]">
-      <div className="w-1/3 text-[var(--text-color)] dark:text-[var(--text-dark-color)] bg-[var(--sidebar-background-color)] dark:bg-[var(--sidebar-background-dark-color)] p-8 rounded-lg shadow-md">
+      <div className="sm:w-1/2 md:w-[35%] text-[var(--text-color)] dark:text-[var(--text-dark-color)] bg-[var(--sidebar-background-color)] dark:bg-[var(--sidebar-background-dark-color)] p-8 rounded-lg shadow-md">
         <form onSubmit={handleSubmit(handleLogin)}>
-          <div className="mb-8">
-            <label
-              htmlFor="email"
-              className={`block font-bold text-sm mb-2 ${
-                errors.email
-                  ? "text-red-400"
-                  : "text-[var(--text-color)] dark:text-[var(--text-dark-color)]"
-              }`}
-            >
-              Email
-            </label>
-            <input
-              type="text"
-              name="email"
-              id="email"
-              placeholder="user@akhs.org"
-              className={`block w-full bg-transparent outline-none border-2 py-2 px-4 placeholder-[var(--secondary-text-color)] ${
-                errors.email
-                  ? "text-red-300 border-red-400"
-                  : "text-[var(--text-color)] dark:text-[var(--text-dark-color)]"
-              }`}
-              {...register("email")} // React Hook Form registration
-            />
-            {errors.email && (
-              <p className="text-red-500 text-sm mt-2">
-                A valid email is required.
-              </p>
-            )}
-          </div>
-
-          <div className="mb-8">
-            <label
-              htmlFor="password"
-              className={`block font-bold text-sm mb-2 ${
-                errors.password
-                  ? "text-red-400"
-                  : "text-[var(--text-color)] dark:text-[var(--text-dark-color)]"
-              }`}
-            >
-              Password
-            </label>
-            <input
-              type="password"
-              name="password"
-              id="password"
-              placeholder="superpassword"
-              className={`block w-full bg-transparent outline-none border-2 py-2 px-4 placeholder-[var(--secondary-text-color)] ${
-                errors.password
-                  ? "text-red-300 border-red-400"
-                  : "text-[var(--text-color)] dark:text-[var(--text-dark-color)]"
-              }`}
-              {...register("password")} // React Hook Form registration
-            />
-            {errors.password && (
-              <p className="text-red-500 text-sm mt-2">
-                Your password is required.
-              </p>
-            )}
-          </div>
+          <FormGroup
+            id={"email"}
+            name={"email"}
+            type={"email"}
+            label={"email"}
+            placeholder={"Enter Your Email"}
+            required={true}
+            register={register}
+            errors={errors}
+          />
+          <FormGroup
+            id={"password"}
+            name={"password"}
+            type={"password"}
+            label={"password"}
+            placeholder={"Enter Your Password"}
+            required={true}
+            register={register}
+            errors={errors}
+          />
 
           <button
             type="submit"
-            className="inline-block bg-[var(--primary-color)] text-[var(--main-background-color)] hover:bg-[var(--accent-color)] rounded shadow py-2 px-5 text-sm"
+            className="w-full inline-block bg-[var(--primary-color)] text-[var(--main-background-color)] hover:bg-[var(--accent-color)] rounded shadow py-2 px-5 text-sm"
             disabled={isLoading}
           >
-            {isLoading ? "Loading..." : "Login"}
+            {isLoading ? "Logining..." : "Login"}
           </button>
         </form>
       </div>
