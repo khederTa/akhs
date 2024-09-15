@@ -10,7 +10,8 @@ export const login = async (email, password) => {
       password,
     });
     if (status === 200) {
-      setAuthUser(data.accessToken, data.refresh);
+      console.log(data);
+      setAuthUser(data.accessToken, data.refreshToken);
     }
 
     return { data, error: null };
@@ -22,20 +23,24 @@ export const login = async (email, password) => {
   }
 };
 
-export const signup = async (
-  data
-) => {
+export const signup = async (userData) => {
   try {
-    const { data } = await axios.post("auth/register/", {
-      ...data
+    // Make sure to send all necessary data to the signup endpoint
+    const response = await axios.post("auth/register/", {
+      ...userData,
     });
-    await login(email, password);
 
-    return { data, error: null };
+    // Extract email and password from the provided userData
+    const { email, password } = userData;
+
+    // Perform the login after a successful signup
+    const loginResponse = await login(email, password);
+
+    return { data: loginResponse.data, error: null };
   } catch (error) {
     return {
       data: null,
-      error: error.response.data?.detail || "Something went wrong",
+      error: error.response?.data?.detail || "Something went wrong",
     };
   }
 };
@@ -56,6 +61,7 @@ export const setUser = async () => {
 
   if (isAccessTokenExpired(accessToken)) {
     const response = await getRefreshToken(refreshToken);
+    console.log(response);
     setAuthUser(response.access, response.refresh);
   } else {
     setAuthUser(accessToken, refreshToken);
@@ -92,7 +98,7 @@ export const getRefreshToken = async () => {
 export const isAccessTokenExpired = (accessToken) => {
   try {
     const decodedToken = jwtDecode(accessToken);
-    return decodedToken.exp < Date.now() / 100;
+    return decodedToken.exp < Date.now() / 1000;
   } catch (error) {
     console.error(error);
     return true;

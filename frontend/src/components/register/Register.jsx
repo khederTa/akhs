@@ -77,13 +77,18 @@ export function Register() {
     console.log(data);
     try {
       const response = await signup(data);
-      if (response.error) {
+
+      if (response?.error) {
         alert(response.error);
-      } else {
+      } else if (response?.data) {
+        // Proceed with navigation or further logic when registration is successful
         navigate("/");
+      } else {
+        alert("Unexpected response format");
       }
     } catch (error) {
-      alert(error);
+      console.error("Registration error:", error);
+      alert(error.message || "Something went wrong");
     } finally {
       setIsLoading(false);
     }

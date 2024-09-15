@@ -9,7 +9,7 @@ const jwt = require("jsonwebtoken");
 
 exports.register = async (req, res) => {
   try {
-    console.log(req)
+    console.log(req);
     const person = await Person.create(req.body);
     req.body.personId = person.id;
     const user = await User.create(req.body);
@@ -36,12 +36,20 @@ exports.login = async (req, res) => {
       return res.status(401).json({ message: "Password Incorrect" });
     }
 
-    const accessToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtSecret, {
-      expiresIn: jwtExpiration,
-    });
-    const refreshToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtRefreshSecret, {
-      expiresIn: jwtRefreshExpiration,
-    });
+    const accessToken = jwt.sign(
+      { userId: user.userId, username: person.fname },
+      jwtSecret,
+      {
+        expiresIn: jwtExpiration,
+      }
+    );
+    const refreshToken = jwt.sign(
+      { userId: user.userId, username: person.fname },
+      jwtRefreshSecret,
+      {
+        expiresIn: jwtRefreshExpiration,
+      }
+    );
 
     user.refreshToken = refreshToken;
     await user.save();
@@ -60,14 +68,18 @@ exports.refreshToken = async (req, res) => {
 
     const decoded = jwt.verify(refreshToken, jwtRefreshSecret);
     const user = await User.findByPk(decoded.userId);
-    const person = await Person.findOne({where: {id: user.personId}})
+    const person = await Person.findOne({ where: { id: user.personId } });
     if (!user || user.refreshToken !== refreshToken) return res.sendStatus(403);
 
-    const accessToken = jwt.sign({ userId: user.userId, username: person.fname }, jwtSecret, {
-      expiresIn: jwtExpiration,
-    });
+    const accessToken = jwt.sign(
+      { userId: user.userId, username: person.fname },
+      jwtSecret,
+      {
+        expiresIn: jwtExpiration,
+      }
+    );
 
-    res.json({ accessToken });
+    res.json({ refreshToken, accessToken });
   } catch (error) {
     res.sendStatus(403);
   }

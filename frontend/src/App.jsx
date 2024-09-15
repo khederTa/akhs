@@ -8,6 +8,7 @@ import { Login } from "./components/login/Login";
 import { Register } from "./components/register/Register";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { PageContainer } from "./components/pageContainer/PageContainer";
+import { setUser } from "./utils/auth";
 
 // Set default values for contexts
 export const DarkModeContext = createContext({
@@ -61,6 +62,10 @@ function App() {
   const [languageState, dispatchLanguage] = useReducer(languageReducer, {
     language,
   });
+
+    useEffect(() => {
+      setUser();
+    }, []);
 
   function toggleDarkMode() {
     const newDarkMode = !darkModeState.darkMode;
