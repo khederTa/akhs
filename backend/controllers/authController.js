@@ -37,7 +37,7 @@ exports.login = async (req, res) => {
     }
 
     const accessToken = jwt.sign(
-      { userId: user.userId, username: person.fname },
+      { userId: user.userId, username: person.fname + " " + person.lname },
       jwtSecret,
       {
         expiresIn: jwtExpiration,
