@@ -20,6 +20,7 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }: any) => ({
 const URL_MAP = {
   "/": "Home",
   "/user-management": "User Management",
+  "/create-new-user": "Create New User"
 };
 export default function NavbarBreadcrumbs() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction

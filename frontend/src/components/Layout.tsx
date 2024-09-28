@@ -42,7 +42,7 @@ export function Layout({ children }: { children: ReactNode }) {
         <Stack
           spacing={2}
           sx={{
-            alignItems: "center",
+            // alignItems: "center",
             pb: 10,
             mx: 3,
             mt: { xs: 8, md: 0 },
