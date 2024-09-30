@@ -10,8 +10,12 @@ import { Stack } from "@mui/material";
 import { useAuthStore } from "./store/auth";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
+<<<<<<< HEAD
 import SessionInfo from "./components/activityInfo/SessionInfo";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
+=======
+import { CreateNewUser } from "./components/CreateNewUser";
+>>>>>>> 77d384919bbcb52bc9f6a226a1745f3f2ffa7c09
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useAuthStore((state) => [
@@ -52,10 +56,17 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               }
             />
             <Route
+<<<<<<< HEAD
               path="/activity-management"
               element={
                 <Layout>
                   <ActivityInfo />
+=======
+              path="/create-new-user"
+              element={
+                <Layout>
+                  <CreateNewUser />
+>>>>>>> 77d384919bbcb52bc9f6a226a1745f3f2ffa7c09
                 </Layout>
               }
             />

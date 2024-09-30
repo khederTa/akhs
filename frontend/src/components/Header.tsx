@@ -25,6 +25,7 @@ export default function Header() {
     }); // Dispatch action to update direction
     const dir = language === "en" ? "ltr" : "rtl";
     const newDir = language === "en" ? "rtl" : "ltr";
+    localStorage.setItem("dir", newDir)
     const elements = document.querySelectorAll(`[dir=${dir}]`);
     elements.forEach((element) => {
       element.setAttribute("dir", newDir);

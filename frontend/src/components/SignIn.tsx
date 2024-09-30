@@ -16,6 +16,7 @@ import { DirectionContext } from "../shared-theme/AppTheme";
 import { login } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -60,10 +61,11 @@ export default function SignIn() {
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  const [open, setOpen] = React.useState(false);
+  // const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Redirect if already logged in
@@ -73,13 +75,13 @@ export default function SignIn() {
     }
   }, [isLoggedIn, navigate]);
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
+  // const handleClickOpen = () => {
+  //   setOpen(true);
+  // };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+  // const handleClose = () => {
+  //   setOpen(false);
+  // };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -100,7 +102,6 @@ export default function SignIn() {
     } finally {
       setIsLoading(false);
     }
-    
   };
 
   const validateInputs = () => {
@@ -111,7 +112,7 @@ export default function SignIn() {
 
     if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
       setEmailError(true);
-      setEmailErrorMessage("Please enter a valid email address.");
+      setEmailErrorMessage(t("Please enter a valid email address."));
       isValid = false;
     } else {
       setEmailError(false);
@@ -120,7 +121,7 @@ export default function SignIn() {
 
     if (!password.value || password.value.length < 6) {
       setPasswordError(true);
-      setPasswordErrorMessage("Password must be at least 6 characters long.");
+      setPasswordErrorMessage(t("Password must be at least 6 characters long."));
       isValid = false;
     } else {
       setPasswordError(false);
@@ -140,7 +141,7 @@ export default function SignIn() {
             variant="h4"
             sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
           >
-            Sign in
+            {t("Sign in")}
           </Typography>
           <Box
             component="form"
@@ -154,7 +155,7 @@ export default function SignIn() {
             }}
           >
             <FormControl>
-              <FormLabel htmlFor="email">Email</FormLabel>
+              <FormLabel htmlFor="email">{t("email")}</FormLabel>
               <TextField
                 error={emailError}
                 helperText={emailErrorMessage}
@@ -173,15 +174,15 @@ export default function SignIn() {
             </FormControl>
             <FormControl>
               <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <FormLabel htmlFor="password">Password</FormLabel>
-                <Link
+                <FormLabel htmlFor="password">{t("password")}</FormLabel>
+                {/* <Link
                   component="button"
                   onClick={handleClickOpen}
                   variant="body2"
                   sx={{ alignSelf: "baseline" }}
                 >
                   Forgot your password?
-                </Link>
+                </Link> */}
               </Box>
               <TextField
                 error={passwordError}
@@ -198,20 +199,20 @@ export default function SignIn() {
                 color={passwordError ? "error" : "primary"}
               />
             </FormControl>
-            <FormControlLabel
+            {/* <FormControlLabel
               control={<Checkbox value="remember" color="primary" />}
               label="Remember me"
-            />
-            <ForgotPassword open={open} handleClose={handleClose} />
+            /> */}
+            {/* <ForgotPassword open={open} handleClose={handleClose} /> */}
             <Button
               type="submit"
               fullWidth
               variant="contained"
               onClick={validateInputs}
             >
-              {isLoading ? "Signing in..." : "Sign in"}
+              {isLoading ? t("Signing in") : t("Sign in")}
             </Button>
-            <Typography sx={{ textAlign: "center" }}>
+            {/* <Typography sx={{ textAlign: "center" }}>
               Don&apos;t have an account?{" "}
               <span>
                 <Link
@@ -222,7 +223,7 @@ export default function SignIn() {
                   Sign up
                 </Link>
               </span>
-            </Typography>
+            </Typography> */}
           </Box>
         </Card>
       </>

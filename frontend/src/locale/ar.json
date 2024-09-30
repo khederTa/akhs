@@ -1,7 +1,8 @@
 {
   "welcome to the dashboard": "مرحباً بك في لوحة التحكم",
   "dashboard": "لوحة التحكم",
-  "login": "نسجيل الدخول",
+  "Sign in": "تسجيل الدخول",
+  "Signing in": "يتم تسجيل الدخول...",
   "register": "إنشاء حساب",
   "email": "البريد الالكتروني",
   "password": "كلمة المرور",
@@ -14,5 +15,7 @@
   "gender": "الجنس",
   "role": "الدور",
   "phone": "رقم الموبايل",
-  "bDate": "تاريخ الولادة"
+  "bDate": "تاريخ الولادة",
+  "Please enter a valid email address.": "يرجى إدخال بريد الكتروني صالح.",
+  "Password must be at least 6 characters long.": "يجب أن تكون كلمة السر على الأقل 6 محارف."
 }
