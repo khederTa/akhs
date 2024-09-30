@@ -12,6 +12,7 @@ import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
+import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 
@@ -22,7 +23,11 @@ const mainListItems = [
     icon: <AccountBoxRoundedIcon />,
     to: "/user-management",
   },
-  { text: "Clients", icon: <PeopleRoundedIcon />, to: "/clients" },
+  {
+    text: "Activity Management",
+    icon: <EventRoundedIcon />,
+    to: "/activity-management",
+  },
   { text: "Tasks", icon: <AssignmentRoundedIcon />, to: "/tasks" },
 ];
 
