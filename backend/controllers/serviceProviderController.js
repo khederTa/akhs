@@ -1,26 +1,46 @@
-const { ServiceProvider } = require('../models');
+const { ServiceProvider, Person } = require("../models");
 
 exports.getAllServiceProviders = async (req, res) => {
-    const serviceProviders = await ServiceProvider.findAll();
-    res.json(serviceProviders);
+  const serviceProviders = await ServiceProvider.findAll({
+   
+    include: [
+      {
+        model: Person,
+        attributes: [
+          "fname",
+          "lname",
+          "mname",
+          "phone",
+          "email",
+          "bDate",
+          "gender",
+          "study",
+          "work",
+        ],
+      },
+    ],
+  });
+  res.json(serviceProviders);
 };
 
 exports.createServiceProvider = async (req, res) => {
-    const serviceProvider = await ServiceProvider.create(req.body);
-    res.json(serviceProvider);
+  const serviceProvider = await ServiceProvider.create(req.body);
+  res.json(serviceProvider);
 };
 
 exports.getServiceProviderById = async (req, res) => {
-    const serviceProvider = await ServiceProvider.findByPk(req.params.id);
-    res.json(serviceProvider);
+  const serviceProvider = await ServiceProvider.findByPk(req.params.id);
+  res.json(serviceProvider);
 };
 
 exports.updateServiceProvider = async (req, res) => {
-    await ServiceProvider.update(req.body, { where: { providerId: req.params.id } });
-    res.json({ message: 'ServiceProvider updated' });
+  await ServiceProvider.update(req.body, {
+    where: { providerId: req.params.id },
+  });
+  res.json({ message: "ServiceProvider updated" });
 };
 
 exports.deleteServiceProvider = async (req, res) => {
-    await ServiceProvider.destroy({ where: { providerId: req.params.id } });
-    res.json({ message: 'ServiceProvider deleted' });
+  await ServiceProvider.destroy({ where: { providerId: req.params.id } });
+  res.json({ message: "ServiceProvider deleted" });
 };

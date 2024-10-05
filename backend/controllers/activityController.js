@@ -1,7 +1,10 @@
 const { Activity } = require('../models');
 
 exports.getAllActivities = async (req, res) => {
-    const Activities = await Activity.findAll();
+    const Activities = await Activity.findAll(
+{attributes: ["id", "done"],}
+
+    );
     res.json(Activities);
 };
 

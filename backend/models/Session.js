@@ -1,4 +1,4 @@
-module.exports = (sequelize, DataTypes) => {
+  module.exports = (sequelize, DataTypes) => {
     const Session = sequelize.define('Session', {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,

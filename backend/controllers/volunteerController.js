@@ -1,7 +1,29 @@
 const { Volunteer } = require('../models');
 
 exports.getAllVolunteers = async (req, res) => {
-    const volunteers = await Volunteer.findAll();
+    const volunteers = await Volunteer.findAll(
+        {
+            attributes: ["volunteerId", "position"],
+            include: [
+              {
+                model: Person,
+                attributes: [
+                  "fname",
+                  "lname",
+                  "mname",
+                  "phone",
+                  "email",
+                  "bDate",
+                  "gender",
+                  "study",
+                  "work",
+                ],
+              },
+             
+             
+            ],
+          }
+    );
     res.json(volunteers);
 };
 
