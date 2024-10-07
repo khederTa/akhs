@@ -14,6 +14,8 @@ import ActivityInfo from "./components/activityInfo/ActivityInfo";
 import { CreateNewUser } from "./components/CreateNewUser";
 import { CreateNewActivity } from "./components/CreateNewActivity";
 import Activity from "./components/Activity";
+import VolunteerInfo from "./components/VolunteerInfo";
+import ServiceProviderInfo from "./components/ServiceProviderInfo";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useAuthStore((state) => [
@@ -53,23 +55,39 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
-             <Route
+            <Route
               path="/activity-management"
               element={
                 <Layout>
-                  <Activity/>
+                  <Activity />
                 </Layout>
               }
             />
-             <Route
+            <Route
               path="/activity-information"
               element={
                 <Layout>
-                  <ActivityInfo/>
+                  <ActivityInfo />
+                </Layout>
+              }
+            />
+            <Route
+              path="/volunteer-information"
+              element={
+                <Layout>
+                  <VolunteerInfo />
                 </Layout>
               }
             />
 
+            <Route
+              path="/serviceprovider-information"
+              element={
+                <Layout>
+                  <ServiceProviderInfo/>
+                </Layout>
+              }
+            />
 
             <Route
               path="/create-new-user"

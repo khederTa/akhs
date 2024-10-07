@@ -15,12 +15,14 @@ import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
+import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 
 const mainListItems = [
   { text: "Home", icon: <HomeRoundedIcon />, to: "/" },
   {
     text: "User Management",
-    icon: <AccountBoxRoundedIcon />,
+    icon: <ManageAccountsIcon />,
     to: "/user-management",
   },
   {
@@ -28,6 +30,17 @@ const mainListItems = [
     icon: <EventRoundedIcon />,
     to: "/activity-management",
   },
+  {
+    text: "Volunteer Information",
+    icon: <AccountBoxRoundedIcon />,
+    to: "/volunteer-information",
+  },
+  {
+    text: "ServiceProvider Information",
+    icon: <SupervisorAccountIcon/>,
+    to: "/serviceprovider-information",
+  },
+
   { text: "Tasks", icon: <AssignmentRoundedIcon />, to: "/tasks" },
 ];
 
