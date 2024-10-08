@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
+import axios from "../utils/axios"
 
 import {
   Typography,
@@ -11,9 +12,10 @@ import {
   Button,
   MenuItem,
   Select,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { login } from "../utils/auth";
+
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -59,29 +61,88 @@ export function CreateNewUser() {
   const [emailError, setEmailError] = React.useState(false);
   const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [role, setRole] = React.useState('');
+  const [position, setPosition] = React.useState('');
+  const [department, setDepartment] = React.useState('');
   const navigate = useNavigate();
+
+  const handleChangePosition = (event: SelectChangeEvent) => {
+    setPosition(event.target.value as string);
+  };
+
+  const handleChangeRole = (event: SelectChangeEvent) => {
+    setRole(event.target.value as string);
+  };
+  const handleChangeDepartment = (event: SelectChangeEvent) => {
+    setDepartment(event.target.value as string);
+  };
+
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setIsLoading(true);
+    const email = data.get("email") as string;
+    const fname = data.get("fname") as string;
+    const lname = data.get("lname") as string;
+    const mname = data.get("mname") as string;
+    const gender = data.get("gender") as string;
+    const birthDate = data.get("birthDate") as string;
+    const study = data.get("study") as string;
+    const work = data.get("work") as string;
+    const city = data.get("city") as string;
+    const street = data.get("street") as string;
+    const phone = data.get("phone") as string;
+    const password = data.get("password") as string ; 
+
+
+    
 
     try {
-      const email = data.get("email") as string;
-      const password = data.get("password") as string;
-      const response = await login(email, password);
-      if (response.error) {
-        alert(response.error);
-      } else {
-        navigate("/");
+      const payload = {
+        personData: {
+          fname,
+          lname,
+          mname,
+          phone,
+          email,
+          bDate: birthDate,
+          gender,
+          study,
+          work,
+          address: {
+            city,
+            street,
+          },
+        },
+        departmentData: {
+          name : department
+          
+        },
+        roleData : {
+          role : role
+        },
+        userData: {
+          
+          password,
+          position
+        },
+      };
+
+      // Send the data to the API via Axios POST request
+      const response = await axios.post("/users", payload);
+
+      if (response.status === 201) {
+        console.log("serviceprovider created successfully:", response.data);
+        navigate("/"); // Redirect upon success
       }
     } catch (error) {
-      alert(error);
+      console.error("Error creating serviceprovider:", error);
+      alert("An error occurred while submitting the form.");
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // Stop loading state
     }
   };
-
   const validateInputs = () => {
     const email = document.getElementById("email") as HTMLInputElement;
     const password = document.getElementById("password") as HTMLInputElement;
@@ -282,6 +343,51 @@ export function CreateNewUser() {
             />
           </FormControl>
         </Box>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="position">Position</FormLabel>
+            <Select
+            
+          labelId="position"
+          id="position"
+          value={position}
+          
+          onChange={handleChangePosition}
+        >
+          <MenuItem value= "serviceprovider">serviceprovider</MenuItem>
+          <MenuItem value= "trainer">trainer</MenuItem>
+          
+        </Select>
+          </FormControl>
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="Role">Role</FormLabel>
+            <Select
+          labelId="Role"
+          id="Role"
+          value={role}
+          label="Role"
+          onChange={handleChangeRole}
+        >
+          <MenuItem value="admin">admin</MenuItem>
+          <MenuItem value="user">user</MenuItem>
+          
+        </Select>
+          </FormControl>
+        </Box>
+        <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="Department">Depratment</FormLabel>
+            <Select
+          labelId="Department"
+          id="Department"
+          value={department}
+          label="Department"
+          onChange={handleChangeDepartment}
+        >
+          <MenuItem value="IT">IT</MenuItem>
+          <MenuItem value="Communication">Communication</MenuItem>
+          
+        </Select>
+          </FormControl>
 
         <FormControl>
           <FormLabel htmlFor="phone">Phone</FormLabel>
@@ -331,6 +437,7 @@ export function CreateNewUser() {
             color={passwordError ? "error" : "primary"}
           />
         </FormControl>
+        
         <Button
           type="submit"
           fullWidth
