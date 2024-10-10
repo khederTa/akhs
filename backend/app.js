@@ -35,6 +35,7 @@ app.use("/api/v1/address", require("./routes/address"));
 app.use("/api/v1/permissions", require("./routes/permission"));
 app.use("/api/v1/attendees", require("./routes/attendees"));
 app.use("/api/v1/logs", require("./routes/log"));
+app.use("/api/v1/role", require("./routes/role"));
 
 // Sync database and start server
 db.sequelize.sync().then(() => {

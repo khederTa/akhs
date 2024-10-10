@@ -63,5 +63,4 @@ const authenticatePermission = async (req, res, next) => {
   }
 };
 
-
 module.exports = { authenticateRole, authenticatePermission };
