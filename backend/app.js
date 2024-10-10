@@ -22,7 +22,7 @@ app.use(cors({
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/persons", require("./routes/person"));
-app.use("/api/v1/users", require("./routes/user"));
+app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceproviders", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteers", require("./routes/volunteer"));
 app.use("/api/v1/histories", require("./routes/history"));

@@ -67,10 +67,16 @@ export const signup = async (
 };
 
 // Logout function
-export const logout = (): void => {
-  Cookies.remove("access_token");
-  Cookies.remove("refresh_token");
-  useAuthStore.getState().setUser(null);
+export const logout = async () => {
+  axios
+    .post("auth/logout/")
+    .then((res: any) => {
+      console.log(res.message);
+      Cookies.remove("access_token");
+      Cookies.remove("refresh_token");
+      useAuthStore.getState().setUser(null);
+    })
+    .catch((error) => console.error(error));
 };
 
 // Set user function
@@ -84,7 +90,7 @@ export const setUser = async (): Promise<void> => {
 
   if (isAccessTokenExpired(accessToken)) {
     const response = await getRefreshToken(refreshToken);
-    setAuthUser(response.access, response.refresh);
+    setAuthUser(response.accessToken, response.refreshToken);
   } else {
     setAuthUser(accessToken, refreshToken);
   }
@@ -115,8 +121,9 @@ export const setAuthUser = (
 // Get refresh token function
 export const getRefreshToken = async (refresh_token: string) => {
   const response = await axios.post("auth/refresh-token", {
-    refresh: refresh_token,
+    refreshToken: refresh_token,
   });
+  console.log(response);
 
   return response.data;
 };

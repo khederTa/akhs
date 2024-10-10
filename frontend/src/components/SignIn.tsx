@@ -17,6 +17,7 @@ import { login } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { useTranslation } from "react-i18next";
+import PasswordInput from "./PasswordInput";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -121,7 +122,9 @@ export default function SignIn() {
 
     if (!password.value || password.value.length < 6) {
       setPasswordError(true);
-      setPasswordErrorMessage(t("Password must be at least 6 characters long."));
+      setPasswordErrorMessage(
+        t("Password must be at least 6 characters long.")
+      );
       isValid = false;
     } else {
       setPasswordError(false);
@@ -184,19 +187,9 @@ export default function SignIn() {
                   Forgot your password?
                 </Link> */}
               </Box>
-              <TextField
-                error={passwordError}
-                helperText={passwordErrorMessage}
-                name="password"
-                placeholder="••••••"
-                type="password"
-                id="password"
-                autoComplete="current-password"
-                autoFocus
-                required
-                fullWidth
-                variant="outlined"
-                color={passwordError ? "error" : "primary"}
+              <PasswordInput
+                passwordError={passwordError}
+                passwordErrorMessage={passwordErrorMessage}
               />
             </FormControl>
             {/* <FormControlLabel

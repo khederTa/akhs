@@ -8,8 +8,6 @@ const blacklistAccess = require("../middleware/blacklistAccess");
 router.get(
   "/",
   authenticateToken,
-  blacklistAccess,
-  specificPermissionAccess,
   addressController.getAllAddresses
 );
 router.post("/", authenticateToken, addressController.createAddress);

@@ -78,8 +78,10 @@ export function CreateNewUser() {
   const [streetErrorMessage, setStreetErrorMessage] = useState("");
   const [phoneError, setPhoneError] = useState(false);
   const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [birthDateError, setBirthDateError] = useState(false);
+  const [birthDateErrorMessage, setBirthDateErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -221,6 +223,7 @@ export function CreateNewUser() {
         <FormControl sx={{ flex: 1 }}>
           <FormLabel htmlFor="fname">First Name</FormLabel>
           <TextField
+            required
             error={fnameError}
             helperText={fnameErrorMessage}
             id="fname"
@@ -228,7 +231,6 @@ export function CreateNewUser() {
             name="fname"
             placeholder="John"
             autoComplete="fname"
-            required
             fullWidth
             variant="outlined"
             autoFocus
@@ -301,7 +303,8 @@ export function CreateNewUser() {
               name="birthDate"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
-              helperText={passwordErrorMessage}
+              helperText={birthDateErrorMessage}
+              color={birthDateError ? "error" : "primary"}
               fullWidth
               required
             />

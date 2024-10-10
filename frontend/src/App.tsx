@@ -12,7 +12,6 @@ import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
 import { CreateNewUser } from "./components/CreateNewUser";
-import { CreateNewActivity } from "./components/CreateNewActivity";
 import Activity from "./components/Activity";
 import VolunteerInfo from "./components/VolunteerInfo";
 import ServiceProviderInfo from "./components/ServiceProviderInfo";
