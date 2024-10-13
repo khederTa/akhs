@@ -67,12 +67,21 @@ exports.refreshToken = async (req, res) => {
     if (!refreshToken) return res.sendStatus(401);
 
     const decoded = jwt.verify(refreshToken, jwtRefreshSecret);
-    const user = await User.findByPk(decoded.userId);
-    const person = await Person.findOne({ where: { id: user.personId } });
-    if (!user || user.refreshToken !== refreshToken) return res.sendStatus(403);
+    const user = await User.findOne({ where: { userId: decoded.userId } });
+    const personId = user.dataValues.personId;
+    const userId = user.dataValues.userId;
+    const retrievedRefreshToken = user.dataValues.refreshToken;
+    const person = await Person.findOne({
+      where: { id: personId },
+    });
 
+
+    if (retrievedRefreshToken !== refreshToken)
+      return res.sendStatus(403);
+
+    const fname = person.dataValues.fname
     const accessToken = jwt.sign(
-      { userId: user.userId, username: person.fname },
+      { userId: userId, username: fname },
       jwtSecret,
       {
         expiresIn: jwtExpiration,
@@ -87,8 +96,8 @@ exports.refreshToken = async (req, res) => {
 
 exports.logout = async (req, res) => {
   try {
-    const { email } = req.body;
-    const user = await User.findOne({ where: { email } });
+    const { userId } = req.user;
+    const user = await User.findOne({ where: { userId } });
 
     if (!user) {
       return res.status(401).json({ message: "User Not Found" });

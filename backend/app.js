@@ -22,7 +22,7 @@ app.use(cors({
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
 app.use("/api/v1/persons", require("./routes/person"));
-app.use("/api/v1/users", require("./routes/user"));
+app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceproviders", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteers", require("./routes/volunteer"));
 app.use("/api/v1/histories", require("./routes/history"));
@@ -35,6 +35,7 @@ app.use("/api/v1/address", require("./routes/address"));
 app.use("/api/v1/permissions", require("./routes/permission"));
 app.use("/api/v1/attendees", require("./routes/attendees"));
 app.use("/api/v1/logs", require("./routes/log"));
+app.use("/api/v1/role", require("./routes/role"));
 
 // Sync database and start server
 db.sequelize.sync().then(() => {

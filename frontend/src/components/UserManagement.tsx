@@ -6,6 +6,8 @@ import * as XLSX from "xlsx"; // Import xlsx
 import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { Loading } from "./Loading";
+
+
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", minWidth: 150 },
   {
@@ -48,14 +50,14 @@ const columns: GridColDef[] = [
 const paginationModel = { page: 0, pageSize: 5 };
 export function UserManagement() {
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState();
   const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchUserData() {
       const userData = await axios
-        .get("/users")
+        .get("/user/")
         .then((res) => {
           const userRows = res.data.map((user: any) => {
             return {
@@ -76,18 +78,20 @@ export function UserManagement() {
               departmentDescription: user?.Department?.description,
             };
           });
-          setLoading(false);
           setRows(userRows);
         })
         .catch((err) => {
           console.error(err);
           setError(err);
-        });
+        })
+        .finally(() => setIsLoading(false));
       return userData;
     }
 
     const users = fetchUserData();
     console.log(users);
+    // const refreshToken = Cookies.get("refresh_token");
+    // getRefreshToken(refreshToken as string);
   }, []);
 
   const exportToExcel = () => {
@@ -114,7 +118,7 @@ export function UserManagement() {
         </Button>
       </Stack>
 
-      {loading ? (
+      {isLoading ? (
         <Loading />
       ) : (
         <Paper sx={{ height: 400, width: "100%" }}>

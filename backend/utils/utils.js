@@ -7,7 +7,7 @@ const methodAction = {
 
 const utils = (req) => {
   const resourceId = req.params.id;
-  const resourceName = req.baseUrl.slice(1);
+  const resourceName = req.baseUrl.slice(1).split("/")[2];
   const action = methodAction[req.method];
 
   return { resourceId, resourceName, action };

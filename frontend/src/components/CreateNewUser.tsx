@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { MutableRefObject, useEffect, useRef, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
-import axios from "../utils/axios"
+import axios from "../utils/axios";
 
 import {
   Typography,
@@ -15,7 +15,6 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -36,7 +35,30 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
+type RoleItem = {
+  id: number;
+  name: string;
+  description: string;
+};
+
 export function CreateNewUser() {
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+  const [mname, setMname] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [study, setStudy] = useState("");
+  const [work, setWork] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthDate, setBirthDate] = useState("");
+  const [city, setCity] = useState("");
+  const [street, setStreet] = useState("");
+  const [phone, setPhone] = useState("");
+  const [role, setRole] = useState("");
+  const [roles, setRoles] = useState<RoleItem[]>([]);
+  const [position, setPosition] = useState("");
+  const [department, setDepartment] = useState("");
+
   const [fnameError, setFnameError] = useState(false);
   const [fnameErrorMessage, setFnameErrorMessage] = useState("");
   const [lnameError, setLnameError] = useState(false);
@@ -47,9 +69,7 @@ export function CreateNewUser() {
   const [studyErrorMessage, setStudyErrorMessage] = useState("");
   const [workError, setWorkError] = useState(false);
   const [workErrorMessage, setWorkErrorMessage] = useState("");
-  const [gender, setGender] = useState("");
   const [genderMessage, setGenderMessage] = useState("");
-  const [birthDate, setBirthDate] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [cityError, setCityError] = useState(false);
@@ -58,13 +78,29 @@ export function CreateNewUser() {
   const [streetErrorMessage, setStreetErrorMessage] = useState("");
   const [phoneError, setPhoneError] = useState(false);
   const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [birthDateError, setBirthDateError] = useState(false);
+  const [birthDateErrorMessage, setBirthDateErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = React.useState('');
-  const [position, setPosition] = React.useState('');
-  const [department, setDepartment] = React.useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    async function fetchRoles() {
+      const roleData = await axios
+        .get("/role")
+        .then((res) => {
+          const roleRows = res.data;
+          setIsLoading(false);
+          setRoles(roleRows);
+        })
+        .catch((err) => {
+          console.error(err);
+        });
+      return roleData;
+    }
+    fetchRoles();
+  }, []);
 
   const handleChangePosition = (event: SelectChangeEvent) => {
     setPosition(event.target.value as string);
@@ -76,7 +112,6 @@ export function CreateNewUser() {
   const handleChangeDepartment = (event: SelectChangeEvent) => {
     setDepartment(event.target.value as string);
   };
-
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -93,10 +128,7 @@ export function CreateNewUser() {
     const city = data.get("city") as string;
     const street = data.get("street") as string;
     const phone = data.get("phone") as string;
-    const password = data.get("password") as string ; 
-
-
-    
+    const password = data.get("password") as string;
 
     try {
       const payload = {
@@ -116,16 +148,14 @@ export function CreateNewUser() {
           },
         },
         departmentData: {
-          name : department
-          
+          name: department,
         },
-        roleData : {
-          role : role
+        roleData: {
+          role: role,
         },
         userData: {
-          
           password,
-          position
+          position,
         },
       };
 
@@ -193,6 +223,7 @@ export function CreateNewUser() {
         <FormControl sx={{ flex: 1 }}>
           <FormLabel htmlFor="fname">First Name</FormLabel>
           <TextField
+            required
             error={fnameError}
             helperText={fnameErrorMessage}
             id="fname"
@@ -200,11 +231,11 @@ export function CreateNewUser() {
             name="fname"
             placeholder="John"
             autoComplete="fname"
-            required
             fullWidth
             variant="outlined"
             autoFocus
             color={fnameError ? "error" : "primary"}
+            onChange={(e) => setFname(e.target.value)}
           />
         </FormControl>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
@@ -222,6 +253,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={mnameError ? "error" : "primary"}
+              onChange={(e) => setMname(e.target.value)}
             />
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
@@ -238,6 +270,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={lnameError ? "error" : "primary"}
+              onChange={(e) => setLname(e.target.value)}
             />
           </FormControl>
         </Box>
@@ -249,7 +282,8 @@ export function CreateNewUser() {
               id="gender"
               value={gender}
               sx={{
-                backgroundColor: "var(--template-palette-background-default) !important",
+                backgroundColor:
+                  "var(--template-palette-background-default) !important",
               }}
               onChange={(e) => setGender(e.target.value)}
               fullWidth
@@ -269,7 +303,8 @@ export function CreateNewUser() {
               name="birthDate"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
-              helperText={passwordErrorMessage}
+              helperText={birthDateErrorMessage}
+              color={birthDateError ? "error" : "primary"}
               fullWidth
               required
             />
@@ -290,6 +325,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={studyError ? "error" : "primary"}
+              onChange={(e) => setStudy(e.target.value)}
             />
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
@@ -306,6 +342,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={workError ? "error" : "primary"}
+              onChange={(e) => setWork(e.target.value)}
             />
           </FormControl>
         </Box>
@@ -324,6 +361,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={cityError ? "error" : "primary"}
+              onChange={(e) => setCity(e.target.value)}
             />
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
@@ -340,6 +378,7 @@ export function CreateNewUser() {
               fullWidth
               variant="outlined"
               color={streetError ? "error" : "primary"}
+              onChange={(e) => setStreet(e.target.value)}
             />
           </FormControl>
         </Box>
@@ -347,64 +386,77 @@ export function CreateNewUser() {
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="position">Position</FormLabel>
             <Select
-            
-          labelId="position"
-          id="position"
-          value={position}
-          
-          onChange={handleChangePosition}
-        >
-          <MenuItem value= "serviceprovider">serviceprovider</MenuItem>
-          <MenuItem value= "trainer">trainer</MenuItem>
-          
-        </Select>
+              labelId="position"
+              id="position"
+              sx={{
+                backgroundColor:
+                  "var(--template-palette-background-default) !important",
+              }}
+              value={position}
+              onChange={handleChangePosition}
+            >
+              <MenuItem value="serviceprovider">Service Provider</MenuItem>
+              <MenuItem value="trainer">Trainer</MenuItem>
+            </Select>
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="Role">Role</FormLabel>
             <Select
-          labelId="Role"
-          id="Role"
-          value={role}
-          label="Role"
-          onChange={handleChangeRole}
-        >
-          <MenuItem value="admin">admin</MenuItem>
-          <MenuItem value="user">user</MenuItem>
-          
-        </Select>
+              labelId="Role"
+              id="Role"
+              value={role}
+              sx={{
+                backgroundColor:
+                  "var(--template-palette-background-default) !important",
+              }}
+              label="Role"
+              onChange={handleChangeRole}
+            >
+              {roles.map((item) => (
+                <MenuItem key={item.id} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
         </Box>
-        <FormControl sx={{ flex: 1 }}>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="Department">Depratment</FormLabel>
             <Select
-          labelId="Department"
-          id="Department"
-          value={department}
-          label="Department"
-          onChange={handleChangeDepartment}
-        >
-          <MenuItem value="IT">IT</MenuItem>
-          <MenuItem value="Communication">Communication</MenuItem>
-          
-        </Select>
+              labelId="Department"
+              id="Department"
+              value={department}
+              sx={{
+                backgroundColor:
+                  "var(--template-palette-background-default) !important",
+              }}
+              label="Department"
+              onChange={handleChangeDepartment}
+            >
+              <MenuItem value="IT">IT</MenuItem>
+              <MenuItem value="Communication">Communication</MenuItem>
+            </Select>
           </FormControl>
 
-        <FormControl>
-          <FormLabel htmlFor="phone">Phone</FormLabel>
-          <TextField
-            error={phoneError}
-            helperText={phoneErrorMessage}
-            name="phone"
-            placeholder="0988776655"
-            type="phone"
-            id="phone"
-            autoComplete="current-phone"
-            required
-            fullWidth
-            variant="outlined"
-            color={phoneError ? "error" : "primary"}
-          />
-        </FormControl>
+          <FormControl>
+            <FormLabel htmlFor="phone">Phone</FormLabel>
+            <TextField
+              error={phoneError}
+              helperText={phoneErrorMessage}
+              name="phone"
+              placeholder="0988776655"
+              type="phone"
+              id="phone"
+              autoComplete="current-phone"
+              required
+              fullWidth
+              variant="outlined"
+              color={phoneError ? "error" : "primary"}
+              onChange={(e) => setPhone(e.target.value)}
+            />
+          </FormControl>
+        </Box>
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -419,6 +471,7 @@ export function CreateNewUser() {
             fullWidth
             variant="outlined"
             color={emailError ? "error" : "primary"}
+            onChange={(e) => setEmail(e.target.value)}
           />
         </FormControl>
         <FormControl>
@@ -435,9 +488,10 @@ export function CreateNewUser() {
             fullWidth
             variant="outlined"
             color={passwordError ? "error" : "primary"}
+            onChange={(e) => setPassword(e.target.value)}
           />
         </FormControl>
-        
+
         <Button
           type="submit"
           fullWidth
