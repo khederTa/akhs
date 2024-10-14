@@ -8,22 +8,31 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
-const SessionInfo = ({ id, removeSession }: any) => {
-  const [serviceProviders, setServiceProviders] = useState([]);
-  const [trainers, setTrainers] = useState([]);
-  const [hallName, setHallName] = useState("");
-  const [dateValue, setDateValue] = useState("");
-  const [providerNames, setProviderNames] = useState([]);
-  const [trainerName, setTrainerName] = useState([]);
-  const [startTime, setStartTime] = React.useState<Dayjs | null>(
-    dayjs("2022-04-17T15:30")
-  );
-  const [endTime, setEndTime] = React.useState<Dayjs | null>(
-    dayjs("2022-04-17T15:30")
-  );
+const SessionInfo = ({
+  id,
+  removeSession,
+  sessionName,
+  setSessionName,
+  serviceProviders,
+  setServiceProviders,
+  trainers,
+  setTrainers,
+  hallName,
+  setHallName,
+  dateValue,
+  setDateValue,
+  providerNames,
+  setProviderNames,
+  trainerName,
+  setTrainerName,
+  startTime,
+  setStartTime,
+  endTime,
+  setEndTime,
+}: any) => {
   // Fetch data from API
-  useEffect(  () => {
-     axios
+  useEffect(() => {
+    axios
       .get("serviceproviders") // Replace with your API endpoint
       .then((response) => {
         const serviceproviders = response.data;
@@ -49,6 +58,9 @@ const SessionInfo = ({ id, removeSession }: any) => {
         console.error("Error fetching data:", error);
       });
   }, []);
+ 
+
+  // Handle form submission
 
   return (
     <>
@@ -61,9 +73,18 @@ const SessionInfo = ({ id, removeSession }: any) => {
         }}
       >
         <Stack>
+          <FormLabel>Session Name</FormLabel>
+          <TextField
+            sx={{ width: 100 }}
+            value={sessionName}
+            onChange={(e) => setSessionName(e.target.value)}
+          />
+        </Stack>
+
+        <Stack>
           <FormLabel>Date</FormLabel>
           <TextField
-            sx={{ width: 150 }}
+            sx={{ width: 100 }}
             type="date"
             value={dateValue}
             onChange={(e) => setDateValue(e.target.value)}
@@ -73,16 +94,16 @@ const SessionInfo = ({ id, removeSession }: any) => {
         <Stack>
           <FormLabel>Hall Name</FormLabel>
           <TextField
-            sx={{ width: 150 }}
+            sx={{ width: 100 }}
             value={hallName}
             onChange={(event) => setHallName(event.target.value)}
           />
         </Stack>
 
         <Stack>
-          <FormLabel>Trainer Name</FormLabel>
+          <FormLabel>Trainer</FormLabel>
           <Autocomplete
-            sx={{ width: 150 }}
+            sx={{ width: 170 }}
             multiple
             options={trainers}
             value={trainerName}
@@ -94,9 +115,9 @@ const SessionInfo = ({ id, removeSession }: any) => {
         </Stack>
 
         <Stack>
-          <FormLabel>Service Provider Name</FormLabel>
+          <FormLabel>Service Provider</FormLabel>
           <Autocomplete
-            sx={{ width: 150 }}
+            sx={{ width: 170 }}
             multiple
             options={serviceProviders}
             value={providerNames}
@@ -107,13 +128,12 @@ const SessionInfo = ({ id, removeSession }: any) => {
           />
         </Stack>
 
-        <Stack >
+        <Stack>
           <FormLabel>Start Time</FormLabel>
-          <LocalizationProvider  dateAdapter={AdapterDayjs}>
-            <DemoContainer components={[ "TimePicker"]}>
+          <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <DemoContainer components={["TimePicker"]}>
               <TimePicker
-
-                sx={{ width: 100  }}
+                sx={{ width: 100 }}
                 value={startTime}
                 onChange={(newValue) => setStartTime(newValue)}
               />
@@ -121,10 +141,10 @@ const SessionInfo = ({ id, removeSession }: any) => {
           </LocalizationProvider>
         </Stack>
 
-        <Stack >
+        <Stack>
           <FormLabel>End Time</FormLabel>
           <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={[ "TimePicker"]}>
+            <DemoContainer components={["TimePicker"]}>
               <TimePicker
                 sx={{ width: 100 }}
                 value={endTime}

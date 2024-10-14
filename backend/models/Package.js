@@ -16,9 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "packageId",
     });
 
-    Package.belongsTo(models.Department, {
-      foreignKey: "departmentId",
-    });
+    
   };
 
   return Package;
