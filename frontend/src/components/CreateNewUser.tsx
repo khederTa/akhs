@@ -15,6 +15,7 @@ import {
   SelectChangeEvent,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import PasswordInput from "./PasswordInput";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -49,15 +50,16 @@ export function CreateNewUser() {
   const [password, setPassword] = useState("");
   const [study, setStudy] = useState("");
   const [work, setWork] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState("male");
   const [birthDate, setBirthDate] = useState("");
   const [city, setCity] = useState("");
   const [street, setStreet] = useState("");
   const [phone, setPhone] = useState("");
-  const [role, setRole] = useState("");
+  const [role, setRole] = useState("0");
   const [roles, setRoles] = useState<RoleItem[]>([]);
-  const [position, setPosition] = useState("");
-  const [department, setDepartment] = useState("");
+  const [position, setPosition] = useState("serviceProvider");
+  const [department, setDepartment] = useState("0");
+  const [departments, setDepartments] = useState([]);
 
   const [fnameError, setFnameError] = useState(false);
   const [fnameErrorMessage, setFnameErrorMessage] = useState("");
@@ -69,7 +71,6 @@ export function CreateNewUser() {
   const [studyErrorMessage, setStudyErrorMessage] = useState("");
   const [workError, setWorkError] = useState(false);
   const [workErrorMessage, setWorkErrorMessage] = useState("");
-  const [genderMessage, setGenderMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const [cityError, setCityError] = useState(false);
@@ -83,23 +84,31 @@ export function CreateNewUser() {
   const [birthDateError, setBirthDateError] = useState(false);
   const [birthDateErrorMessage, setBirthDateErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isValidInput, setIsValidInput] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchRoles() {
-      const roleData = await axios
+    async function fetchData() {
+      await axios
         .get("/role")
         .then((res) => {
-          const roleRows = res.data;
-          setIsLoading(false);
-          setRoles(roleRows);
+          const roleData = res.data;
+          // setIsLoading(false);
+          console.log(res);
+          setRoles(roleData);
         })
         .catch((err) => {
           console.error(err);
         });
-      return roleData;
+
+      await axios.get("/department").then((res) => {
+        const departmentData = res.data;
+        console.log(res);
+        setDepartments(departmentData);
+        setIsLoading(false);
+      });
     }
-    fetchRoles();
+    fetchData();
   }, []);
 
   const handleChangePosition = (event: SelectChangeEvent) => {
@@ -115,6 +124,9 @@ export function CreateNewUser() {
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!isValidInput) {
+      return;
+    }
     const data = new FormData(event.currentTarget);
     setIsLoading(true);
     const email = data.get("email") as string;
@@ -142,29 +154,23 @@ export function CreateNewUser() {
           gender,
           study,
           work,
-          address: {
-            city,
-            street,
-          },
-        },
-        departmentData: {
-          name: department,
-        },
-        roleData: {
-          role: role,
+          city,
+          street,
         },
         userData: {
           password,
           position,
+          departmentId: department,
+          roleId: role,
         },
       };
 
       // Send the data to the API via Axios POST request
-      const response = await axios.post("/users", payload);
+      const response = await axios.post("/user", payload);
 
       if (response.status === 201) {
         console.log("serviceprovider created successfully:", response.data);
-        navigate("/"); // Redirect upon success
+        navigate("/user-management"); // Redirect upon success
       }
     } catch (error) {
       console.error("Error creating serviceprovider:", error);
@@ -174,12 +180,74 @@ export function CreateNewUser() {
     }
   };
   const validateInputs = () => {
-    const email = document.getElementById("email") as HTMLInputElement;
-    const password = document.getElementById("password") as HTMLInputElement;
-
     let isValid = true;
 
-    if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
+    if (!fname || fname.length === 0) {
+      setFnameError(true);
+      setFnameErrorMessage("First Name is Required!");
+    } else {
+      setFnameError(false);
+      setFnameErrorMessage("");
+    }
+    if (!mname || mname.length === 0) {
+      setMnameError(true);
+      setMnameErrorMessage("Middle Name is Required!");
+    } else {
+      setMnameError(false);
+      setMnameErrorMessage("");
+    }
+    if (!lname || lname.length === 0) {
+      setLnameError(true);
+      setLnameErrorMessage("Last Name is Required!");
+    } else {
+      setLnameError(false);
+      setLnameErrorMessage("");
+    }
+
+    if (!birthDate || birthDate.length === 0) {
+      setBirthDateError(true);
+      setBirthDateErrorMessage("Birth Date is Required!");
+    } else {
+      setBirthDateError(false);
+      setBirthDateErrorMessage("");
+    }
+    if (!study || study.length === 0) {
+      setStudyError(true);
+      setStudyErrorMessage("Study is Required!");
+    } else {
+      setStudyError(false);
+      setStudyErrorMessage("");
+    }
+    if (!work || work.length === 0) {
+      setWorkError(true);
+      setWorkErrorMessage("Work is Required!");
+    } else {
+      setWorkError(false);
+      setWorkErrorMessage("");
+    }
+    if (!city || city.length === 0) {
+      setCityError(true);
+      setCityErrorMessage("City is Required!");
+    } else {
+      setCityError(false);
+      setCityErrorMessage("");
+    }
+    if (!street || street.length === 0) {
+      setStreetError(true);
+      setStreetErrorMessage("Street is Required!");
+    } else {
+      setStreetError(false);
+      setStreetErrorMessage("");
+    }
+    if (!phone || phone.length === 0) {
+      setPhoneError(true);
+      setPhoneErrorMessage("Phone is Required!");
+    } else {
+      setPhoneError(false);
+      setPhoneErrorMessage("");
+    }
+
+    if (!email || !/\S+@\S+\.\S+/.test(email)) {
       setEmailError(true);
       setEmailErrorMessage("Please enter a valid email address.");
       isValid = false;
@@ -188,7 +256,7 @@ export function CreateNewUser() {
       setEmailErrorMessage("");
     }
 
-    if (!password.value || password.value.length < 6) {
+    if (!password || password.length < 6) {
       setPasswordError(true);
       setPasswordErrorMessage("Password must be at least 6 characters long.");
       isValid = false;
@@ -196,7 +264,7 @@ export function CreateNewUser() {
       setPasswordError(false);
       setPasswordErrorMessage("");
     }
-
+    setIsValidInput(isValid);
     return isValid;
   };
 
@@ -303,6 +371,7 @@ export function CreateNewUser() {
               name="birthDate"
               value={birthDate}
               onChange={(e) => setBirthDate(e.target.value)}
+              error={birthDateError}
               helperText={birthDateErrorMessage}
               color={birthDateError ? "error" : "primary"}
               fullWidth
@@ -395,7 +464,9 @@ export function CreateNewUser() {
               value={position}
               onChange={handleChangePosition}
             >
-              <MenuItem value="serviceprovider">Service Provider</MenuItem>
+              <MenuItem value="serviceProvider" selected>
+                Service Provider
+              </MenuItem>
               <MenuItem value="trainer">Trainer</MenuItem>
             </Select>
           </FormControl>
@@ -413,7 +484,7 @@ export function CreateNewUser() {
               onChange={handleChangeRole}
             >
               {roles.map((item) => (
-                <MenuItem key={item.id} value={item.id}>
+                <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
                   {item.name}
                 </MenuItem>
               ))}
@@ -434,8 +505,11 @@ export function CreateNewUser() {
               label="Department"
               onChange={handleChangeDepartment}
             >
-              <MenuItem value="IT">IT</MenuItem>
-              <MenuItem value="Communication">Communication</MenuItem>
+              {departments.map((item: any) => (
+                <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
 
@@ -476,19 +550,10 @@ export function CreateNewUser() {
         </FormControl>
         <FormControl>
           <FormLabel htmlFor="password">Password</FormLabel>
-          <TextField
-            error={passwordError}
-            helperText={passwordErrorMessage}
-            name="password"
-            placeholder="••••••"
-            type="password"
-            id="password"
-            autoComplete="current-password"
-            required
-            fullWidth
-            variant="outlined"
-            color={passwordError ? "error" : "primary"}
-            onChange={(e) => setPassword(e.target.value)}
+          <PasswordInput
+            onChange={(e: any) => setPassword(e.target.value)}
+            passwordError={passwordError}
+            passwordErrorMessage={passwordErrorMessage}
           />
         </FormControl>
 

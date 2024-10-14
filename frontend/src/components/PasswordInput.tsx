@@ -2,7 +2,7 @@ import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { useState } from "react";
 
-const PasswordInput = ({ passwordError, passwordErrorMessage }: any) => {
+const PasswordInput = ({ passwordError, passwordErrorMessage, onChange }: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => {
@@ -19,6 +19,7 @@ const PasswordInput = ({ passwordError, passwordErrorMessage }: any) => {
       error={passwordError}
       helperText={passwordErrorMessage}
       color={passwordError ? "error" : "primary"}
+      onChange={onChange}
       InputProps={{
         endAdornment: (
           <InputAdornment position="end">

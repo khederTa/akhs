@@ -4,6 +4,8 @@
       name: DataTypes.STRING,
       date: DataTypes.DATE,
       hall_name: DataTypes.STRING,
+      city: DataTypes.STRING,
+      street: DataTypes.STRING,
       startTime: DataTypes.TIME,
       endTime: DataTypes.TIME
     }, {
@@ -13,7 +15,7 @@
 
     Session.associate = (models) => {
       Session.belongsTo(models.Activity, {foreignKey: "activityId",} );
-      Session.belongsTo(models.Address, {foreignKey: "addressId",} );
+      // Session.belongsTo(models.Address, {foreignKey: "addressId",} );
       Session.belongsToMany(models.ServiceProvider, { through: 'ServiceProviderSessions' });
       Session.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedSessions' });
 

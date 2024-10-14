@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-    
+      city: DataTypes.STRING,
+      street: DataTypes.STRING,    
     },
     {
       tableName: "Persons",
@@ -24,7 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     Person.hasOne(models.ServiceProvider, { foreignKey: "personId" });
     Person.hasOne(models.Volunteer, { foreignKey: "personId" });
     Person.hasOne(models.User, { foreignKey: "personId" });
-    Person.belongsTo(models.Address, { foreignKey: "addressId" });
+    // Person.belongsTo(models.Address, { foreignKey: "addressId" });
     Person.hasMany(models.History, { foreignKey: 'historyId' });
         };
 

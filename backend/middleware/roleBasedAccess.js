@@ -8,9 +8,9 @@ const authenticateRole = async (req, res, next) => {
   try {
     const { resourceName, action } = utils(req);
     const permissions = await db.sequelize.query(
-      `SELECT * FROM Permissions WHERE id IN (
-        SELECT permissionId FROM RolePermission WHERE roleId = (
-          SELECT roleId FROM Users WHERE userId = :userId
+      `SELECT * FROM akhs.permissions WHERE id IN (
+        SELECT permissionId FROM akhs.rolePermission WHERE roleId = (
+          SELECT roleId FROM akhs.users WHERE userId = :userId
         )
       )`,
       {
@@ -18,6 +18,10 @@ const authenticateRole = async (req, res, next) => {
         type: QueryTypes.SELECT,
       }
     );
+
+    console.log(permissions);
+    console.log(resourceName);
+    console.log(action);
 
     if (
       permissions.length === 0 ||

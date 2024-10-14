@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       through: "ActivityTypePrerequisites",
       foreignKey: "activityTypeId",
       otherKey: "prerequisiteId",
+      timestamps: false
     });
   };
 

@@ -17,6 +17,12 @@ interface UserData {
   [key: string]: any; // additional fields (if needed)
 }
 
+// Function to safely get cookies
+const getCookie = (name: string) => {
+  const value = Cookies.get(name);
+  return value ? value : null;
+};
+
 // Login function
 export const login = async (
   email: string,
@@ -81,8 +87,8 @@ export const logout = async () => {
 
 // Set user function
 export const setUser = async (): Promise<void> => {
-  const accessToken = Cookies.get("access_token");
-  const refreshToken = Cookies.get("refresh_token");
+  const accessToken = getCookie("access_token");
+  const refreshToken = getCookie("refresh_token");
 
   if (!accessToken || !refreshToken) {
     return;

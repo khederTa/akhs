@@ -1,4 +1,4 @@
-const { User, Person, Department, Role , Address } = require("../models"); // Adjust the path as necessary
+const { User, Person, Department, Role, Address } = require("../models"); // Adjust the path as necessary
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -17,6 +17,8 @@ exports.getAllUsers = async (req, res) => {
             "gender",
             "study",
             "work",
+            "city",
+            "street",
           ],
         },
         {
@@ -25,8 +27,9 @@ exports.getAllUsers = async (req, res) => {
         },
         {
           model: Role,
-          attributes: ["name", "description"]
-        }
+          attributes: ["name", "description"],
+        },
+        { model: Department, attributes: ["name", "description"] },
       ],
     });
 
@@ -37,14 +40,14 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  const { personData, departmentData, roleData, userData } = req.body;
+  const { personData, userData } = req.body;
 
   try {
     // Step 1: Create the address first (if provided in personData)
-    let address = null;
-    if (personData.address) {
-      address = await Address.create(personData.address); // Create the address
-    }
+    // let address = null;
+    // if (personData.address) {
+    //   address = await Address.create(personData.address); // Create the address
+    // }
 
     // Step 2: Create the person and link the addressId (if address exists)
     const person = await Person.create({
@@ -57,42 +60,44 @@ exports.createUser = async (req, res) => {
       gender: personData.gender,
       study: personData.study,
       work: personData.work,
-      addressId: address ? address.id : null, // Link addressId if it exists
+      city: personData.city,
+      street: personData.street,
     });
 
-    // Step 3: Create the department
-    let department = null;
-    if (departmentData && departmentData.name) {
-      department = await Department.create({
-        name: departmentData.name,
-      });
-    }
+    // // Step 3: Create the department
+    // let department = null;
+    // if (departmentData && departmentData.name) {
+    //   department = await Department.create({
+    //     name: departmentData.name,
+    //   });
+    // }
 
-    // Step 4: Create the role
-    let role = null;
-    if (roleData && roleData.role) {
-      role = await Role.create({
-        role: roleData.role,
-      });
-    }
+    // // Step 4: Create the role
+    // let role = null;
+    // if (roleData && roleData.role) {
+    //   role = await Role.create({
+    //     role: roleData.role,
+    //   });
+    // }
 
     // Step 5: Create the user and associate it with the person, department, and role
     const user = await User.create({
       password: userData.password,
       position: userData.position,
       personId: person.id, // Link the personId
-      departmentId: department ? department.id : null, // Link departmentId if department exists
-      roleId: role ? role.id : null, // Link roleId if role exists
+      departmentId: userData.departmentId, // Link departmentId if department exists
+      roleId: userData.roleId, // Link roleId if role exists
     });
 
     // Send the created user as the response
     res.status(201).json(user);
   } catch (error) {
     console.error("Error creating user:", error);
-    res.status(500).json({ error: "An error occurred while creating the user" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the user" });
   }
 };
-
 
 exports.getUserById = async (req, res) => {
   const user = await User.findByPk(req.params.id);

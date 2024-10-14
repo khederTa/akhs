@@ -7,7 +7,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import AccountBoxRoundedIcon from "@mui/icons-material/AccountBoxRounded";
-import PeopleRoundedIcon from "@mui/icons-material/PeopleRounded";
 import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
@@ -40,8 +39,8 @@ const mainListItems = [
     icon: <SupervisorAccountIcon/>,
     to: "/serviceprovider-information",
   },
-
-  { text: "Tasks", icon: <AssignmentRoundedIcon />, to: "/tasks" },
+  { text: "Activity Types", icon: <AssignmentRoundedIcon />, to: "/activity-types" },
+  { text: "Packages", icon: <AssignmentRoundedIcon />, to: "/packages" },
 ];
 
 const secondaryListItems = [
