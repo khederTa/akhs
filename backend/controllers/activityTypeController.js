@@ -1,9 +1,24 @@
 const { ActivityType } = require("../models");
 const db = require("../models");
 const { QueryTypes } = require("sequelize");
+// Corrected getAllActivityTypes function
 exports.getAllActivityTypes = async (req, res) => {
-  const activityTypes = await ActivityType.findAll();
-  res.json(activityTypes);
+  try {
+    const activityTypes = await ActivityType.findAll({
+      include: [
+        {
+          model: ActivityType,
+          as: "Prerequisites",
+          through: { attributes: [] }, // Exclude junction table details
+        },
+      ],
+    });
+
+    return res.status(200).json(activityTypes);
+  } catch (error) {
+    console.error("Error fetching activity types with prerequisites:", error);
+    return res.status(500).json({ error: "Failed to fetch activity types" });
+  }
 };
 
 exports.createActivityType = async (req, res) => {
@@ -39,11 +54,60 @@ exports.getActivityTypeById = async (req, res) => {
 };
 
 exports.updateActivityType = async (req, res) => {
-  await ActivityType.update(req.body, { where: { id: req.params.id } });
-  res.json({ message: "ActivityType updated" });
+  const { id } = req.params;
+  const { name, description, prerequisites } = req.body;
+
+  try {
+    // Update the activity type
+    await ActivityType.update({ name, description }, { where: { id } });
+
+    // Remove all existing prerequisites
+    await db.sequelize.query(
+      `DELETE FROM ActivityTypePrerequisites WHERE activityTypeId = ${id}`,
+      {
+        type: QueryTypes.DELETE,
+      }
+    );
+
+    // Insert updated prerequisites
+    const values = prerequisites
+      .map((prerequisiteId) => `(${id}, ${prerequisiteId})`)
+      .join(", ");
+
+    if (values) {
+      await db.sequelize.query(
+        `INSERT INTO ActivityTypePrerequisites (activityTypeId, prerequisiteId) VALUES ${values}`,
+        { type: QueryTypes.INSERT }
+      );
+    }
+
+    res.status(200).json({ message: "Activity type updated successfully." });
+  } catch (error) {
+    console.error("Error updating activity type:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the activity type." });
+  }
 };
 
 exports.deleteActivityType = async (req, res) => {
-  await ActivityType.destroy({ where: { id: req.params.id } });
-  res.json({ message: "ActivityType deleted" });
+  const { id } = req.params;
+
+  try {
+    // First, remove associated prerequisites
+    await db.sequelize.query(
+      `DELETE FROM ActivityTypePrerequisites WHERE activityTypeId = ${id}`,
+      { type: QueryTypes.DELETE }
+    );
+
+    // Then, remove the activity type itself
+    await ActivityType.destroy({ where: { id } });
+
+    res.status(200).json({ message: "Activity type deleted successfully." });
+  } catch (error) {
+    console.error("Error deleting activity type:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the activity type." });
+  }
 };

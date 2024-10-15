@@ -58,7 +58,6 @@ const SessionInfo = ({
         console.error("Error fetching data:", error);
       });
   }, []);
- 
 
   // Handle form submission
 
@@ -103,6 +102,7 @@ const SessionInfo = ({
         <Stack>
           <FormLabel>Trainer</FormLabel>
           <Autocomplete
+            id="tags-filled"
             sx={{ width: 170 }}
             multiple
             options={trainers}
@@ -110,13 +110,16 @@ const SessionInfo = ({
             onChange={(event, newValue: any) => setTrainerName(newValue)}
             getOptionLabel={(option) => option.label || ""}
             defaultValue={[]}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField {...params} variant="standard" />
+            )}
           />
         </Stack>
 
         <Stack>
           <FormLabel>Service Provider</FormLabel>
           <Autocomplete
+            id="tags-filled"
             sx={{ width: 170 }}
             multiple
             options={serviceProviders}
@@ -124,7 +127,9 @@ const SessionInfo = ({
             onChange={(event, newValue: any) => setProviderNames(newValue)}
             getOptionLabel={(option) => option.label || ""}
             defaultValue={[]}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField {...params} variant="standard" />
+            )}
           />
         </Stack>
 

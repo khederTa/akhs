@@ -1,21 +1,3 @@
-// import axios from "axios";
-// import Cookies from "js-cookie";
-
-// const access_token = Cookies.get("access_token");
-// const refresh_token = Cookies.get("refresh_token");
-
-// const apiInstance = axios.create({
-//   baseURL: "http://localhost:3000/api/v1/",
-//   timeout: 10000,
-//   headers: {
-//     "Content-Type": "application/json",
-//     Accept: "application/json",
-//     Authorization: access_token ? `Bearer ${access_token}` : undefined,
-//   },
-// });
-
-// export default apiInstance;
-
 import axios from "axios";
 import Cookies from "js-cookie";
 import { getRefreshToken } from "./auth";
@@ -42,19 +24,36 @@ const apiInstance = axios.create({
 
 // Interceptor to handle token refresh logic
 apiInstance.interceptors.response.use(
-  (response) => response,
+  (response) => response, // Successful responses
   async (error) => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-      const newAccessToken = await getRefreshToken(refresh_token as string);
-      Cookies.set("access_token", newAccessToken);
-      apiInstance.defaults.headers[
-        "Authorization"
-      ] = `Bearer ${newAccessToken}`;
-      originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-      return apiInstance(originalRequest);
+
+    // Check if the error is 401 (Unauthorized) and this is not a retry request
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true; // Flag to prevent infinite retry loops
+
+      try {
+        // Try refreshing the token
+        const newAccessToken = await getRefreshToken(refresh_token as string);
+        if (newAccessToken) {
+          // Update access token in cookies and request headers
+          Cookies.set("access_token", newAccessToken);
+          apiInstance.defaults.headers[
+            "Authorization"
+          ] = `Bearer ${newAccessToken}`;
+          originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
+
+          // Retry the original request with the new token
+          return apiInstance(originalRequest);
+        }
+      } catch (refreshError) {
+        console.error("Error refreshing token:", refreshError);
+        // Handle token refresh failure (e.g., logout user, redirect to login, etc.)
+        return Promise.reject(refreshError);
+      }
     }
+
+    // Handle other errors
     return Promise.reject(error);
   }
 );
