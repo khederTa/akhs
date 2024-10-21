@@ -21,6 +21,9 @@ const ActivityInfo = () => {
       endTime: dayjs("2022-04-17T15:30"),
     },
   ]);
+
+  
+
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
@@ -42,8 +45,8 @@ const ActivityInfo = () => {
               work: volunteer?.Person?.work,
               gender: volunteer?.Person?.gender,
               birthDate: volunteer?.Person?.bDate,
-              disable : volunteer?.disable,
-              disable_status : volunteer?.disable_status
+              disable: volunteer?.disable,
+              disable_status: volunteer?.disable_status,
             };
           });
           setLoading(false);
@@ -137,7 +140,7 @@ const ActivityInfo = () => {
     { field: "middleName", headerName: "Middle name", width: 130 },
     { field: "lastName", headerName: "Last name", width: 130 },
     { field: "age", headerName: "Age", type: "number", width: 90 },
-    { field: "gender", headerName: "Gender",  width: 90 },
+    { field: "gender", headerName: "Gender", width: 90 },
     {
       field: "fullName",
       headerName: "Full name",
@@ -156,7 +159,6 @@ const ActivityInfo = () => {
     { field: "disable_status", headerName: "Disable_status", width: 130 },
   ];
 
- 
   const paginationModel = { page: 0, pageSize: 5 };
   return (
     <div>

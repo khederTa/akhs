@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       done: { type: DataTypes.BOOLEAN },
+      title: DataTypes.STRING,
     },
     {
       tableName: "Activities",
@@ -17,6 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Activity.hasMany(models.Session, { foreignKey: "activityId" });
+    Activity.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedActivity' });
   };
 
   return Activity;
