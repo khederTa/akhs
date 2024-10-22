@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      position: DataTypes.STRING,
+      
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
     },
@@ -31,9 +31,9 @@ module.exports = (sequelize, DataTypes) => {
   User.associate = (models) => {
     User.hasMany(models.Log, {foreignKey: "userId"})
     User.hasMany(models.SpecificAttributePermission, {foreignKey: "userId"})
-    User.belongsTo(models.Person, { foreignKey: "personId" }); 
+    User.belongsTo(models.ServiceProvider, { foreignKey: "providerId" }); 
     User.belongsTo(models.Role, { foreignKey: "roleId" }); 
-    User.belongsTo(models.Department, { foreignKey: "departmentId" }); 
+    
     User.hasOne(models.Department, { foreignKey: "managerId" }); 
     User.belongsToMany(models.Permission, { through: "UserPermission" });
   };

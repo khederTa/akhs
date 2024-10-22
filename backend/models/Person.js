@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       fname: DataTypes.STRING,
       lname: DataTypes.STRING,
       mname: DataTypes.STRING,
+      momName: DataTypes.STRING,
       phone: DataTypes.STRING,
       email: DataTypes.STRING,
       bDate: DataTypes.DATE,
@@ -13,7 +14,17 @@ module.exports = (sequelize, DataTypes) => {
       study: DataTypes.STRING,
       work: DataTypes.STRING,
       city: DataTypes.STRING,
-      street: DataTypes.STRING,    
+      street: DataTypes.STRING,
+      nationalNumber: DataTypes.STRING,
+      fixPhone: DataTypes.STRING,
+      smoking: DataTypes.BOOLEAN,
+      notes: DataTypes.STRING,
+      prevVol: DataTypes.STRING,
+      compSkilles: DataTypes.STRING,
+      pdfFile: {
+        type: DataTypes.BLOB('long'), // Use 'long' for large files
+        allowNull: true, // Set to true if it's optional
+      },
     },
     {
       tableName: "Persons",
@@ -22,12 +33,12 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Person.associate = (models) => {
-    Person.hasOne(models.ServiceProvider, { foreignKey: "personId" });
+    
     Person.hasOne(models.Volunteer, { foreignKey: "personId" });
-    Person.hasOne(models.User, { foreignKey: "personId" });
-    // Person.belongsTo(models.Address, { foreignKey: "addressId" });
-    Person.hasMany(models.History, { foreignKey: 'historyId' });
-        };
+    
+    Person.belongsTo(models.Address, { foreignKey: "addressId" });
+    
+  };
 
   return Person;
 };

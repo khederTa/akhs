@@ -193,7 +193,7 @@ export function CreateActivityType() {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? "Creating New User..." : "Create New User"}
+          {isLoading ? "Creating New Activity Type..." : "Create New Activity Type"}
         </Button>
       </Box>
     </Card>

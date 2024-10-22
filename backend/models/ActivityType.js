@@ -5,6 +5,7 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
       description: DataTypes.STRING,
+      active_status: DataTypes.STRING,
     },
     {
       tableName: "ActivityTypes",
@@ -27,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       otherKey: "prerequisiteId",
       timestamps: false
     });
+    ActivityType.belongsTo(models.Department, { foreignKey: "departmentId" });
   };
 
   return ActivityType;
