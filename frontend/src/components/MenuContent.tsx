@@ -16,7 +16,8 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-
+import EditCalendarRoundedIcon from '@mui/icons-material/EditCalendarRounded';
+import ListAltRoundedIcon from '@mui/icons-material/ListAltRounded';
 const mainListItems = [
   { text: "Home", icon: <HomeRoundedIcon />, to: "/" },
   {
@@ -39,8 +40,8 @@ const mainListItems = [
     icon: <SupervisorAccountIcon/>,
     to: "/serviceprovider-information",
   },
-  { text: "Activity Types", icon: <AssignmentRoundedIcon />, to: "/activity-types" },
-  { text: "Packages", icon: <AssignmentRoundedIcon />, to: "/packages" },
+  { text: "Activity Types", icon: <EditCalendarRoundedIcon />, to: "/activity-types" },
+  { text: "Packages", icon: <ListAltRoundedIcon />, to: "/packages" },
 ];
 
 const secondaryListItems = [

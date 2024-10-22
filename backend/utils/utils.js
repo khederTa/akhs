@@ -1,5 +1,5 @@
 const methodAction = {
-  POST: "write",
+  POST: "create",
   PUT: "update",
   GET: "read",
   DELETE: "delete",

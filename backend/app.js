@@ -29,7 +29,7 @@ app.use("/api/v1/histories", require("./routes/history"));
 app.use("/api/v1/sessions", require("./routes/session"));
 app.use("/api/v1/activityType", require("./routes/activityType"));
 app.use("/api/v1/activities", require("./routes/activity"));
-app.use("/api/v1/packages", require("./routes/package"));
+app.use("/api/v1/package", require("./routes/package"));
 app.use("/api/v1/department", require("./routes/department"));
 app.use("/api/v1/address", require("./routes/address"));
 app.use("/api/v1/permissions", require("./routes/permission"));

@@ -17,9 +17,8 @@ module.exports = (sequelize, DataTypes) => {
     ActivityType.hasMany(models.Activity, {
       foreignKey: "activityTypeId",
     });
-    ActivityType.hasMany(models.Package, {
-      foreignKey: "packageId",
-    });
+    ActivityType.belongsToMany(models.Package, { through: "ActivityTypesPackages", timestamps: false });
+
 
     // Self-referential many-to-many relationship for prerequisites
     ActivityType.belongsToMany(ActivityType, {
