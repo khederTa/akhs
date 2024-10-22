@@ -151,7 +151,6 @@ export function ActivityTypes() {
         renderTags={(value, getTagProps) =>
           value.map((option: any, index: number) => (
             <Chip
-              key={`${option.id}-${option.name}`}
               label={option.name}
               {...getTagProps({ index })}
             />

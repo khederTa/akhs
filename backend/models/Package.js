@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       name: DataTypes.STRING,
+      description: DataTypes.STRING,
     },
     {
       tableName: "Packages",
@@ -12,11 +13,10 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Package.associate = (models) => {
-    Package.hasMany(models.ActivityType, {
-      foreignKey: "packageId",
+    Package.belongsToMany(models.ActivityType, {
+      through: "ActivityTypesPackages",
+      timestamps: false,
     });
-
-    
   };
 
   return Package;

@@ -69,16 +69,23 @@ export function CreateActivityType() {
     setIsLoading(true);
     const name = data.get("name") as string;
     const description = data.get("description") as string;
-    
+
     try {
-      const payload = {name, description, prerequisites: selectedPrerequisites};
+      const payload = {
+        name,
+        description,
+        prerequisites: selectedPrerequisites,
+      };
 
       // Send the data to the API via Axios POST request
-      const response = await axios.post("/activityType", payload).then(res => console.log(res)).catch(error => console.error(error));
-
-      // if (response.status === 201) {
-      //   navigate("/activity-types"); // Redirect upon success
-      // }
+      const response = await axios
+        .post("/activityType", payload)
+        .then((res) => {
+          if (res.status) {
+            navigate("/activity-types"); // Redirect upon success
+          }
+        })
+        .catch((error) => console.error(error));
     } catch (error) {
       console.error("Error creating activity type:", error);
       alert("An error occurred while submitting the form.");
