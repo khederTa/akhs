@@ -1,4 +1,12 @@
-const { User, Person, Department, Role, Address } = require("../models"); // Adjust the path as necessary
+const {
+  User,
+  Person,
+  Volunteer,
+  ServiceProvider,
+  Department,
+  Role,
+  Address,
+} = require("../models"); // Adjust the path as necessary
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -40,7 +48,7 @@ exports.getAllUsers = async (req, res) => {
 };
 
 exports.createUser = async (req, res) => {
-  const { personData, userData } = req.body;
+  const { personData, volunteerData, serviceProviderData, userData } = req.body;
 
   try {
     // Step 1: Create the address first (if provided in personData)
@@ -64,6 +72,16 @@ exports.createUser = async (req, res) => {
       street: personData.street,
     });
 
+    const volunteer = await Volunteer.create({
+      personId: person.id,
+      ...volunteerData,
+    });
+
+    const serviceProvider = await ServiceProvider.create({
+      volunteerId: volunteer.id,
+      ...serviceProviderData,
+    });
+
     // // Step 3: Create the department
     // let department = null;
     // if (departmentData && departmentData.name) {
@@ -83,8 +101,9 @@ exports.createUser = async (req, res) => {
     // Step 5: Create the user and associate it with the person, department, and role
     const user = await User.create({
       password: userData.password,
-      position: userData.position,
-      personId: person.id, // Link the personId
+
+      providerId: serviceProvider.providerId,
+
       departmentId: userData.departmentId, // Link departmentId if department exists
       roleId: userData.roleId, // Link roleId if role exists
     });

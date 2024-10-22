@@ -1,4 +1,4 @@
-const { ServiceProvider, Person , Address } = require("../models");
+const { ServiceProvider, Person , Address , Volunteer } = require("../models");
 
 exports.getAllServiceProviders = async (req, res) => {
   const serviceProviders = await ServiceProvider.findAll({
@@ -24,7 +24,7 @@ exports.getAllServiceProviders = async (req, res) => {
 };
 
 exports.createServiceProvider = async (req, res) => {
-  const { personData, serviceProviderData } = req.body; // Expecting person and serviceProvider data separately in the request body
+  const { personData, volunteerData ,  serviceProviderData } = req.body; // Expecting person and serviceProvider data separately in the request body
 
   try {
     // Step 1: Create the address first if it's part of personData
@@ -46,11 +46,18 @@ exports.createServiceProvider = async (req, res) => {
       work: personData.work,
       addressId: address ? address.id : null,  // Associate the person with the address if available
     });
+    const volunteer = await Volunteer.create({
+      personId: person.id,
+      ...volunteerData
+
+    });
 
     // Step 3: Create the service provider and associate it with the person
     const serviceProvider = await ServiceProvider.create({
+      volunteerId : volunteer.id ,
       ...serviceProviderData,   // Spread the service provider data
-      personId: person.id       // Associate the service provider with the person by personId
+      
+             // Associate the service provider with the person by personId
     });
 
     // Send the created service provider as the response
