@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
     const Volunteer = sequelize.define('Volunteer', {
-      id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+      volunteerId: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
       disable: DataTypes.BOOLEAN,
       disable_status: DataTypes.STRING
     }, {
