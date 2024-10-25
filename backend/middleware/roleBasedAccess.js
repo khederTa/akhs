@@ -19,9 +19,9 @@ const authenticateRole = async (req, res, next) => {
       }
     );
 
-    console.log(permissions);
-    console.log(resourceName);
-    console.log(action);
+    // console.log(permissions);
+    // console.log(resourceName);
+    // console.log(action);
 
     if (
       permissions.length === 0 ||

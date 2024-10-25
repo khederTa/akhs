@@ -1,4 +1,4 @@
-const { ActivityType } = require("../models");
+const { ActivityType, Department } = require("../models");
 const db = require("../models");
 const { QueryTypes } = require("sequelize");
 // Corrected getAllActivityTypes function
@@ -9,7 +9,10 @@ exports.getAllActivityTypes = async (req, res) => {
         {
           model: ActivityType,
           as: "Prerequisites",
-          through: { attributes: [] }, // Exclude junction table details
+          through: { attributes: [] },
+        },
+        {
+          model: Department,
         },
       ],
     });
@@ -22,10 +25,14 @@ exports.getAllActivityTypes = async (req, res) => {
 };
 
 exports.createActivityType = async (req, res) => {
-  const { name, description, prerequisites } = req.body;
+  const { name, description, departmentId, prerequisites } = req.body;
   try {
-    const activityType = await ActivityType.create({ name, description });
-
+    const activityType = await ActivityType.create({
+      name,
+      description,
+      departmentId,
+      active_status: "active"
+    });
     // Prepare the values for the insert statement
     const values = prerequisites
       .map((record) => `(${activityType.id}, ${record.id})`)
@@ -55,11 +62,22 @@ exports.getActivityTypeById = async (req, res) => {
 
 exports.updateActivityType = async (req, res) => {
   const { id } = req.params;
-  const { name, description, prerequisites } = req.body;
-
+  const { name, description, prerequisites, active_status, departmentId } =
+    req.body;
+  console.log("\nactivityType: \n");
+  console.log({
+    name,
+    description,
+    prerequisites,
+    active_status,
+    departmentId,
+  });
   try {
     // Update the activity type
-    await ActivityType.update({ name, description }, { where: { id } });
+    await ActivityType.update(
+      { name, description, active_status, departmentId },
+      { where: { id } }
+    );
 
     // Remove all existing prerequisites
     await db.sequelize.query(

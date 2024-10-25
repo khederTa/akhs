@@ -18,6 +18,7 @@ import ServiceProviderInfo from "./components/ServiceProviderInfo";
 import { ActivityTypes } from "./components/ActivityTypes";
 import { CreateActivityType } from "./components/CreateActivityType";
 import { Packages } from "./components/Packages";
+import { CreatePackage } from "./components/CreatePackage";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useAuthStore((state) => [
@@ -120,6 +121,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <Packages />
+                </Layout>
+              }
+            />
+            <Route
+              path="/new-package"
+              element={
+                <Layout>
+                  <CreatePackage />
                 </Layout>
               }
             />
