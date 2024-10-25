@@ -18,6 +18,8 @@ import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
 import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
 import EditCalendarRoundedIcon from '@mui/icons-material/EditCalendarRounded';
 import ListAltRoundedIcon from '@mui/icons-material/ListAltRounded';
+import DomainIcon from '@mui/icons-material/Domain';
+import ModeIcon from '@mui/icons-material/Mode';
 const mainListItems = [
   { text: "Home", icon: <HomeRoundedIcon />, to: "/" },
   {
@@ -42,6 +44,8 @@ const mainListItems = [
   },
   { text: "Activity Types", icon: <EditCalendarRoundedIcon />, to: "/activity-types" },
   { text: "Packages", icon: <ListAltRoundedIcon />, to: "/packages" },
+  { text: "Department", icon: <DomainIcon />, to: "/departments" },
+  { text: "Position", icon: <ModeIcon />, to: "/position" },
 ];
 
 const secondaryListItems = [

@@ -19,6 +19,9 @@ import { ActivityTypes } from "./components/ActivityTypes";
 import { CreateActivityType } from "./components/CreateActivityType";
 import { Packages } from "./components/Packages";
 import { CreatePackage } from "./components/CreatePackage";
+import Department from "./components/Department";
+import Position from "./components/Position";
+import CreateNewDepartment from "./components/CreateNewDepartment"
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useAuthStore((state) => [
@@ -129,6 +132,30 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <CreatePackage />
+                </Layout>
+              }
+            />
+            <Route
+              path="/departments"
+              element={
+                <Layout>
+                  <Department/>
+                </Layout>
+              }
+            />
+             <Route
+              path="/new-department"
+              element={
+                <Layout>
+                  <CreateNewDepartment/>
+                </Layout>
+              }
+            />
+            <Route
+              path="/position"
+              element={
+                <Layout>
+                  <Position/>
                 </Layout>
               }
             />

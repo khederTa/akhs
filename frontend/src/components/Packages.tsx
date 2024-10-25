@@ -187,7 +187,7 @@ export function Packages() {
           variant="contained"
           onClick={() => navigate("/new-package")}
         >
-          Add New Package
+          Add New Department
         </Button>
       </Stack>
       <Paper sx={{ height: 400, width: "100%" }}>
