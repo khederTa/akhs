@@ -25,12 +25,13 @@ app.use("/api/v1/persons", require("./routes/person"));
 app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceproviders", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteers", require("./routes/volunteer"));
-app.use("/api/v1/histories", require("./routes/history"));
+
 app.use("/api/v1/sessions", require("./routes/session"));
 app.use("/api/v1/activityType", require("./routes/activityType"));
 app.use("/api/v1/activities", require("./routes/activity"));
 app.use("/api/v1/package", require("./routes/package"));
 app.use("/api/v1/department", require("./routes/department"));
+app.use("/api/v1/position", require("./routes/position"));
 app.use("/api/v1/address", require("./routes/address"));
 app.use("/api/v1/permissions", require("./routes/permission"));
 app.use("/api/v1/attendees", require("./routes/attendees"));

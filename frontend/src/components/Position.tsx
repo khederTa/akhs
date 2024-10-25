@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 
-export function Packages() {
+const Position = () => {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState();
@@ -27,10 +27,10 @@ export function Packages() {
 
   // Fetch Package from the backend
   useEffect(() => {
-    async function fetchPackage() {
+    async function fetchDepartment() {
       setIsLoading(true);
       try {
-        const response = await axios.get("/package");
+        const response = await axios.get("/department");
         if (response && response.status === 200) {
           // Map over the data to adjust the field names
           setRows(response.data)          
@@ -40,12 +40,12 @@ export function Packages() {
           console.error("Unexpected response:", response);
         }
       } catch (error) {
-        console.error("Error fetching activity types:", error);
+        console.error("Error fetching Department:", error);
       } finally {
         setIsLoading(false);
       }
     }
-    fetchPackage();
+    fetchDepartment();
   }, []);
 
   return isLoading ? (
@@ -56,7 +56,7 @@ export function Packages() {
         <Button
           type="button"
           variant="contained"
-          onClick={() => navigate("/new-package")}
+          onClick={() => navigate("/new-department")}
         >
           Add New Department
         </Button>
@@ -74,3 +74,5 @@ export function Packages() {
     </div>
   );
 }
+
+export default Position

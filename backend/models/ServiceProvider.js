@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      position: DataTypes.STRING,
+      
     },
     {
       tableName: "ServiceProviders",
@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
     ServiceProvider.belongsTo(models.Department, {
       foreignKey: "departmentId",
     });
+    ServiceProvider.belongsTo(models.Position, { foreignKey: "positionId" });
     ServiceProvider.hasOne(models.User, { foreignKey: "providerId" });
     ServiceProvider.belongsToMany(models.Session, {
       through: "ServiceProviderSessions",
