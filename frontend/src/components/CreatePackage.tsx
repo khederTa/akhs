@@ -13,7 +13,6 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import PasswordInput from "./PasswordInput";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -34,7 +33,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-export function CreateActivityType() {
+export function CreatePackage() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
 
@@ -45,26 +44,19 @@ export function CreateActivityType() {
   const [nameErrorMessage, setNameErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isValidInput, setIsValidInput] = useState(false);
-  const [prerequisites, setPrerequisites] = useState([]);
-  const [selectedPrerequisites, setSelectedPrerequisites] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<number>();
+  const [activityTypes, setActivityTypes] = useState([]);
+  const [selectedActivityTypes, setSelectedActivityTypes] = useState([]);
 
   const navigate = useNavigate();
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchActivityTypes() {
       await axios
         .get("/activityType")
-        .then((res) => setPrerequisites(res.data))
-        .catch((error) => console.error(error));
-
-      await axios
-        .get("/department")
-        .then((res) => setDepartments(res.data))
+        .then((res) => setActivityTypes(res.data))
         .catch((error) => console.error(error));
     }
-    fetchData();
+    fetchActivityTypes();
   }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -76,22 +68,22 @@ export function CreateActivityType() {
     setIsLoading(true);
     const name = data.get("name") as string;
     const description = data.get("description") as string;
-    const departmentId = selectedDepartment;
-
+    console.log(selectedActivityTypes);
     try {
       const payload = {
         name,
         description,
-        departmentId,
-        prerequisites: selectedPrerequisites,
+        activityTypeIds: selectedActivityTypes.map(
+          (activityType: any) => activityType.id
+        ),
       };
 
       // Send the data to the API via Axios POST request
-      await axios
-        .post("/activityType", payload)
+      axios
+        .post("/package", payload)
         .then((res) => {
           if (res.status) {
-            navigate("/activity-types"); // Redirect upon success
+            navigate("/packages"); // Redirect upon success
           }
         })
         .catch((error) => console.error(error));
@@ -132,7 +124,7 @@ export function CreateActivityType() {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Activity Type
+        Create New Package
       </Typography>
       <Box
         component="form"
@@ -152,7 +144,7 @@ export function CreateActivityType() {
               error={nameError}
               helperText={nameErrorMessage}
               name="name"
-              placeholder="e.g. Public Health"
+              placeholder="e.g. Public Health Package"
               type="name"
               id="name"
               autoComplete="current-name"
@@ -182,28 +174,17 @@ export function CreateActivityType() {
           </FormControl>
         </Box>
         <Box>
-          <FormLabel>Department</FormLabel>
+          <FormLabel htmlFor="package'sActivityType">
+            Package's Activity Types
+          </FormLabel>
           <Autocomplete
-            sx={{ width: "100%" }}
-            options={departments}
-            value={selectedDepartment}
-            onChange={(event, newValue: any) => {
-              setSelectedDepartment(newValue.id);
-            }}
-            getOptionLabel={(option) => option.name || ""}
-            defaultValue={selectedDepartment}
-            renderInput={(params) => <TextField {...params} />}
-          />
-        </Box>
-        <Box>
-          <FormLabel>Activity Type Prerequisite</FormLabel>
-          <Autocomplete
+            id="package'sActivityType"
             sx={{ width: "100%" }}
             multiple
-            options={prerequisites}
-            value={selectedPrerequisites}
+            options={activityTypes}
+            value={selectedActivityTypes}
             onChange={(event, newValue: any) =>
-              setSelectedPrerequisites(newValue)
+              setSelectedActivityTypes(newValue)
             }
             getOptionLabel={(option) => option.name || ""}
             defaultValue={[]}
@@ -216,9 +197,7 @@ export function CreateActivityType() {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading
-            ? "Creating New Activity Type..."
-            : "Create New Activity Type"}
+          {isLoading ? "Creating New Package..." : "Create New Package"}
         </Button>
       </Box>
     </Card>

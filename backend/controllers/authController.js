@@ -18,7 +18,7 @@ exports.register = async (req, res) => {
 
     // 2. Create the Volunteer record linked to Person
     const volunteer = await Volunteer.create(req.body, { transaction: t });
-    req.body.volunteerId = volunteer.id; // Set the volunteerId for ServiceProvider
+    req.body.volunteerId = volunteer.volunteerId; // Set the volunteerId for ServiceProvider
 
     // 3. Create the ServiceProvider record linked to Volunteer
     const serviceProvider = await ServiceProvider.create(req.body, { transaction: t });
@@ -58,7 +58,7 @@ exports.login = async (req, res) => {
     }
 
     // 3. Find the ServiceProvider linked to Volunteer
-    const serviceProvider = await ServiceProvider.findOne({ where: { volunteerId: volunteer.id } });
+    const serviceProvider = await ServiceProvider.findOne({ where: { volunteerId: volunteer.volunteerId } });
     if (!serviceProvider) {
       return res.status(401).json({ message: "ServiceProvider Not Found" });
     }

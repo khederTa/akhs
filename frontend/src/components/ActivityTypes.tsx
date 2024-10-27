@@ -9,20 +9,66 @@ import {
 import Paper from "@mui/material/Paper";
 import {
   Button,
-  IconButton,
   Stack,
   Chip,
   Box,
   Autocomplete,
   TextField,
+  Switch,
 } from "@mui/material";
 import axios from "../utils/axios";
 import { Loading } from "./Loading";
 import { ReportModal } from "./ReportModal";
 import { useNavigate } from "react-router-dom";
-import DeleteRoundedIcon from "@mui/icons-material/DeleteRounded";
-import DraggableDialog from "./DraggableDialog";
+import styled from "@emotion/styled";
 const paginationModel = { page: 0, pageSize: 5 };
+
+const AntSwitch = styled(Switch)(({ theme }: any) => ({
+  width: 28,
+  height: 16,
+  padding: 0,
+  display: "flex",
+  "&:active": {
+    "& .MuiSwitch-thumb": {
+      width: 15,
+    },
+    "& .MuiSwitch-switchBase.Mui-checked": {
+      transform: "translateX(9px)",
+    },
+  },
+  "& .MuiSwitch-switchBase": {
+    padding: 2,
+    "&.Mui-checked": {
+      transform: "translateX(12px)",
+      color: "#fff",
+      "& + .MuiSwitch-track": {
+        opacity: 1,
+        backgroundColor: "#1890ff",
+        ...theme.applyStyles("dark", {
+          backgroundColor: "#177ddc",
+        }),
+      },
+    },
+  },
+  "& .MuiSwitch-thumb": {
+    boxShadow: "0 2px 4px 0 rgb(0 35 11 / 20%)",
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    transition: theme.transitions.create(["width"], {
+      duration: 200,
+    }),
+  },
+  "& .MuiSwitch-track": {
+    borderRadius: 16 / 2,
+    opacity: 1,
+    backgroundColor: "rgba(0,0,0,.25)",
+    boxSizing: "border-box",
+    ...theme.applyStyles("dark", {
+      backgroundColor: "rgba(255,255,255,.35)",
+    }),
+  },
+}));
 
 export function ActivityTypes() {
   const [rows, setRows] = useState<any[]>([]);
@@ -30,52 +76,57 @@ export function ActivityTypes() {
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
-  const [activityTypeId, setActivityTypeId] = useState<number>();
-  const [openDraggableDialog, setOpenDraggableDialog] = useState(false);
+  const [departments, setDepartments] = useState<any[]>([]);
 
-  const handleClickOpenDraggableDialog = (id: number) => {
-    setActivityTypeId(id);
-    setOpenDraggableDialog(true);
-  };
-
-  const handleCloseDraggableDialog = () => {
-    setOpenDraggableDialog(false);
-  };
   const navigate = useNavigate();
 
-  // Fetch ActivityTypes from the backend
   useEffect(() => {
-    async function fetchActivityTypes() {
+    const fetchActivityTypes = async () => {
       setIsLoading(true);
       try {
-        const response = await axios.get("/activityType");
-        if (response && response.status === 200) {
-          // Map over the data to adjust the field names
-          const adjustedData = response.data.map((activityType: any) => ({
+        const { data, status } = await axios.get("/activityType");
+        if (status === 200) {
+          const adjustedData = data.map((activityType: any) => ({
             ...activityType,
-            prerequisites: activityType.Prerequisites, // Rename 'Prerequisites' to 'prerequisites'
+            prerequisites: activityType.Prerequisites,
+            department: activityType.Department?.name,
           }));
-
           setRows(adjustedData);
-          setActivityTypes(adjustedData); // Save all activity types for the dropdown
+          setActivityTypes(adjustedData);
         } else {
-          console.error("Unexpected response:", response);
+          console.error("Unexpected response:", status);
         }
       } catch (error) {
         console.error("Error fetching activity types:", error);
       } finally {
         setIsLoading(false);
       }
-    }
+    };
+
+    const fetchDepartments = async () => {
+      try {
+        const { data } = await axios.get("/department");
+        setDepartments(data);
+      } catch (error) {
+        console.error("Error fetching departments:", error);
+      }
+    };
+
     fetchActivityTypes();
+    fetchDepartments();
   }, []);
 
   // Process row update (for inline editing)
   const handleProcessRowUpdate = async (newRow: GridRowModel) => {
     try {
+      console.log(newRow);
+      const departmentId = departments.filter(
+        (department) => department.name === newRow.department
+      )[0].id;
       const updatedRow = {
         ...newRow,
         prerequisites: newRow.prerequisites.map((pre: any) => pre.id), // Convert prerequisites to IDs
+        departmentId,
       };
 
       const response = await axios.put(
@@ -94,18 +145,49 @@ export function ActivityTypes() {
     }
   };
 
-  // Delete an activity type
-  const handleDelete = async (id: number) => {
+  // active / inactive an activity type
+  const handleToggleActive = async (row: any) => {
+    const id = row.id;
+    const active_status =
+      row.active_status === "active" ? "inactive" : "active";
     if (!id) return;
     try {
-      await axios.delete(`/activityType/${id}`);
-      setRows((prevRows) => prevRows.filter((row) => row.id !== id));
-      console.log("Row deleted successfully:", id);
+      const updatedRow = { ...row, active_status };
+      console.log(updatedRow);
+      await axios.put(`/activityType/${id}`, updatedRow);
     } catch (error) {
-      console.error("Error deleting row:", error);
+      console.error("Error active / inactive row:", error);
     }
   };
 
+  const DepartmentEditor = (params: GridRenderEditCellParams) => {
+    const handleChange = (event: any, newValue: any) => {
+      console.log(newValue);
+      params.api.setEditCellValue({
+        id: params.row.id,
+        field: "department",
+        value: newValue?.name || "",
+      });
+    };
+
+    return (
+      <Autocomplete
+        id="department-editor"
+        sx={{ width: "100%" }}
+        options={departments}
+        getOptionLabel={(option) => option.name}
+        value={departments.find((dep) => dep.name === params.value) || null}
+        onChange={handleChange}
+        renderInput={(params) => (
+          <TextField
+            {...params}
+            variant="standard"
+            placeholder="Select Department"
+          />
+        )}
+      />
+    );
+  };
   // Custom cell editor component for prerequisites column using Autocomplete
   const PrerequisiteEditor = (params: GridRenderEditCellParams) => {
     const [selectedPrerequisites, setSelectedPrerequisites] = useState<any[]>(
@@ -150,10 +232,7 @@ export function ActivityTypes() {
         )}
         renderTags={(value, getTagProps) =>
           value.map((option: any, index: number) => (
-            <Chip
-              label={option.name}
-              {...getTagProps({ index })}
-            />
+            <Chip label={option.name} {...getTagProps({ index })} />
           ))
         }
       />
@@ -193,30 +272,43 @@ export function ActivityTypes() {
       renderCell: (params) => <PrerequisiteRenderer {...params} />, // Custom renderer for display
     },
     {
+      field: "department",
+      headerName: "Department",
+      minWidth: 250,
+      editable: true,
+      renderEditCell: (params) => <DepartmentEditor {...params} />,
+    },
+    {
       field: "description",
       headerName: "Description",
       minWidth: 250,
       editable: true,
     },
     {
-      field: "actions",
-      headerName: "Actions",
+      field: "active_status",
+      headerName: "Active / Inactive",
       minWidth: 150,
       renderCell: (params: any) => (
-        <IconButton onClick={() => handleClickOpenDraggableDialog(params.id)}>
-          <DeleteRoundedIcon color="error" />
-        </IconButton>
+        <Stack
+          spacing={1}
+          sx={{
+            display: "flex",
+            height: "100%",
+            justifyContent: "center",
+          }}
+        >
+          <AntSwitch
+            defaultChecked={params.value === "active"}
+            inputProps={{ "aria-label": "ant design" }}
+            onChange={() => handleToggleActive(params.row)}
+          />
+        </Stack>
       ),
     },
   ];
 
   return (
     <>
-      <DraggableDialog
-        open={openDraggableDialog}
-        handleClose={handleCloseDraggableDialog}
-        onConfirm={() => handleDelete(activityTypeId as number)}
-      />
       <ReportModal
         open={reportModalIsOpen}
         handleClose={() => setReportModalIsOpen(false)}

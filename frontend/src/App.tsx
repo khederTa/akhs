@@ -18,6 +18,7 @@ import ServiceProviderInfo from "./components/ServiceProviderInfo";
 import { ActivityTypes } from "./components/ActivityTypes";
 import { CreateActivityType } from "./components/CreateActivityType";
 import { Packages } from "./components/Packages";
+import { CreatePackage } from "./components/CreatePackage";
 import Department from "./components/Department";
 import Position from "./components/Position";
 import CreateNewDepartment from "./components/CreateNewDepartment"
@@ -124,6 +125,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <Packages />
+                </Layout>
+              }
+            />
+            <Route
+              path="/new-package"
+              element={
+                <Layout>
+                  <CreatePackage />
                 </Layout>
               }
             />
