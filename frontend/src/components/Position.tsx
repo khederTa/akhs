@@ -30,7 +30,7 @@ const Position = () => {
     async function fetchDepartment() {
       setIsLoading(true);
       try {
-        const response = await axios.get("/department");
+        const response = await axios.get("/position");
         if (response && response.status === 200) {
           // Map over the data to adjust the field names
           setRows(response.data)          
@@ -40,7 +40,7 @@ const Position = () => {
           console.error("Unexpected response:", response);
         }
       } catch (error) {
-        console.error("Error fetching Department:", error);
+        console.error("Error fetching Position:", error);
       } finally {
         setIsLoading(false);
       }
@@ -56,9 +56,9 @@ const Position = () => {
         <Button
           type="button"
           variant="contained"
-          onClick={() => navigate("/new-department")}
+          onClick={() => navigate("/new-position")}
         >
-          Add New Department
+          Add New Position
         </Button>
       </Stack>
       <Paper sx={{ height: 400, width: "100%" }}>

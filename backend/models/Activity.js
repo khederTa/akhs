@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Activity.hasMany(models.Session, { foreignKey: "activityId" });
     Activity.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedActivity' });
+    
   };
 
   return Activity;
