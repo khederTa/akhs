@@ -54,7 +54,7 @@ exports.createServiceProvider = async (req, res) => {
 
     // Step 3: Create the service provider and associate it with the person
     const serviceProvider = await ServiceProvider.create({
-      volunteerId : volunteer.id ,
+      volunteerId : volunteer.volunteerId ,
       ...serviceProviderData,   // Spread the service provider data
       
              // Associate the service provider with the person by personId

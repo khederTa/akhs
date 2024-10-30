@@ -23,6 +23,8 @@ import Department from "./components/Department";
 import Position from "./components/Position";
 import CreateNewDepartment from "./components/CreateNewDepartment"
 import CreateNewPosition from "./components/CreateNewPosition";
+import Volunteer from "./components/Volunteer";
+import ServiceProvider from "./components/ServiceProvider";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useAuthStore((state) => [
@@ -78,11 +80,27 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
+             <Route
+              path="/volunteer"
+              element={
+                <Layout>
+                  <Volunteer/>
+                </Layout>
+              }
+            />
             <Route
               path="/volunteer-information"
               element={
                 <Layout>
                   <VolunteerInfo />
+                </Layout>
+              }
+            />
+            <Route
+              path="/serviceprovider"
+              element={
+                <Layout>
+                  <ServiceProvider/>
                 </Layout>
               }
             />

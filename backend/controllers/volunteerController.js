@@ -1,41 +1,50 @@
-const { Volunteer,Person, Address } = require('../models');
-
+const { Volunteer, Person, Address, ServiceProvider } = require("../models");
 
 exports.getAllVolunteers = async (req, res) => {
-    const volunteers = await Volunteer.findAll(
+  try {
+    const volunteers = await Volunteer.findAll({
+      attributes: ["volunteerId", "disable", "disable_status"],
+      include: [
         {
-            attributes: ["volunteerId", "disable" ,"disable_status"],
-            include: [
-              {
-                model: Person,
-                attributes: [
-                  "fname",
-                  "lname",
-                  "mname",
-                  "phone",
-                  "email",
-                  "bDate",
-                  "gender",
-                  "study",
-                  "work",
-                ],
-              },
-             
-             
-            ],
-          }
-    );
+          model: Person,
+          attributes: [
+            "id", "fname", "lname", "mname", "momName", "phone", "email",
+            "bDate", "gender", "study", "work", "nationalNumber", "fixPhone",
+            "smoking", "notes", "prevVol", "compSkilles", "pdfFile",
+          ],
+          include: [
+            {
+              model: Address,
+              attributes: ["id", "country", "state", "city", "street", "village"],
+            },
+          ],
+        },
+        {
+          model: ServiceProvider,
+          required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
+          attributes: []   // We don’t need to retrieve any columns from ServiceProvider
+        }
+      ],
+      where: {
+        "$ServiceProvider.volunteerId$": null, // Filter volunteers with no associated ServiceProvider
+      }
+    });
+
     res.json(volunteers);
+  } catch (error) {
+    console.error("Error fetching volunteers with person and address information:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving volunteers." });
+  }
 };
 
-
-
 exports.createVolunteer = async (req, res) => {
-  const { personData, volunteerData } = req.body;
+  const { addressData, personData, volunteerData } = req.body;
 
   try {
     // Create the address first if it's part of personData
-    const address = await Address.create(personData.address); // Save the address in the database
+    const address = await Address.create(addressData); // Save the address in the database
 
     // Create the person and associate it with the address
     const person = await Person.create({
@@ -48,36 +57,142 @@ exports.createVolunteer = async (req, res) => {
       gender: personData.gender,
       study: personData.study,
       work: personData.work,
-      addressId: address.id,  // Associate the person with the address
+      addressId: address.id, // Associate the person with the address
     });
 
     // Create the volunteer and associate it with the person
     const volunteer = await Volunteer.create({
-      ...volunteerData,   // Spread the volunteer data (disable, disable_status)
-      personId: person.id // Associate the volunteer with the person by personId
+      ...volunteerData, // Spread the volunteer data (disable, disable_status)
+      personId: person.id, // Associate the volunteer with the person by personId
     });
 
     // Send the created volunteer as the response
     res.status(201).json(volunteer);
   } catch (error) {
     console.error("Error creating volunteer:", error);
-    res.status(500).json({ error: 'An error occurred while creating the volunteer' });
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the volunteer" });
+  }
+};
+
+exports.getVolunteerById = async (req, res) => {
+  try {
+    const volunteer = await Volunteer.findByPk(req.params.id, {
+      include: [
+        {
+          model: Person,
+          include: [
+            {
+              model: Address,
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!volunteer) {
+      return res.status(404).json({ error: "Volunteer not found" });
+    }
+
+    res.json(volunteer);
+  } catch (error) {
+    console.error("Error fetching volunteer:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while retrieving the volunteer." });
+  }
+};
+
+
+exports.updateVolunteer = async (req, res) => {
+  try {
+    await Volunteer.update(req.body, { where: { volunteerId: req.params.id } });
+    res.json({ message: "Volunteer updated" });
+  } catch (error) {
+    console.error("Error updating volunteer:", error);
+    res.status(500).json({ message: "Error updating volunteer" });
   }
 };
 
 
 
-exports.getVolunteerById = async (req, res) => {
-    const volunteer = await Volunteer.findByPk(req.params.id);
-    res.json(volunteer);
-};
-
-exports.updateVolunteer = async (req, res) => {
-    await Volunteer.update(req.body, { where: { volunteerId: req.params.id } });
-    res.json({ message: 'Volunteer updated' });
-};
-
 exports.deleteVolunteer = async (req, res) => {
-    await Volunteer.destroy({ where: { volunteerId: req.params.id } });
-    res.json({ message: 'Volunteer deleted' });
+  try {
+    const volunteer = await Volunteer.findByPk(req.params.id);
+
+    if (!volunteer) {
+      return res.status(404).json({ error: "Volunteer not found" });
+    }
+
+    const person = await Person.findByPk(volunteer.personId);
+    const addressId = person ? person.addressId : null;
+
+    // Delete the volunteer
+    await volunteer.destroy();
+
+    // Delete related person and address if they exist
+    if (person) {
+      await person.destroy();
+      if (addressId) {
+        await Address.destroy({ where: { id: addressId } });
+      }
+    }
+
+    res.json({ message: "Volunteer and related data deleted" });
+  } catch (error) {
+    console.error("Error deleting volunteer:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while deleting the volunteer." });
+  }
 };
+
+
+
+
+
+/*async (req, res) => {
+  const { personData, volunteerData } = req.body;  // Destructure from request body
+console.log("the persondata is" , personData)
+  try {
+    const volunteer = await Volunteer.findByPk(req.params.id);
+
+    if (!volunteer) {
+      return res.status(404).json({ error: "Volunteer not found" });
+    }
+
+    // Only update fields in volunteerData that are provided
+    if (volunteerData) {
+      await volunteer.update(volunteerData);
+    }
+
+    // Check if there's person data to update
+    if (personData) {
+      const person = await Person.findByPk(volunteer.personId);
+
+      if (person) {
+        // Update person data only if fields are provided
+        await person.update(personData);
+
+        // Check if address data exists and should be updated
+        if (personData.address) {
+          const address = await Address.findByPk(person.addressId);
+
+          if (address) {
+            await address.update(personData.address);
+          } else {
+            // If no address exists but data is provided, create a new address
+            const newAddress = await Address.create(personData.address);
+            await person.update({ addressId: newAddress.id });
+          }
+        }
+      }
+    }
+
+    res.json({ message: "Volunteer and related data updated successfully" });
+  } catch (error) {
+    console.error("Error updating volunteer:", error);
+    res.status(500).json({ error: "An error occurred while updating the volunteer." });
+  }
+};*/

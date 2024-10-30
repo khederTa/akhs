@@ -34,10 +34,14 @@ exports.getAllUsers = async (req, res) => {
           attributes: ["name", "description"],
         },
         {
+          model: ServiceProvider,
+          attributes: ["name", "description"],
+        },
+        {
           model: Role,
           attributes: ["name", "description"],
         },
-        { model: Department, attributes: ["name", "description"] },
+        // { model: Department, attributes: ["name", "description"] },
       ],
     });
 

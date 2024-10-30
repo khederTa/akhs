@@ -79,7 +79,7 @@ export function UserManagement() {
   useEffect(() => {
     async function fetchUserData() {
       const userData = await axios
-        .get("/user/")
+        .get("/user")
         .then((res) => {
           const userRows = res.data.map((user: any) => {
             return {

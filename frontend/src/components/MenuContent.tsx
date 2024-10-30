@@ -33,9 +33,15 @@ const mainListItems = [
     to: "/activity-management",
   },
   {
-    text: "Volunteer Information",
+    text: "Volunteer",
     icon: <AccountBoxRoundedIcon />,
-    to: "/volunteer-information",
+    to: "/volunteer",
+  },
+  
+  {
+    text: "ServiceProvider",
+    icon: <SupervisorAccountIcon/>,
+    to: "/serviceprovider",
   },
   {
     text: "ServiceProvider Information",

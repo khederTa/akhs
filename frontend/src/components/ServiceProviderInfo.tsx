@@ -124,7 +124,7 @@ const ServiceProviderInfo = () => {
       };
 
       // Send the data to the API via Axios POST request
-      const response = await axios.post("/serviceproviders", payload);
+      const response = await axios.post("/serviceprovider", payload);
 
       if (response.status === 201) {
         console.log("serviceprovider created successfully:", response.data);

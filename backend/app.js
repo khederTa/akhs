@@ -21,11 +21,10 @@ app.use(cors({
 
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
-app.use("/api/v1/persons", require("./routes/person"));
+app.use("/api/v1/person", require("./routes/person"));
 app.use("/api/v1/user", require("./routes/user"));
-app.use("/api/v1/serviceproviders", require("./routes/serviceprovider"));
-app.use("/api/v1/volunteers", require("./routes/volunteer"));
-
+app.use("/api/v1/serviceprovider", require("./routes/serviceprovider"));
+app.use("/api/v1/volunteer", require("./routes/volunteer"));
 app.use("/api/v1/sessions", require("./routes/session"));
 app.use("/api/v1/activityType", require("./routes/activityType"));
 app.use("/api/v1/activities", require("./routes/activity"));

@@ -12,7 +12,7 @@ exports.createAddress = async (req, res) => {
       city: req.body.city,
       street: req.body.street,
       state: req.body.state,
-      buildingname: req.body.buildingname,
+      village: req.body.buildingname,
     });
     res.status(201).json(address);
   } catch (error) {
