@@ -1,4 +1,4 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 import axios from "../utils/axios";
@@ -16,6 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
+import FileUpload from "./FileUpload";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -86,6 +87,11 @@ export function CreateNewUser() {
   const [isLoading, setIsLoading] = useState(false);
   const [isValidInput, setIsValidInput] = useState(false);
   const navigate = useNavigate();
+
+  const [fieldId, setFieldId] = useState<number | null>(null);
+  useEffect(() => {
+    console.log(fieldId);
+  }, [fieldId]);
 
   useEffect(() => {
     async function fetchData() {
@@ -505,7 +511,7 @@ export function CreateNewUser() {
               label="Department"
               onChange={handleChangeDepartment}
             >
-              {departments.map((item: any) => (
+              {departments.map((item: { id: number; name: string }) => (
                 <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
                   {item.name}
                 </MenuItem>
@@ -551,10 +557,15 @@ export function CreateNewUser() {
         <FormControl>
           <FormLabel htmlFor="password">Password</FormLabel>
           <PasswordInput
-            onChange={(e: any) => setPassword(e.target.value)}
+            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              setPassword(e.target.value)
+            }
             passwordError={passwordError}
             passwordErrorMessage={passwordErrorMessage}
           />
+        </FormControl>
+        <FormControl>
+          <FileUpload setFieldId={setFieldId} />
         </FormControl>
 
         <Button

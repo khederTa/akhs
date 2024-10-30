@@ -1,13 +1,12 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import AppTheme, { DirectionContext } from "./shared-theme/AppTheme";
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { setUser } from "./utils/auth";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
 import { Stack } from "@mui/material";
-import { useAuthStore } from "./store/auth";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
@@ -25,10 +24,7 @@ import CreateNewDepartment from "./components/CreateNewDepartment"
 import CreateNewPosition from "./components/CreateNewPosition";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
-  const [loading, setLoading] = useAuthStore((state) => [
-    state.loading,
-    state.setLoading,
-  ]);
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     setLoading(true);

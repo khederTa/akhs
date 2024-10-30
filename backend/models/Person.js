@@ -13,17 +13,19 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-      city: DataTypes.STRING,
-      street: DataTypes.STRING,
       nationalNumber: DataTypes.STRING,
       fixPhone: DataTypes.STRING,
       smoking: DataTypes.BOOLEAN,
       notes: DataTypes.STRING,
       prevVol: DataTypes.STRING,
       compSkilles: DataTypes.STRING,
-      pdfFile: {
-        type: DataTypes.BLOB('long'), // Use 'long' for large files
-        allowNull: true, // Set to true if it's optional
+      fileId: {
+        type: DataTypes.INTEGER,
+        references: {
+          model: "Files", // Reference the Files table
+          key: "id",
+        },
+        allowNull: true, // Set to true if file is optional
       },
     },
     {
@@ -33,11 +35,9 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   Person.associate = (models) => {
-    
     Person.hasOne(models.Volunteer, { foreignKey: "personId" });
-    
     Person.belongsTo(models.Address, { foreignKey: "addressId" });
-    
+    Person.belongsTo(models.File, { foreignKey: "fileId" }); // Person has one File through fileId
   };
 
   return Person;

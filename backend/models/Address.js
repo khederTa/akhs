@@ -7,10 +7,9 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      country: DataTypes.STRING,
       state: DataTypes.STRING,
       city: DataTypes.STRING,
-      street: DataTypes.STRING,
+      district: DataTypes.STRING,
       village: DataTypes.STRING,
     },
     {

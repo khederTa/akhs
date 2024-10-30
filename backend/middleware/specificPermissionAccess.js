@@ -6,7 +6,7 @@ const specificPermissionAccess = async (req, res, next) => {
   try {
     const userId = req.user.userId;
     const { resourceId, resourceName, action } = utils(req);
-    console.log(resourceId, resourceName, action, userId);
+    // console.log(resourceId, resourceName, action, userId);
 
     const specificPermissionAccess = await db.sequelize.query(
       "SELECT * FROM specificattributepermissions WHERE userId = :userId AND resourceName = :resourceName AND action = :action AND resourceId = :resourceId",
@@ -21,8 +21,8 @@ const specificPermissionAccess = async (req, res, next) => {
       }
     );
 
-    console.log("specificPermissionAccess");
-    console.log(specificPermissionAccess);
+    // console.log("specificPermissionAccess");
+    // console.log(specificPermissionAccess);
 
     if (specificPermissionAccess.length > 0) {
       return next();

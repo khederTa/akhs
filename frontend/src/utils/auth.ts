@@ -91,6 +91,7 @@ export const setUser = async (): Promise<void> => {
   const refreshToken = getCookie("refresh_token");
 
   if (!accessToken || !refreshToken) {
+    useAuthStore.getState().setUser(null);
     return;
   }
 

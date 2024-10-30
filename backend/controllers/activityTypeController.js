@@ -64,14 +64,14 @@ exports.updateActivityType = async (req, res) => {
   const { id } = req.params;
   const { name, description, prerequisites, active_status, departmentId } =
     req.body;
-  console.log("\nactivityType: \n");
-  console.log({
-    name,
-    description,
-    prerequisites,
-    active_status,
-    departmentId,
-  });
+  // console.log("\nactivityType: \n");
+  // console.log({
+  //   name,
+  //   description,
+  //   prerequisites,
+  //   active_status,
+  //   departmentId,
+  // });
   try {
     // Update the activity type
     await ActivityType.update(
