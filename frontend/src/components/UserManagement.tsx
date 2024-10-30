@@ -3,17 +3,46 @@ import { DataGrid, GridColDef, GridRowModel } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { Button, Stack } from "@mui/material";
 import axios from "../utils/axios";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Loading } from "./Loading";
 import { ReportModal } from "./ReportModal";
-
+type UserType = {
+  userId: number;
+  ServiceProvider: {
+    Volunteer: {
+      Person: {
+        Address: {
+          state: string;
+          city: string;
+          district: string;
+          village: string;
+        };
+        fname: string;
+        mname: string;
+        lname: string;
+        email: string;
+        phone: string;
+        city: string;
+        street: string;
+        study: string;
+        work: string;
+        gender: string;
+        bDate: string;
+      };
+    };
+    Position: { name: string };
+    Department: { name: string; description: string };
+  };
+  Role: { name: string; description: string };
+};
 const columns: GridColDef[] = [
   { field: "id", headerName: "ID", minWidth: 150 },
   {
     field: "fullName",
     headerName: "Full name",
     description: "This column has a value getter and is not sortable.",
-    valueGetter: (value, row) => `${row.firstName || ""} ${row.lastName || ""}`,
+    valueGetter: (_value, row) =>
+      `${row.firstName || ""} ${row.lastName || ""}`,
     // renderCell: (params: any) => (
     //   <Link to={`${params.row.id}`}>{params.value}</Link>
     // ),
@@ -31,8 +60,7 @@ const columns: GridColDef[] = [
   { field: "phone", headerName: "Phone", minWidth: 150 },
   { field: "position", headerName: "Position", minWidth: 150 },
   { field: "study", headerName: "Study", minWidth: 150 },
-  { field: "city", headerName: "City", minWidth: 150 },
-  { field: "street", headerName: "Street", minWidth: 150 },
+  { field: "address", headerName: "Address", minWidth: 250 },
   { field: "work", headerName: "Work", minWidth: 150 },
   {
     field: "gender",
@@ -49,7 +77,7 @@ const columns: GridColDef[] = [
   },
   { field: "roleName", headerName: "Role Name", minWidth: 150 },
   {
-    field: "roletDescription",
+    field: "roleDescription",
     headerName: "Role Description",
     minWidth: 150,
     width: 300,
@@ -67,7 +95,7 @@ const paginationModel = { page: 0, pageSize: 5 };
 export function UserManagement() {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState();
+  // const [error, setError] = useState();
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const navigate = useNavigate();
@@ -81,33 +109,51 @@ export function UserManagement() {
       const userData = await axios
         .get("/user")
         .then((res) => {
-          const userRows = res.data.map((user: any) => {
+          const userRows = res.data.map((user: UserType) => {
+            console.log(user);
             return {
               id: user?.userId,
-              firstName: user?.Person?.fname,
-              middleName: user?.Person?.mname,
-              lastName: user?.Person?.lname,
-              email: user?.Person?.email,
-              phone: user?.Person?.phone,
-              city: user?.Person?.city,
-              street: user?.Person?.street,
-              position: user?.position,
-              study: user?.Person?.study,
-              work: user?.Person?.work,
-              gender: user?.Person?.gender,
-              birthDate: user?.Person?.bDate,
+              firstName: user?.ServiceProvider?.Volunteer?.Person?.fname,
+              middleName: user?.ServiceProvider?.Volunteer?.Person?.mname,
+              lastName: user?.ServiceProvider?.Volunteer?.Person?.lname,
+              email: user?.ServiceProvider?.Volunteer?.Person?.email,
+              phone: user?.ServiceProvider?.Volunteer?.Person?.phone,
+              city: user?.ServiceProvider?.Volunteer?.Person?.city,
+              street: user?.ServiceProvider?.Volunteer?.Person?.street,
+              position: user?.ServiceProvider?.Position?.name,
+              study: user?.ServiceProvider?.Volunteer?.Person?.study,
+              work: user?.ServiceProvider?.Volunteer?.Person?.work,
+              address: `${
+                user?.ServiceProvider?.Volunteer?.Person?.Address?.state.split(
+                  "/"
+                )[1]
+              } - ${
+                user?.ServiceProvider?.Volunteer?.Person?.Address?.city.split(
+                  "/"
+                )[1]
+              } - ${
+                user?.ServiceProvider?.Volunteer?.Person?.Address?.district.split(
+                  "/"
+                )[1]
+              } - ${
+                user?.ServiceProvider?.Volunteer?.Person?.Address?.village.split(
+                  "/"
+                )[1]
+              }`,
+              gender: user?.ServiceProvider?.Volunteer?.Person?.gender,
+              birthDate: user?.ServiceProvider?.Volunteer?.Person?.bDate,
               roleName: user?.Role?.name,
               roleDescription: user?.Role?.description,
-              departmentName: user?.Department?.name,
-              departmentDescription: user?.Department?.description,
+              departmentName: user?.ServiceProvider?.Department?.name,
+              departmentDescription:
+                user?.ServiceProvider?.Department?.description,
             };
           });
           setRows(userRows);
-          console.log(userRows);
         })
         .catch((err) => {
           console.error(err);
-          setError(err);
+          // setError(err);
         })
         .finally(() => setIsLoading(false));
       return userData;

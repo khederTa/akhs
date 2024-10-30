@@ -5,30 +5,23 @@ const {
   ServiceProvider,
   Department,
   Role,
-  Address,
+  Position,
+  Address
 } = require("../models"); // Adjust the path as necessary
 
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
-      attributes: ["userId", "position"],
       include: [
         {
-          model: Person,
-          attributes: [
-            "fname",
-            "lname",
-            "mname",
-            "phone",
-            "email",
-            "bDate",
-            "gender",
-            "study",
-            "work",
-            "city",
-            "street",
+          model: ServiceProvider,
+          include: [
+            { model: Volunteer, include: [{ model: Person, include: [{model: Address}] }] },
+            { model: Department },
+            { model: Position },
           ],
         },
+<<<<<<< HEAD
         {
           model: Department,
           attributes: ["name", "description"],
@@ -42,10 +35,12 @@ exports.getAllUsers = async (req, res) => {
           attributes: ["name", "description"],
         },
         // { model: Department, attributes: ["name", "description"] },
+=======
+        { model: Role },
+>>>>>>> b7e454ce18fb38298473d29666c74af9c0a004fd
       ],
     });
-
-    res.json(users);
+    res.status(200).json(users);
   } catch (error) {
     console.error("Error fetching user data:", error);
   }
@@ -56,10 +51,10 @@ exports.createUser = async (req, res) => {
 
   try {
     // Step 1: Create the address first (if provided in personData)
-    // let address = null;
-    // if (personData.address) {
-    //   address = await Address.create(personData.address); // Create the address
-    // }
+    let address = null;
+    if (personData.address) {
+      address = await Address.create(personData.address); // Create the address
+    }
 
     // Step 2: Create the person and link the addressId (if address exists)
     const person = await Person.create({
@@ -72,8 +67,14 @@ exports.createUser = async (req, res) => {
       gender: personData.gender,
       study: personData.study,
       work: personData.work,
-      city: personData.city,
-      street: personData.street,
+      nationalNumber: personData.nationalNumber,
+      fixPhone: personData.fixPhone,
+      smoking: personData.smoking,
+      notes: personData.notes,
+      compSkills: personData.compSkills,
+      prevVol: personData.prevVol,
+      fileId: personData.fileId,
+      addressId: address.id,
     });
 
     const volunteer = await Volunteer.create({

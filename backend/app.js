@@ -21,7 +21,12 @@ app.use(cors({
 
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
+<<<<<<< HEAD
 app.use("/api/v1/person", require("./routes/person"));
+=======
+app.use("/api/v1/address", require("./routes/address"));
+app.use("/api/v1/persons", require("./routes/person"));
+>>>>>>> b7e454ce18fb38298473d29666c74af9c0a004fd
 app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceprovider", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteer", require("./routes/volunteer"));
@@ -36,6 +41,7 @@ app.use("/api/v1/permissions", require("./routes/permission"));
 app.use("/api/v1/attendees", require("./routes/attendees"));
 app.use("/api/v1/logs", require("./routes/log"));
 app.use("/api/v1/role", require("./routes/role"));
+app.use("/api/v1/file", require("./routes/file"));
 
 // Sync database and start server
 db.sequelize.sync().then(() => {

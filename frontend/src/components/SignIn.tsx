@@ -11,13 +11,13 @@ import Typography from "@mui/material/Typography";
 // import Stack from "@mui/material/Stack";
 import MuiCard from "@mui/material/Card";
 import { styled } from "@mui/material/styles";
-import ForgotPassword from "./ForgotPassword";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { login } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/auth";
 import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
+import { Loading } from "./Loading";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -68,12 +68,14 @@ export default function SignIn() {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { t } = useTranslation();
   const navigate = useNavigate();
-
+  const [loading, setLoading] = React.useState(true);
   // Redirect if already logged in
   React.useEffect(() => {
+    setLoading(true);
     if (isLoggedIn()) {
       navigate("/");
     }
+    setLoading(false);
   }, [isLoggedIn, navigate]);
 
   // const handleClickOpen = () => {
@@ -136,8 +138,9 @@ export default function SignIn() {
 
   return (
     <>
-      {/* <CssBaseline enableColorScheme /> */}
-      <>
+      {loading ? (
+        <Loading />
+      ) : (
         <Card variant="outlined" dir={direction}>
           <Typography
             component="h1"
@@ -219,7 +222,7 @@ export default function SignIn() {
             </Typography> */}
           </Box>
         </Card>
-      </>
+      )}
     </>
   );
 }
