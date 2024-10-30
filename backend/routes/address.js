@@ -6,19 +6,34 @@ const specificPermissionAccess = require("../middleware/specificPermissionAccess
 const blacklistAccess = require("../middleware/blacklistAccess");
 
 router.get(
-  "/",
+  "/states",
   authenticateToken,
-  addressController.getAllAddresses
+  addressController.getStates
 );
-router.post("/", authenticateToken, addressController.createAddress);
 router.get(
-  "/:id",
+  "/cities",
   authenticateToken,
-  blacklistAccess,
-  specificPermissionAccess,
-  addressController.getAddressById
+  addressController.getCities
 );
-router.put("/:id", authenticateToken, addressController.updateAddress);
-router.delete("/:id", authenticateToken, addressController.deleteAddress);
+router.get(
+  "/districts",
+  authenticateToken,
+  addressController.getDistricts
+);
+router.get(
+  "/villages",
+  authenticateToken,
+  addressController.getVillages
+);
+// router.post("/", authenticateToken, addressController.createAddress);
+// router.get(
+//   "/:id",
+//   authenticateToken,
+//   blacklistAccess,
+//   specificPermissionAccess,
+//   addressController.getAddressById
+// );
+// router.put("/:id", authenticateToken, addressController.updateAddress);
+// router.delete("/:id", authenticateToken, addressController.deleteAddress);
 
 module.exports = router;

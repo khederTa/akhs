@@ -17,6 +17,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import PasswordInput from "./PasswordInput";
 import FileUpload from "./FileUpload";
+import Address from "./Address";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -89,9 +90,13 @@ export function CreateNewUser() {
   const navigate = useNavigate();
 
   const [fieldId, setFieldId] = useState<number | null>(null);
+  const [addressId, setAddressId] = useState<number | null>(null);
   useEffect(() => {
     console.log(fieldId);
   }, [fieldId]);
+  useEffect(() => {
+    console.log(addressId);
+  }, [addressId]);
 
   useEffect(() => {
     async function fetchData() {
@@ -566,6 +571,9 @@ export function CreateNewUser() {
         </FormControl>
         <FormControl>
           <FileUpload setFieldId={setFieldId} />
+        </FormControl>
+        <FormControl>
+          <Address setAddressId={setAddressId} />
         </FormControl>
 
         <Button
