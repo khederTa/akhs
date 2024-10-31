@@ -7,10 +7,12 @@ const db = require("./models");
 app.use(express.json());
 
 // Use cors middleware
-app.use(cors({
-  origin: 'http://localhost:5173',  // Your frontend URL
-  credentials: true,  // Allow cookies if needed
-}));
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Your frontend URL
+    credentials: true, // Allow cookies if needed
+  })
+);
 
 // Optionally, you can customize CORS settings as needed
 // app.use(cors({
@@ -21,12 +23,8 @@ app.use(cors({
 
 // Routes
 app.use("/api/v1/auth", require("./routes/auth"));
-<<<<<<< HEAD
 app.use("/api/v1/person", require("./routes/person"));
-=======
 app.use("/api/v1/address", require("./routes/address"));
-app.use("/api/v1/persons", require("./routes/person"));
->>>>>>> b7e454ce18fb38298473d29666c74af9c0a004fd
 app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceprovider", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteer", require("./routes/volunteer"));

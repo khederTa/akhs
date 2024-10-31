@@ -2,18 +2,9 @@ const { Address } = require("../models");
 
 exports.getStates = async (req, res) => {
   try {
-<<<<<<< HEAD
-    const address = await Address.create({
-      country: req.body.country,
-      city: req.body.city,
-      street: req.body.street,
-      state: req.body.state,
-      village: req.body.buildingname,
-=======
     const states = await Address.findAll({
       attributes: ["state"],
       group: ["state"],
->>>>>>> b7e454ce18fb38298473d29666c74af9c0a004fd
     });
     res.json(states);
   } catch (error) {

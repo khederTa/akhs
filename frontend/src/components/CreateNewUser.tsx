@@ -426,42 +426,7 @@ export function CreateNewUser() {
             />
           </FormControl>
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
-          <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="city">City</FormLabel>
-            <TextField
-              error={cityError}
-              helperText={cityErrorMessage}
-              id="city"
-              type="text"
-              name="city"
-              placeholder="e.g. Salamieh"
-              autoComplete="city"
-              required
-              fullWidth
-              variant="outlined"
-              color={cityError ? "error" : "primary"}
-              onChange={(e) => setCity(e.target.value)}
-            />
-          </FormControl>
-          <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="street">Street</FormLabel>
-            <TextField
-              error={streetError}
-              helperText={streetErrorMessage}
-              id="street"
-              type="text"
-              name="street"
-              placeholder="e.g. Al Thawra Street"
-              autoComplete="street"
-              required
-              fullWidth
-              variant="outlined"
-              color={streetError ? "error" : "primary"}
-              onChange={(e) => setStreet(e.target.value)}
-            />
-          </FormControl>
-        </Box>
+       
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="position">Position</FormLabel>
@@ -543,6 +508,10 @@ export function CreateNewUser() {
           </FormControl>
         </Box>
         <FormControl>
+          <FormLabel>Address</FormLabel>
+          <Address setAddressId={setAddressId} />
+        </FormControl>
+        <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
             error={emailError}
@@ -572,9 +541,7 @@ export function CreateNewUser() {
         <FormControl>
           <FileUpload setFieldId={setFieldId} />
         </FormControl>
-        <FormControl>
-          <Address setAddressId={setAddressId} />
-        </FormControl>
+       
 
         <Button
           type="submit"

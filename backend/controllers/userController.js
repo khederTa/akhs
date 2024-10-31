@@ -21,23 +21,7 @@ exports.getAllUsers = async (req, res) => {
             { model: Position },
           ],
         },
-<<<<<<< HEAD
-        {
-          model: Department,
-          attributes: ["name", "description"],
-        },
-        {
-          model: ServiceProvider,
-          attributes: ["name", "description"],
-        },
-        {
-          model: Role,
-          attributes: ["name", "description"],
-        },
-        // { model: Department, attributes: ["name", "description"] },
-=======
         { model: Role },
->>>>>>> b7e454ce18fb38298473d29666c74af9c0a004fd
       ],
     });
     res.status(200).json(users);

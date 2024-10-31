@@ -426,6 +426,8 @@ import {
   Checkbox,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import FileUpload from "./FileUpload";
+import Address from "./Address";
 import axios from "../utils/axios";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -471,6 +473,7 @@ const VolunteerInfo = () => {
     useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [disable, setDisable] = useState(false);
+  const [addressId, setAddressId] = useState<number | null>(null);
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -570,20 +573,7 @@ const VolunteerInfo = () => {
             error: emailError,
             helperText: emailErrorMessage,
           },
-          {
-            id: "city",
-            label: "City",
-            placeholder: "e.g. Salamieh",
-            error: cityError,
-            helperText: cityErrorMessage,
-          },
-          {
-            id: "street",
-            label: "Street",
-            placeholder: "e.g. Al Thawra Street",
-            error: streetError,
-            helperText: streetErrorMessage,
-          },
+         
           {
             id: "study",
             label: "Study",
@@ -644,6 +634,12 @@ const VolunteerInfo = () => {
             fullWidth
           />
         </FormControl>
+
+        <FormControl>
+        <FormLabel >Address</FormLabel>
+          <Address setAddressId={setAddressId} />
+        </FormControl>
+
 
         <FormControl
           sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
