@@ -6,7 +6,7 @@ module.exports = (sequelize, DataTypes) => {
       fname: DataTypes.STRING,
       lname: DataTypes.STRING,
       mname: DataTypes.STRING,
-      momName: DataTypes.STRING,
+      momname: DataTypes.STRING,
       phone: DataTypes.STRING,
       email: DataTypes.STRING,
       bDate: DataTypes.DATE,
@@ -15,18 +15,19 @@ module.exports = (sequelize, DataTypes) => {
       work: DataTypes.STRING,
       nationalNumber: DataTypes.STRING,
       fixPhone: DataTypes.STRING,
-      smoking: DataTypes.BOOLEAN,
-      notes: DataTypes.STRING,
+      smoking: DataTypes.STRING,
+      note: DataTypes.STRING,
       prevVol: DataTypes.STRING,
-      compSkilles: DataTypes.STRING,
-      fileId: {
-        type: DataTypes.INTEGER,
-        references: {
-          model: "Files", // Reference the Files table
-          key: "id",
-        },
-        allowNull: true, // Set to true if file is optional
-      },
+      compSkill: DataTypes.STRING,
+      koboSkill: DataTypes.STRING,
+      // fileId: {
+      //   type: DataTypes.INTEGER,
+      //   references: {
+      //     model: "Files", // Reference the Files table
+      //     key: "id",
+      //   },
+      //   allowNull: true, // Set to true if file is optional
+      // },
     },
     {
       tableName: "Persons",

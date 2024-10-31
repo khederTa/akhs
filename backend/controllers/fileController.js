@@ -2,15 +2,19 @@ const { File } = require("../models"); // Adjust path as needed
 
 // Create a new file
 exports.createFile = async (req, res) => {
-  console.log("Create File....")
+  const { fileData } = req.body;
+  const base64Data = fileData.split(",")[1]; // Remove metadata part if present
+  const buffer = Buffer.from(base64Data, "base64");
+
   try {
-    const { fileData } = req.body; // Assuming file data is sent as binary/base64 in request body
-    const newFile = await File.create({ file: fileData });
+    const newFile = await File.create({ file: buffer });
     res.status(201).json({ fileId: newFile.id });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create file" });
+    console.error("Error saving file:", error);
+    res.status(500).json({ error: "Failed to save file" });
   }
 };
+
 
 // Retrieve a file by ID
 exports.getFile = async (req, res) => {

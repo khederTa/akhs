@@ -6,6 +6,7 @@ import axios from "../utils/axios";
 import { useNavigate } from "react-router-dom";
 import { Loading } from "./Loading";
 import { ReportModal } from "./ReportModal";
+import DownloadButton from "./DownloadButton";
 type UserType = {
   userId: number;
   ServiceProvider: {
@@ -19,15 +20,24 @@ type UserType = {
         };
         fname: string;
         mname: string;
+        momname: string;
         lname: string;
         email: string;
         phone: string;
+        fixPhone: string;
+        nationalNumber: string;
         city: string;
         street: string;
         study: string;
         work: string;
         gender: string;
         bDate: string;
+        smoking: string;
+        prevVol: string;
+        compSkill: string;
+        koboSkill: string;
+        note: string;
+        File: { id: number; file: { type: string; data: number[] } };
       };
     };
     Position: { name: string };
@@ -55,13 +65,17 @@ const columns: GridColDef[] = [
     editable: true,
   },
   { field: "middleName", headerName: "Middle name", minWidth: 150 },
+  { field: "motherName", headerName: "Mother name", minWidth: 150 },
   { field: "lastName", headerName: "Last name", minWidth: 150 },
   { field: "email", headerName: "Email", minWidth: 150 },
   { field: "phone", headerName: "Phone", minWidth: 150 },
+  { field: "fixPhone", headerName: "Fix Phone", minWidth: 150 },
   { field: "position", headerName: "Position", minWidth: 150 },
   { field: "study", headerName: "Study", minWidth: 150 },
   { field: "address", headerName: "Address", minWidth: 250 },
   { field: "work", headerName: "Work", minWidth: 150 },
+  { field: "nationalNumber", headerName: "National Number", minWidth: 150 },
+
   {
     field: "gender",
     headerName: "Gender",
@@ -75,7 +89,11 @@ const columns: GridColDef[] = [
     headerName: "Birth Date",
     minWidth: 150,
   },
-  { field: "roleName", headerName: "Role Name", minWidth: 150 },
+
+  { field: "compSkill", headerName: "Computer Skills", minWidth: 150 },
+  { field: "koboSkill", headerName: "Kobo Skills", minWidth: 150 },
+  { field: "prevVol", headerName: "Previous Volunteering", minWidth: 150 },
+  { field: "smoking", headerName: "Smoking", minWidth: 150 },
   {
     field: "roleDescription",
     headerName: "Role Description",
@@ -88,6 +106,22 @@ const columns: GridColDef[] = [
     headerName: "Department Description",
     minWidth: 150,
     width: 300,
+  },
+  {
+    field: "note",
+    headerName: "Notes  ",
+  },
+  {
+    field: "file",
+    headerName: "CV",
+    renderCell: (params) => {
+      return (
+        <DownloadButton
+          fileName={`${params.row.firstName} CV`}
+          fileBinary={params.row?.file}
+        />
+      );
+    },
   },
 ];
 
@@ -115,14 +149,21 @@ export function UserManagement() {
               id: user?.userId,
               firstName: user?.ServiceProvider?.Volunteer?.Person?.fname,
               middleName: user?.ServiceProvider?.Volunteer?.Person?.mname,
+              motherName: user?.ServiceProvider?.Volunteer?.Person?.momname,
               lastName: user?.ServiceProvider?.Volunteer?.Person?.lname,
               email: user?.ServiceProvider?.Volunteer?.Person?.email,
               phone: user?.ServiceProvider?.Volunteer?.Person?.phone,
-              city: user?.ServiceProvider?.Volunteer?.Person?.city,
-              street: user?.ServiceProvider?.Volunteer?.Person?.street,
+              fixPhone: user?.ServiceProvider?.Volunteer?.Person?.fixPhone,
+              smoking: user?.ServiceProvider?.Volunteer?.Person?.smoking,
+              prevVol: user?.ServiceProvider?.Volunteer?.Person?.prevVol,
+              compSkill: user?.ServiceProvider?.Volunteer?.Person?.compSkill,
+              koboSkill: user?.ServiceProvider?.Volunteer?.Person?.koboSkill,
+              note: user?.ServiceProvider?.Volunteer?.Person?.note,
               position: user?.ServiceProvider?.Position?.name,
               study: user?.ServiceProvider?.Volunteer?.Person?.study,
               work: user?.ServiceProvider?.Volunteer?.Person?.work,
+              nationalNumber:
+                user?.ServiceProvider?.Volunteer?.Person?.nationalNumber,
               address: `${
                 user?.ServiceProvider?.Volunteer?.Person?.Address?.state.split(
                   "/"
@@ -142,11 +183,13 @@ export function UserManagement() {
               }`,
               gender: user?.ServiceProvider?.Volunteer?.Person?.gender,
               birthDate: user?.ServiceProvider?.Volunteer?.Person?.bDate,
+
               roleName: user?.Role?.name,
               roleDescription: user?.Role?.description,
               departmentName: user?.ServiceProvider?.Department?.name,
               departmentDescription:
                 user?.ServiceProvider?.Department?.description,
+              file: user?.ServiceProvider?.Volunteer?.Person?.File?.file.data,
             };
           });
           setRows(userRows);

@@ -6,7 +6,8 @@ const {
   Department,
   Role,
   Position,
-  Address
+  Address,
+  File,
 } = require("../models"); // Adjust the path as necessary
 
 exports.getAllUsers = async (req, res) => {
@@ -16,7 +17,15 @@ exports.getAllUsers = async (req, res) => {
         {
           model: ServiceProvider,
           include: [
-            { model: Volunteer, include: [{ model: Person, include: [{model: Address}] }] },
+            {
+              model: Volunteer,
+              include: [
+                {
+                  model: Person,
+                  include: [{ model: Address }, { model: File }],
+                },
+              ],
+            },
             { model: Department },
             { model: Position },
           ],
@@ -32,19 +41,14 @@ exports.getAllUsers = async (req, res) => {
 
 exports.createUser = async (req, res) => {
   const { personData, volunteerData, serviceProviderData, userData } = req.body;
-
+  console.log(req.body);
   try {
-    // Step 1: Create the address first (if provided in personData)
-    let address = null;
-    if (personData.address) {
-      address = await Address.create(personData.address); // Create the address
-    }
-
-    // Step 2: Create the person and link the addressId (if address exists)
+    // Step 1: Create the person and link the addressId
     const person = await Person.create({
       fname: personData.fname,
       lname: personData.lname,
       mname: personData.mname,
+      momname: personData.momname,
       phone: personData.phone,
       email: personData.email,
       bDate: personData.bDate,
@@ -54,47 +58,32 @@ exports.createUser = async (req, res) => {
       nationalNumber: personData.nationalNumber,
       fixPhone: personData.fixPhone,
       smoking: personData.smoking,
-      notes: personData.notes,
-      compSkills: personData.compSkills,
+      note: personData.note,
+      compSkill: personData.compSkill,
+      koboSkill: personData.koboSkill,
       prevVol: personData.prevVol,
       fileId: personData.fileId,
-      addressId: address.id,
+      addressId: personData.addressId, // Fixed the ID assignment here
     });
 
+    // Step 2: Create the volunteer and link the personId
     const volunteer = await Volunteer.create({
-      personId: person.id,
+      personId: person.id, // Link person ID
       ...volunteerData,
     });
 
+    // Step 3: Create the service provider and link volunteerId, departmentId, and positionId
     const serviceProvider = await ServiceProvider.create({
-      volunteerId: volunteer.id,
-      ...serviceProviderData,
+      volunteerId: volunteer.volunteerId, // Link volunteer ID
+      departmentId: serviceProviderData.departmentId,
+      positionId: serviceProviderData.positionId,
     });
 
-    // // Step 3: Create the department
-    // let department = null;
-    // if (departmentData && departmentData.name) {
-    //   department = await Department.create({
-    //     name: departmentData.name,
-    //   });
-    // }
-
-    // // Step 4: Create the role
-    // let role = null;
-    // if (roleData && roleData.role) {
-    //   role = await Role.create({
-    //     role: roleData.role,
-    //   });
-    // }
-
-    // Step 5: Create the user and associate it with the person, department, and role
+    // Step 4: Create the user and associate it with serviceProvider, role, and other required fields
     const user = await User.create({
       password: userData.password,
-
-      providerId: serviceProvider.providerId,
-
-      departmentId: userData.departmentId, // Link departmentId if department exists
-      roleId: userData.roleId, // Link roleId if role exists
+      providerId: serviceProvider.providerId, // Fixed provider ID assignment
+      roleId: userData.roleId,
     });
 
     // Send the created user as the response

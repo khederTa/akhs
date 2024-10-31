@@ -1,10 +1,13 @@
 const express = require("express");
 const cors = require("cors"); // Import cors
+const bodyParser = require("body-parser");
 const app = express();
 const db = require("./models");
 
 // Middleware
-app.use(express.json());
+app.use(express.json({ limit: "2mb" }));
+app.use(bodyParser.json({ limit: "2mb" })); // Adjust to your needs
+app.use(bodyParser.urlencoded({ limit: "2mb", extended: true })); // For URL-encoded payloads
 
 // Use cors middleware
 app.use(
