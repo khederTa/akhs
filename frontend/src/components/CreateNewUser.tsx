@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
@@ -38,7 +39,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
   }),
 }));
 
-type RoleItem = {
+type SelectItems = {
   id: number;
   name: string;
   description: string;
@@ -48,20 +49,33 @@ export function CreateNewUser() {
   const [fname, setFname] = useState("");
   const [lname, setLname] = useState("");
   const [mname, setMname] = useState("");
+  const [momname, setMomname] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [study, setStudy] = useState("");
   const [work, setWork] = useState("");
   const [gender, setGender] = useState("male");
   const [birthDate, setBirthDate] = useState("");
-  const [city, setCity] = useState("");
-  const [street, setStreet] = useState("");
+  const [fixPhone, setfixPhone] = useState("");
+  const [nationalNumber, setNationalNumber] = useState("");
+  const [note, setNote] = useState("");
+  const [smoking, setSmoking] = useState("");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("0");
-  const [roles, setRoles] = useState<RoleItem[]>([]);
-  const [position, setPosition] = useState("serviceProvider");
+  const [roles, setRoles] = useState<SelectItems[]>([]);
+  const [position, setPosition] = useState("0");
+  const [positions, setPositions] = useState<SelectItems[]>([]);
   const [department, setDepartment] = useState("0");
   const [departments, setDepartments] = useState([]);
+  const [prevVol, setPrevVol] = useState("0");
+
+  const [ynQuestion, setynQuestion] = useState([
+    { id: "No", name: "No" },
+    { id: "Yes", name: "Yes" },
+  ]);
+
+  const [compSkill, setCompSkill] = useState("0");
+  const [koboSkill, setKoboSkill] = useState("0");
 
   const [fnameError, setFnameError] = useState(false);
   const [fnameErrorMessage, setFnameErrorMessage] = useState("");
@@ -69,16 +83,21 @@ export function CreateNewUser() {
   const [lnameErrorMessage, setLnameErrorMessage] = useState("");
   const [mnameError, setMnameError] = useState(false);
   const [mnameErrorMessage, setMnameErrorMessage] = useState("");
+  const [momnameError, setMomnameError] = useState(false);
+  const [momnameErrorMessage, setMomnameErrorMessage] = useState("");
   const [studyError, setStudyError] = useState(false);
   const [studyErrorMessage, setStudyErrorMessage] = useState("");
   const [workError, setWorkError] = useState(false);
   const [workErrorMessage, setWorkErrorMessage] = useState("");
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-  const [cityError, setCityError] = useState(false);
-  const [cityErrorMessage, setCityErrorMessage] = useState("");
-  const [streetError, setStreetError] = useState(false);
-  const [streetErrorMessage, setStreetErrorMessage] = useState("");
+  const [fixPhoneError, setFixPhoneError] = useState(false);
+  const [fixPhoneErrorMessage, setFixPhoneErrorMessage] = useState("");
+  const [nationalNumberError, setNationalNumberError] = useState(false);
+  const [nationalNumberErrorMessage, setNationalNumberErrorMessage] =
+    useState("");
+  // const [noteError, setNoteError] = useState(false);
+  // const [noteErrorMessage, setNoteErrorMessage] = useState("");
   const [phoneError, setPhoneError] = useState(false);
   const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
   const [emailError, setEmailError] = useState(false);
@@ -89,11 +108,11 @@ export function CreateNewUser() {
   const [isValidInput, setIsValidInput] = useState(false);
   const navigate = useNavigate();
 
-  const [fieldId, setFieldId] = useState<number | null>(null);
+  const [fileId, setFileId] = useState<number | null>(null);
   const [addressId, setAddressId] = useState<number | null>(null);
   useEffect(() => {
-    console.log(fieldId);
-  }, [fieldId]);
+    console.log(fileId);
+  }, [fileId]);
   useEffect(() => {
     console.log(addressId);
   }, [addressId]);
@@ -111,27 +130,20 @@ export function CreateNewUser() {
         .catch((err) => {
           console.error(err);
         });
-
       await axios.get("/department").then((res) => {
         const departmentData = res.data;
         console.log(res);
         setDepartments(departmentData);
+      });
+      await axios.get("/position").then((res) => {
+        const positionData = res.data;
+        console.log(res);
+        setPositions(positionData);
         setIsLoading(false);
       });
     }
     fetchData();
   }, []);
-
-  const handleChangePosition = (event: SelectChangeEvent) => {
-    setPosition(event.target.value as string);
-  };
-
-  const handleChangeRole = (event: SelectChangeEvent) => {
-    setRole(event.target.value as string);
-  };
-  const handleChangeDepartment = (event: SelectChangeEvent) => {
-    setDepartment(event.target.value as string);
-  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -144,38 +156,56 @@ export function CreateNewUser() {
     const fname = data.get("fname") as string;
     const lname = data.get("lname") as string;
     const mname = data.get("mname") as string;
-    const gender = data.get("gender") as string;
+    const momname = data.get("momname") as string;
+    // const gender = data.get("gender") as string;
     const birthDate = data.get("birthDate") as string;
     const study = data.get("study") as string;
     const work = data.get("work") as string;
-    const city = data.get("city") as string;
-    const street = data.get("street") as string;
+    const nationalNumber = data.get("nationalNumber") as string;
     const phone = data.get("phone") as string;
     const password = data.get("password") as string;
-
+    const note = data.get("note") as string;
+    // const compSkill = data.get("compSkill") as string;
+    // const prevVol = data.get("prevVol") as string;
+    // const koboSkill = data.get("koboSkill") as string;
     try {
       const payload = {
         personData: {
           fname,
           lname,
           mname,
+          momname,
           phone,
           email,
           bDate: birthDate,
           gender,
           study,
           work,
-          city,
-          street,
+          nationalNumber,
+          note,
+          compSkill,
+          smoking,
+          fixPhone,
+          prevVol,
+          koboSkill,
+          fileId,
+          addressId,
+        },
+        volunteerData: {
+          active_status: "active",
+        },
+        serviceProviderData: {
+          departmentId: department,
+          positionId: position,
         },
         userData: {
           password,
           position,
-          departmentId: department,
           roleId: role,
         },
       };
-
+      console.log("payload: ");
+      console.log(payload);
       // Send the data to the API via Axios POST request
       const response = await axios.post("/user", payload);
 
@@ -203,6 +233,13 @@ export function CreateNewUser() {
     if (!mname || mname.length === 0) {
       setMnameError(true);
       setMnameErrorMessage("Middle Name is Required!");
+    } else {
+      setMnameError(false);
+      setMnameErrorMessage("");
+    }
+    if (!momname || momname.length === 0) {
+      setMomnameError(true);
+      setMomnameErrorMessage("Mother Name is Required!");
     } else {
       setMnameError(false);
       setMnameErrorMessage("");
@@ -236,19 +273,19 @@ export function CreateNewUser() {
       setWorkError(false);
       setWorkErrorMessage("");
     }
-    if (!city || city.length === 0) {
-      setCityError(true);
-      setCityErrorMessage("City is Required!");
+    if (!fixPhone || fixPhone.length === 0) {
+      setFixPhoneError(true);
+      setFixPhoneErrorMessage("Fix Phone is Required!");
     } else {
-      setCityError(false);
-      setCityErrorMessage("");
+      setFixPhoneError(false);
+      setFixPhoneErrorMessage("");
     }
-    if (!street || street.length === 0) {
-      setStreetError(true);
-      setStreetErrorMessage("Street is Required!");
+    if (!nationalNumber || nationalNumber.length === 0) {
+      setNationalNumberError(true);
+      setNationalNumberErrorMessage("National Number is Required!");
     } else {
-      setStreetError(false);
-      setStreetErrorMessage("");
+      setNationalNumberError(false);
+      setNationalNumberErrorMessage("");
     }
     if (!phone || phone.length === 0) {
       setPhoneError(true);
@@ -299,25 +336,25 @@ export function CreateNewUser() {
           gap: 2,
         }}
       >
-        <FormControl sx={{ flex: 1 }}>
-          <FormLabel htmlFor="fname">First Name</FormLabel>
-          <TextField
-            required
-            error={fnameError}
-            helperText={fnameErrorMessage}
-            id="fname"
-            type="text"
-            name="fname"
-            placeholder="John"
-            autoComplete="fname"
-            fullWidth
-            variant="outlined"
-            autoFocus
-            color={fnameError ? "error" : "primary"}
-            onChange={(e) => setFname(e.target.value)}
-          />
-        </FormControl>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="fname">First Name</FormLabel>
+            <TextField
+              required
+              error={fnameError}
+              helperText={fnameErrorMessage}
+              id="fname"
+              type="text"
+              name="fname"
+              placeholder="John"
+              autoComplete="fname"
+              fullWidth
+              variant="outlined"
+              autoFocus
+              color={fnameError ? "error" : "primary"}
+              onChange={(e) => setFname(e.target.value)}
+            />
+          </FormControl>
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="mname">Middle Name</FormLabel>
             <TextField
@@ -333,6 +370,25 @@ export function CreateNewUser() {
               variant="outlined"
               color={mnameError ? "error" : "primary"}
               onChange={(e) => setMname(e.target.value)}
+            />
+          </FormControl>
+        </Box>
+        <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="momname">Mother Name</FormLabel>
+            <TextField
+              error={momnameError}
+              helperText={momnameErrorMessage}
+              id="momname"
+              type="text"
+              name="momname"
+              placeholder="Sarah"
+              autoComplete="momname"
+              required
+              fullWidth
+              variant="outlined"
+              color={momnameError ? "error" : "primary"}
+              onChange={(e) => setMomname(e.target.value)}
             />
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
@@ -428,37 +484,37 @@ export function CreateNewUser() {
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="city">City</FormLabel>
+            <FormLabel htmlFor="fixPhone">Fix Phone</FormLabel>
             <TextField
-              error={cityError}
-              helperText={cityErrorMessage}
-              id="city"
+              error={fixPhoneError}
+              helperText={fixPhoneErrorMessage}
+              id="fixPhone"
               type="text"
-              name="city"
-              placeholder="e.g. Salamieh"
-              autoComplete="city"
+              name="fixPhone"
+              placeholder="e.g. 0996655445"
+              autoComplete="fixPhone"
               required
               fullWidth
               variant="outlined"
-              color={cityError ? "error" : "primary"}
-              onChange={(e) => setCity(e.target.value)}
+              color={fixPhoneError ? "error" : "primary"}
+              onChange={(e) => setfixPhone(e.target.value)}
             />
           </FormControl>
-          <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="street">Street</FormLabel>
+          <FormControl>
+            <FormLabel htmlFor="phone">Phone</FormLabel>
             <TextField
-              error={streetError}
-              helperText={streetErrorMessage}
-              id="street"
-              type="text"
-              name="street"
-              placeholder="e.g. Al Thawra Street"
-              autoComplete="street"
+              error={phoneError}
+              helperText={phoneErrorMessage}
+              name="phone"
+              placeholder="0988776655"
+              type="phone"
+              id="phone"
+              autoComplete="current-phone"
               required
               fullWidth
               variant="outlined"
-              color={streetError ? "error" : "primary"}
-              onChange={(e) => setStreet(e.target.value)}
+              color={phoneError ? "error" : "primary"}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </FormControl>
         </Box>
@@ -473,12 +529,15 @@ export function CreateNewUser() {
                   "var(--template-palette-background-default) !important",
               }}
               value={position}
-              onChange={handleChangePosition}
+              onChange={(event: SelectChangeEvent) => {
+                setPosition(event.target.value as string);
+              }}
             >
-              <MenuItem value="serviceProvider" selected>
-                Service Provider
-              </MenuItem>
-              <MenuItem value="trainer">Trainer</MenuItem>
+              {positions.map((item) => (
+                <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                  {item.name}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
@@ -492,7 +551,9 @@ export function CreateNewUser() {
                   "var(--template-palette-background-default) !important",
               }}
               label="Role"
-              onChange={handleChangeRole}
+              onChange={(event: SelectChangeEvent) => {
+                setRole(event.target.value as string);
+              }}
             >
               {roles.map((item) => (
                 <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
@@ -514,7 +575,9 @@ export function CreateNewUser() {
                   "var(--template-palette-background-default) !important",
               }}
               label="Department"
-              onChange={handleChangeDepartment}
+              onChange={(event: SelectChangeEvent) => {
+                setDepartment(event.target.value as string);
+              }}
             >
               {departments.map((item: { id: number; name: string }) => (
                 <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
@@ -524,24 +587,121 @@ export function CreateNewUser() {
             </Select>
           </FormControl>
 
-          <FormControl>
-            <FormLabel htmlFor="phone">Phone</FormLabel>
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="nationalNumber">National Number</FormLabel>
             <TextField
-              error={phoneError}
-              helperText={phoneErrorMessage}
-              name="phone"
-              placeholder="0988776655"
-              type="phone"
-              id="phone"
-              autoComplete="current-phone"
+              error={nationalNumberError}
+              helperText={nationalNumberErrorMessage}
+              id="nationalNumber"
+              type="text"
+              name="nationalNumber"
+              placeholder="e.g. 05050025256"
+              autoComplete="nationalNumber"
               required
               fullWidth
               variant="outlined"
-              color={phoneError ? "error" : "primary"}
-              onChange={(e) => setPhone(e.target.value)}
+              color={nationalNumberError ? "error" : "primary"}
+              onChange={(e) => setNationalNumber(e.target.value)}
             />
           </FormControl>
         </Box>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="prevVol">
+            Do you have experience in volunteer work previously or currently?
+          </FormLabel>
+          <Select
+            labelId="prevVol"
+            id="prevVol"
+            value={prevVol}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="prevVol"
+            onChange={(event: SelectChangeEvent) => {
+              setPrevVol(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="compSkill">
+            Do you have skills in Microsoft Office Programs?
+          </FormLabel>
+          <Select
+            labelId="compSkill"
+            id="compSkill"
+            value={compSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="compSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setCompSkill(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="koboSkill">
+            Do you have experience using the Kobo data collection tool?
+          </FormLabel>
+          <Select
+            labelId="koboSkill"
+            id="koboSkill"
+            value={koboSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="koboSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setKoboSkill(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="smoking">
+            Are you a smoker / hookah, cigaretet?
+          </FormLabel>
+          <Select
+            labelId="smoking"
+            id="smoking"
+            value={smoking}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="smoking"
+            onChange={(event: SelectChangeEvent) => {
+              setSmoking(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -570,10 +730,28 @@ export function CreateNewUser() {
           />
         </FormControl>
         <FormControl>
-          <FileUpload setFieldId={setFieldId} />
+          <Address setAddressId={setAddressId} />
         </FormControl>
         <FormControl>
-          <Address setAddressId={setAddressId} />
+          <FileUpload fileId={fileId} setFileId={setFileId} />
+        </FormControl>
+
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="note">Notes</FormLabel>
+          <TextField
+            // error={noteError}
+            // helperText={noteErrorMessage}
+            id="note"
+            type="textarea"
+            name="note"
+            placeholder=""
+            autoComplete="note"
+            required
+            fullWidth
+            variant="outlined"
+            // color={noteError ? "error" : "primary"}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </FormControl>
 
         <Button

@@ -7,6 +7,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import {
   UploadFile as UploadFileIcon,
@@ -20,61 +21,64 @@ type UploadedFile = {
 };
 
 type FileUploadProps = {
-  fileId?: number;
-  setFieldId: (fileId: number) => void;
+  fileId: number | null;
+  setFileId: (fileId: number | null) => void;
 };
 
-const FileUpload: React.FC<FileUploadProps> = ({ setFieldId }) => {
+const FileUpload: React.FC<FileUploadProps> = ({ fileId, setFileId }) => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
+  const [fileError, setFileError] = useState(false);
+  const [fileErrorMessage, setFileErrorMessage] = useState("");
 
-  const onUpload = async (base64FileData: string) => {
+  const handleFileUpload = async (base64FileData: string) => {
     try {
+      if (fileId) await deleteFile(false); // Delete old file if present
       const response = await axios.post("file", { fileData: base64FileData });
-      setFieldId(response.data.fileId); // Assume backend returns fileId in response
+      setFileId(response.data.fileId);
+      setFileError(false);
+      setFileErrorMessage("");
     } catch (error) {
       console.error("File upload failed:", error);
+      setFileError(true);
+      setFileErrorMessage("Your file size must be 2MB or less");
     }
   };
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const newUploadedFile = { file, progress: 0 };
-      setUploadedFile(newUploadedFile);
+    if (!file) return;
 
-      // Convert file to base64
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = reader.result as string;
-        if (onUpload && base64Data) {
-          onUpload(base64Data);
-        }
-      };
-      reader.readAsDataURL(file); // Converts file to base64 string
+    const newUploadedFile = { file, progress: 0 };
+    setUploadedFile(newUploadedFile);
 
-      // Start simulating upload progress
-      simulateUploadProgress(newUploadedFile);
-    }
-  };
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64Data = reader.result as string;
+      if (base64Data) handleFileUpload(base64Data);
+    };
+    reader.readAsDataURL(file);
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const simulateUploadProgress = (_uploadedFile: UploadedFile) => {
+    // Simulate progress
+    let progress = 0;
     const interval = setInterval(() => {
-      setUploadedFile((prevFile) => {
-        if (!prevFile) return null;
-        const currentProgress = prevFile.progress;
-        if (currentProgress < 100) {
-          return { ...prevFile, progress: Math.min(currentProgress + 10, 100) };
-        } else {
-          clearInterval(interval);
-          return prevFile;
-        }
-      });
+      progress = Math.min(progress + 10, 100);
+      setUploadedFile((prevFile) =>
+        prevFile ? { ...prevFile, progress } : null
+      );
+      if (progress === 100) clearInterval(interval);
     }, 300);
   };
 
-  const handleFileDelete = () => {
-    setUploadedFile(null);
+  const deleteFile = async (clearFile: boolean = true) => {
+    try {
+      const response = await axios.delete(`file/${fileId}`);
+      if (response.status === 200) {
+        setFileId(null);
+        if (clearFile) setUploadedFile(null);
+      }
+    } catch (error) {
+      console.error("File deletion failed:", error);
+    }
   };
 
   return (
@@ -84,15 +88,15 @@ const FileUpload: React.FC<FileUploadProps> = ({ setFieldId }) => {
         component="label"
         startIcon={<UploadFileIcon />}
       >
-        Upload File
+        Upload Your CV
         <input type="file" hidden onChange={handleFileChange} />
       </Button>
 
       <List>
-        {uploadedFile && (
+        {uploadedFile && !fileError ? (
           <ListItem
             secondaryAction={
-              <IconButton edge="end" onClick={handleFileDelete}>
+              <IconButton edge="end" onClick={() => deleteFile(true)}>
                 <DeleteIcon />
               </IconButton>
             }
@@ -109,6 +113,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ setFieldId }) => {
               />
             </Box>
           </ListItem>
+        ) : (
+          <Typography color="error">{fileErrorMessage}</Typography>
         )}
       </List>
     </Box>
