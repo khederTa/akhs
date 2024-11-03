@@ -59,7 +59,7 @@ export function CreateNewUser() {
   const [fixPhone, setfixPhone] = useState("");
   const [nationalNumber, setNationalNumber] = useState("");
   const [note, setNote] = useState("");
-  const [smoking, setSmoking] = useState("");
+  const [smoking, setSmoking] = useState("No");
   const [phone, setPhone] = useState("");
   const [role, setRole] = useState("0");
   const [roles, setRoles] = useState<SelectItems[]>([]);
@@ -67,15 +67,15 @@ export function CreateNewUser() {
   const [positions, setPositions] = useState<SelectItems[]>([]);
   const [department, setDepartment] = useState("0");
   const [departments, setDepartments] = useState([]);
-  const [prevVol, setPrevVol] = useState("0");
+  const [prevVol, setPrevVol] = useState("No");
 
   const [ynQuestion, setynQuestion] = useState([
     { id: "No", name: "No" },
     { id: "Yes", name: "Yes" },
   ]);
 
-  const [compSkill, setCompSkill] = useState("0");
-  const [koboSkill, setKoboSkill] = useState("0");
+  const [compSkill, setCompSkill] = useState("No");
+  const [koboSkill, setKoboSkill] = useState("No");
 
   const [fnameError, setFnameError] = useState(false);
   const [fnameErrorMessage, setFnameErrorMessage] = useState("");
@@ -484,37 +484,37 @@ export function CreateNewUser() {
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="city">City</FormLabel>
+            <FormLabel htmlFor="fixPhone">Fix Phone</FormLabel>
             <TextField
-              error={cityError}
-              helperText={cityErrorMessage}
-              id="city"
+              error={fixPhoneError}
+              helperText={fixPhoneErrorMessage}
+              id="fixPhone"
               type="text"
-              name="city"
-              placeholder="e.g. Salamieh"
-              autoComplete="city"
+              name="fixPhone"
+              placeholder="e.g. 0996655445"
+              autoComplete="fixPhone"
               required
               fullWidth
               variant="outlined"
-              color={cityError ? "error" : "primary"}
-              onChange={(e) => setCity(e.target.value)}
+              color={fixPhoneError ? "error" : "primary"}
+              onChange={(e) => setfixPhone(e.target.value)}
             />
           </FormControl>
-          <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="street">Street</FormLabel>
+          <FormControl>
+            <FormLabel htmlFor="phone">Phone</FormLabel>
             <TextField
-              error={streetError}
-              helperText={streetErrorMessage}
-              id="street"
-              type="text"
-              name="street"
-              placeholder="e.g. Al Thawra Street"
-              autoComplete="street"
+              error={phoneError}
+              helperText={phoneErrorMessage}
+              name="phone"
+              placeholder="0988776655"
+              type="phone"
+              id="phone"
+              autoComplete="current-phone"
               required
               fullWidth
               variant="outlined"
-              color={streetError ? "error" : "primary"}
-              onChange={(e) => setStreet(e.target.value)}
+              color={phoneError ? "error" : "primary"}
+              onChange={(e) => setPhone(e.target.value)}
             />
           </FormControl>
         </Box>
@@ -605,6 +605,103 @@ export function CreateNewUser() {
             />
           </FormControl>
         </Box>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="prevVol">
+            Do you have experience in volunteer work previously or currently?
+          </FormLabel>
+          <Select
+            labelId="prevVol"
+            id="prevVol"
+            value={prevVol}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="prevVol"
+            onChange={(event: SelectChangeEvent) => {
+              setPrevVol(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="compSkill">
+            Do you have skills in Microsoft Office Programs?
+          </FormLabel>
+          <Select
+            labelId="compSkill"
+            id="compSkill"
+            value={compSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="compSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setCompSkill(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="koboSkill">
+            Do you have experience using the Kobo data collection tool?
+          </FormLabel>
+          <Select
+            labelId="koboSkill"
+            id="koboSkill"
+            value={koboSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="koboSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setKoboSkill(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="smoking">
+            Are you a smoker / hookah, cigaretet?
+          </FormLabel>
+          <Select
+            labelId="smoking"
+            id="smoking"
+            value={smoking}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="smoking"
+            onChange={(event: SelectChangeEvent) => {
+              setSmoking(event.target.value as string);
+            }}
+          >
+            {ynQuestion.map((item: { id: string; name: string }) => (
+              <MenuItem key={`${item.id}-${item.name}`} value={item.id}>
+                {item.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         <FormControl>
           <FormLabel htmlFor="email">Email</FormLabel>
           <TextField
@@ -636,7 +733,25 @@ export function CreateNewUser() {
           <Address setAddressId={setAddressId} />
         </FormControl>
         <FormControl>
-          <Address setAddressId={setAddressId} />
+          <FileUpload fileId={fileId} setFileId={setFileId} />
+        </FormControl>
+
+        <FormControl sx={{ flex: 1 }}>
+          <FormLabel htmlFor="note">Notes</FormLabel>
+          <TextField
+            // error={noteError}
+            // helperText={noteErrorMessage}
+            id="note"
+            type="textarea"
+            name="note"
+            placeholder=""
+            autoComplete="note"
+            required
+            fullWidth
+            variant="outlined"
+            // color={noteError ? "error" : "primary"}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </FormControl>
 
         <Button

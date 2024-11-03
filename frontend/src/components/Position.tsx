@@ -163,9 +163,9 @@ const Position = () => {
         throw error;
       }
     } else if (action === "cancel") {
-      setRows((prevRows: any) =>
-        prevRows.map((row: any) => (row.id === updatedRow.id ? oldRow : row))
-      );
+      // setRows((prevRows: any) =>
+      //   prevRows.map((row: any) => (row.id === updatedRow.id ? oldRow : row))
+      // );
       return oldRow;
     }
   };

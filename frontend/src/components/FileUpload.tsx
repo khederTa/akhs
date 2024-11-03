@@ -23,20 +23,44 @@ type UploadedFile = {
 type FileUploadProps = {
   fileId: number | null;
   setFileId: (fileId: number | null) => void;
+  setUpdatedFile?: (file: any) => void;
+  mode?: string;
 };
-
-const FileUpload: React.FC<FileUploadProps> = ({ fileId, setFileId }) => {
+const FileUpload = ({
+  fileId,
+  setFileId,
+  setUpdatedFile,
+  mode,
+}: FileUploadProps): JSX.Element => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [fileError, setFileError] = useState(false);
   const [fileErrorMessage, setFileErrorMessage] = useState("");
-
+  // console.log(fileId, mode);
   const handleFileUpload = async (base64FileData: string) => {
     try {
+      if (mode === "edit") {
+        let response;
+        if (fileId) {
+          response = await axios.put(`file/${fileId}`, {
+            fileData: base64FileData,
+          });
+        } else {
+          response = await axios.post("file", {
+            fileData: base64FileData,
+          });
+        }
+        console.log({ data: response.data });
+        if (setUpdatedFile) setUpdatedFile(response.data.file);
+        setFileId(response.data.fileId);
+        setFileError(false);
+        setFileErrorMessage("");
+      } else {
       if (fileId) await deleteFile(false); // Delete old file if present
       const response = await axios.post("file", { fileData: base64FileData });
       setFileId(response.data.fileId);
       setFileError(false);
       setFileErrorMessage("");
+      }
     } catch (error) {
       console.error("File upload failed:", error);
       setFileError(true);
@@ -82,6 +106,13 @@ const FileUpload: React.FC<FileUploadProps> = ({ fileId, setFileId }) => {
   };
 
   return (
+    <>
+      {mode === "edit" ? (
+        <IconButton component="label">
+          <UploadFileIcon />
+          <input type="file" hidden onChange={handleFileChange} />
+        </IconButton>
+      ) : (
     <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
       <Button
         variant="contained"
@@ -118,6 +149,8 @@ const FileUpload: React.FC<FileUploadProps> = ({ fileId, setFileId }) => {
         )}
       </List>
     </Box>
+      )}
+    </>
   );
 };
 

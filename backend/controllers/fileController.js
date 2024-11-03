@@ -8,13 +8,12 @@ exports.createFile = async (req, res) => {
 
   try {
     const newFile = await File.create({ file: buffer });
-    res.status(201).json({ fileId: newFile.id });
+    res.status(201).json({ fileId: newFile.id, file: buffer });
   } catch (error) {
     console.error("Error saving file:", error);
     res.status(500).json({ error: "Failed to save file" });
   }
 };
-
 
 // Retrieve a file by ID
 exports.getFile = async (req, res) => {
@@ -31,18 +30,31 @@ exports.getFile = async (req, res) => {
 };
 
 // Update a file by ID
+// Update a file by ID
 exports.updateFile = async (req, res) => {
   try {
     const { id } = req.params;
     const { fileData } = req.body;
+    console.log({ id });
+    if (!fileData) {
+      return res
+        .status(400)
+        .json({ error: "fileData is required in request body" });
+    }
+
     const file = await File.findByPk(id);
     if (!file) {
       return res.status(404).json({ error: "File not found" });
     }
-    file.file = fileData;
+
+    const base64Data = fileData.split(",")[1]; // Remove metadata part if present
+    const buffer = Buffer.from(base64Data, "base64");
+
+    file.file = buffer;
     await file.save();
-    res.status(200).json({ message: "File updated successfully" });
+    res.status(200).json({ fileId: id, file: buffer });
   } catch (error) {
+    console.error("Error updating file:", error);
     res.status(500).json({ error: "Failed to update file" });
   }
 };

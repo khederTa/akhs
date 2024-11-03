@@ -2,11 +2,21 @@ import { useEffect, useState } from "react";
 import {
   DataGrid,
   GridColDef,
-  GridRowModel,
-  GridRenderCellParams,
+  GridRowModesModel,
+  GridActionsCellItem,
+  useGridApiRef,
+  GridToolbarContainer,
+  GridToolbarColumnsButton,
+  GridToolbarDensitySelector,
   GridRenderEditCellParams,
+  GridRenderCellParams,
 } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
+import EditIcon from "@mui/icons-material/Edit";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
+import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {
   Button,
   Stack,
@@ -77,8 +87,26 @@ export function ActivityTypes() {
   const [reportName, setReportName] = useState("");
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
   const [departments, setDepartments] = useState<any[]>([]);
-
+  // const [oldRow, setOldRow] = useState({});
+  const [action, setAction] = useState("");
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const apiRef = useGridApiRef();
   const navigate = useNavigate();
+
+  const handleEditClick = (id: any) => {
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
+    apiRef.current.setCellFocus(id, "name"); // Focus on the row's 'name' cell
+  };
+
+  const handleSave = async (id: any) => {
+    setAction("save");
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
+  };
+
+  const handleCancel = (id: any) => {
+    setAction("cancel");
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
+  };
 
   useEffect(() => {
     const fetchActivityTypes = async () => {
@@ -117,37 +145,37 @@ export function ActivityTypes() {
   }, []);
 
   // Process row update (for inline editing)
-  const handleProcessRowUpdate = async (newRow: GridRowModel) => {
-    try {
-      console.log(newRow);
-      const departmentId = departments.filter(
-        (department) => department.name === newRow.department
-      )[0].id;
-      const updatedRow = {
-        ...newRow,
-        prerequisites: newRow.prerequisites.map((pre: any) => pre.id), // Convert prerequisites to IDs
-        departmentId,
-      };
+  // const handleProcessRowUpdate = async (newRow: GridRowModel) => {
+  //   try {
+  //     console.log(newRow);
+  //     const departmentId = departments.filter(
+  //       (department) => department.name === newRow.department
+  //     )[0].id;
+  //     const updatedRow = {
+  //       ...newRow,
+  //       prerequisites: newRow.prerequisites.map((pre: any) => pre.id), // Convert prerequisites to IDs
+  //       departmentId,
+  //     };
 
-      const response = await axios.put(
-        `/activityType/${newRow.id}`,
-        updatedRow
-      );
-      if (response.status === 200) {
-        console.log("Row updated successfully:", newRow);
-        return newRow;
-      } else {
-        throw new Error("Failed to update row");
-      }
-    } catch (error) {
-      console.error("Error updating row:", error);
-      throw error;
-    }
-  };
+  //     const response = await axios.put(
+  //       `/activityType/${newRow.id}`,
+  //       updatedRow
+  //     );
+  //     if (response.status === 200) {
+  //       console.log("Row updated successfully:", newRow);
+  //       return newRow;
+  //     } else {
+  //       throw new Error("Failed to update row");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating row:", error);
+  //     throw error;
+  //   }
+  // };
 
   // active / inactive an activity type
-  const handleToggleActive = async (row: any) => {
-    const id = row.id;
+  const handleToggleActive = async (id: number) => {
+    const row = rows.find((row) => row.id === id);
     const active_status =
       row.active_status === "active" ? "inactive" : "active";
     if (!id) return;
@@ -161,7 +189,7 @@ export function ActivityTypes() {
   };
 
   const DepartmentEditor = (params: GridRenderEditCellParams) => {
-    const handleChange = (event: any, newValue: any) => {
+    const handleChange = (_event: any, newValue: any) => {
       console.log(newValue);
       params.api.setEditCellValue({
         id: params.row.id,
@@ -175,10 +203,10 @@ export function ActivityTypes() {
         id="department-editor"
         sx={{ width: "100%" }}
         options={departments}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option: { name: any }) => option.name}
         value={departments.find((dep) => dep.name === params.value) || null}
         onChange={handleChange}
-        renderInput={(params) => (
+        renderInput={(params: any) => (
           <TextField
             {...params}
             variant="standard"
@@ -199,7 +227,7 @@ export function ActivityTypes() {
       (activity) => activity.id !== params.row.id
     );
 
-    const handleChange = (event: any, newValue: any[]) => {
+    const handleChange = (_event: any, newValue: any[]) => {
       setSelectedPrerequisites(newValue);
       params.api.setEditCellValue({
         id: params.row.id,
@@ -216,11 +244,13 @@ export function ActivityTypes() {
           width: "100%",
         }}
         options={availablePrerequisites}
-        getOptionLabel={(option) => option.name}
+        getOptionLabel={(option: { name: any }) => option.name}
         value={selectedPrerequisites}
         onChange={handleChange}
-        isOptionEqualToValue={(option, value) => option.id === value.id}
-        renderInput={(params) => (
+        isOptionEqualToValue={(option: any, value: any) =>
+          option.id === value.id
+        }
+        renderInput={(params: any) => (
           <TextField
             {...params}
             variant="standard"
@@ -230,7 +260,10 @@ export function ActivityTypes() {
             }}
           />
         )}
-        renderTags={(value, getTagProps) =>
+        renderTags={(
+          value: any[],
+          getTagProps: (arg0: { index: number }) => any
+        ) =>
           value.map((option: any, index: number) => (
             <Chip label={option.name} {...getTagProps({ index })} />
           ))
@@ -242,7 +275,6 @@ export function ActivityTypes() {
   // Custom renderer for displaying prerequisites as chips
   const PrerequisiteRenderer = (params: GridRenderCellParams) => {
     const selectedPrerequisites = params.value || [];
-
     return (
       <Box
         sx={{
@@ -260,7 +292,7 @@ export function ActivityTypes() {
     );
   };
 
-  const columns: GridColDef[] = [
+  const columns: any[] = [
     { field: "id", headerName: "ID", minWidth: 150, editable: false },
     { field: "name", headerName: "Name", minWidth: 150, editable: true },
     {
@@ -268,15 +300,15 @@ export function ActivityTypes() {
       headerName: "Prerequisites",
       minWidth: 200,
       editable: true, // Enable editing for this column
-      renderEditCell: (params) => <PrerequisiteEditor {...params} />, // Custom editor
-      renderCell: (params) => <PrerequisiteRenderer {...params} />, // Custom renderer for display
+      renderEditCell: (params: any) => <PrerequisiteEditor {...params} />, // Custom editor
+      renderCell: (params: any) => <PrerequisiteRenderer {...params} />, // Custom renderer for display
     },
     {
       field: "department",
       headerName: "Department",
       minWidth: 250,
       editable: true,
-      renderEditCell: (params) => <DepartmentEditor {...params} />,
+      renderEditCell: (params: any) => <DepartmentEditor {...params} />,
     },
     {
       field: "description",
@@ -284,28 +316,150 @@ export function ActivityTypes() {
       minWidth: 250,
       editable: true,
     },
+    ,
+    // {
+    //   field: "active_status",
+    //   headerName: "Active / Inactive",
+    //   minWidth: 150,
+    //   renderCell: (params: any) => (
+    //     <Stack
+    //       spacing={1}
+    //       sx={{
+    //         display: "flex",
+    //         height: "100%",
+    //         justifyContent: "center",
+    //       }}
+    //     >
+    //       <AntSwitch
+    //         defaultChecked={params.value === "active"}
+    //         inputProps={{ "aria-label": "ant design" }}
+    //         onChange={() => handleToggleActive(params.row)}
+    //       />
+    //     </Stack>
+    //   ),
+    // },
     {
-      field: "active_status",
-      headerName: "Active / Inactive",
-      minWidth: 150,
-      renderCell: (params: any) => (
-        <Stack
-          spacing={1}
-          sx={{
-            display: "flex",
-            height: "100%",
-            justifyContent: "center",
-          }}
-        >
-          <AntSwitch
-            defaultChecked={params.value === "active"}
-            inputProps={{ "aria-label": "ant design" }}
-            onChange={() => handleToggleActive(params.row)}
-          />
-        </Stack>
-      ),
+      field: "actions",
+      headerName: "Actions",
+      type: "actions",
+      width: 150,
+      getActions: (params: any) => {
+        const isInEditMode = rowModesModel[params.id]?.mode === "edit";
+
+        return [
+          !isInEditMode && (
+            <GridActionsCellItem
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={() => handleEditClick(params.id)}
+              key="edit"
+            />
+          ),
+          !isInEditMode && (
+            <Stack
+              spacing={1}
+              sx={{
+                display: "flex",
+                height: "100%",
+                justifyContent: "center",
+              }}
+            >
+              <AntSwitch
+                defaultChecked={
+                  rows.find((row) => row.id === params.id).active_status ===
+                  "active"
+                }
+                inputProps={{ "aria-label": "ant design" }}
+                onChange={() => handleToggleActive(params.id)}
+              />
+            </Stack>
+          ),
+          isInEditMode && (
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              onClick={() => {
+                handleSave(params.id);
+              }}
+              key="save"
+            />
+          ),
+          isInEditMode && (
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              onClick={() => handleCancel(params.id)}
+              key="cancel"
+            />
+          ),
+        ].filter(Boolean) as React.ReactElement[]; // Ensure only elements remain in the array
+      },
     },
   ];
+  const CustomToolbar = () => (
+    <GridToolbarContainer>
+      <>
+        <Button type="button" onClick={() => navigate("/new-activity-type")}>
+          <AddOutlinedIcon />
+          Add
+        </Button>
+      </>
+      <GridToolbarColumnsButton />
+      <GridToolbarDensitySelector />
+      <>
+        <Button onClick={() => setReportModalIsOpen(true)}>
+          <FileDownloadOutlinedIcon />
+          Export
+        </Button>
+      </>
+    </GridToolbarContainer>
+  );
+
+  const processRowUpdate = async (newRow: any) => {
+    if (action === "save") {
+      try {
+        const departmentId = departments.filter(
+          (department) => department.name === newRow.department
+        )[0].id;
+        console.log(newRow);
+        const updatedRow = {
+          ...newRow,
+          prerequisites: newRow.prerequisites,
+          departmentId,
+        };
+        const updatedRowToPost = {
+          ...newRow,
+          prerequisites: newRow.prerequisites.map((pre: any) => pre.id), // Convert prerequisites to IDs
+          departmentId,
+        };
+
+        const response = await axios.put(
+          `/activityType/${newRow.id}`,
+          updatedRowToPost
+        );
+        if (response.status === 200) {
+          console.log("Row updated successfully:", newRow);
+          setRows((prevRows: any) =>
+            prevRows.map((row: any) =>
+              row.id === newRow.id ? updatedRow : row
+            )
+          );
+          return updatedRow;
+        } else {
+          throw new Error("Failed to update row");
+        }
+      } catch (error) {
+        console.error("Error updating row:", error);
+        throw error;
+      }
+    } else if (action === "cancel") {
+      const oldRow = rows.find((row) => row.id === newRow.id);
+      // setRows((prevRows: any) =>
+      //   prevRows.map((row: any) => (row.id === newRow.id ? oldRow : row))
+      // );
+      return oldRow;
+    }
+  };
 
   return (
     <>
@@ -316,18 +470,6 @@ export function ActivityTypes() {
         reportName={reportName}
         rows={rows}
       />
-      <Stack direction="row" justifyContent={"flex-start"} sx={{ gap: 1 }}>
-        <Button
-          type="button"
-          variant="contained"
-          onClick={() => navigate("/new-activity-type")}
-        >
-          Add New Activity Type
-        </Button>
-        <Button variant="outlined" onClick={() => setReportModalIsOpen(true)}>
-          Export Report
-        </Button>
-      </Stack>
 
       {isLoading ? (
         <Loading />
@@ -336,11 +478,18 @@ export function ActivityTypes() {
           <DataGrid
             rows={rows}
             columns={columns}
-            processRowUpdate={handleProcessRowUpdate}
+            // processRowUpdate={handleProcessRowUpdate}
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
             getRowId={(row) => row.id} // Ensure the correct row ID is used
+            disableColumnFilter
+            disableColumnMenu
+            slots={{ toolbar: CustomToolbar }}
+            editMode="row"
+            rowModesModel={rowModesModel}
+            processRowUpdate={processRowUpdate}
+            apiRef={apiRef}
           />
         </Paper>
       )}

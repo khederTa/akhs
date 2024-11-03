@@ -80,11 +80,21 @@ exports.getVillages = async (req, res) => {
 //   }
 // };
 
-// exports.getAddressById = async (req, res) => {
-//   const address = await Address.findByPk(req.params.id);
-//   res.json(address);
-// };
+exports.getAddressById = async (req, res) => {
+  try {
+    console.log(req.query);
+    const { id } = req.query;
 
+    const address = await Address.findByPk(id);
+    if (!address) {
+      return res.status(404).json({ message: "Address not found" });
+    }
+    res.json(address);
+  } catch (error) {
+    console.error("Error fetching address:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
 // exports.updateAddress = async (req, res) => {
 //   await Address.update(req.body, { where: { id: req.params.id } });
 //   res.json({ message: "Address updated" });

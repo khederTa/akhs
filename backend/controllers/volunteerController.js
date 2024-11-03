@@ -1,38 +1,64 @@
-const { Volunteer, Person, Address, ServiceProvider } = require("../models");
+const {
+  Volunteer,
+  Person,
+  Address,
+  ServiceProvider,
+  File,
+} = require("../models");
 
 exports.getAllVolunteers = async (req, res) => {
   try {
     const volunteers = await Volunteer.findAll({
-      attributes: ["volunteerId", "disable", "disable_status"],
+      attributes: ["volunteerId", "active_status"],
       include: [
         {
           model: Person,
           attributes: [
-            "id", "fname", "lname", "mname", "momName", "phone", "email",
-            "bDate", "gender", "study", "work", "nationalNumber", "fixPhone",
-            "smoking", "notes", "prevVol", "compSkilles", "pdfFile",
+            "id",
+            "fname",
+            "lname",
+            "mname",
+            "momName",
+            "phone",
+            "email",
+            "bDate",
+            "gender",
+            "study",
+            "work",
+            "nationalNumber",
+            "fixPhone",
+            "smoking",
+            "note",
+            "prevVol",
+            "compSkill",
+            "koboSkill",
+            "fileId",
           ],
           include: [
             {
               model: Address,
-              attributes: ["id", "country", "state", "city", "street", "village"],
+              attributes: ["id", "state", "city", "district", "village"],
             },
+            { model: File },
           ],
         },
         {
           model: ServiceProvider,
           required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
-          attributes: []   // We don’t need to retrieve any columns from ServiceProvider
-        }
+          attributes: [], // We don’t need to retrieve any columns from ServiceProvider
+        },
       ],
       where: {
         "$ServiceProvider.volunteerId$": null, // Filter volunteers with no associated ServiceProvider
-      }
+      },
     });
 
     res.json(volunteers);
   } catch (error) {
-    console.error("Error fetching volunteers with person and address information:", error);
+    console.error(
+      "Error fetching volunteers with person and address information:",
+      error
+    );
     res
       .status(500)
       .json({ error: "An error occurred while retrieving volunteers." });
@@ -40,24 +66,33 @@ exports.getAllVolunteers = async (req, res) => {
 };
 
 exports.createVolunteer = async (req, res) => {
-  const { addressData, personData, volunteerData } = req.body;
+  const { personData, volunteerData } = req.body;
 
   try {
     // Create the address first if it's part of personData
-    const address = await Address.create(addressData); // Save the address in the database
+    // const address = await Address.create(addressData); // Save the address in the database
 
     // Create the person and associate it with the address
     const person = await Person.create({
       fname: personData.fname,
       lname: personData.lname,
       mname: personData.mname,
+      momname: personData.momname,
       phone: personData.phone,
       email: personData.email,
       bDate: personData.bDate,
       gender: personData.gender,
       study: personData.study,
       work: personData.work,
-      addressId: address.id, // Associate the person with the address
+      compSkill: personData.compSkill,
+      koboSkill: personData.koboSkill,
+      prevVol: personData.prevVol,
+      fixPhone: personData.fixPhone,
+      nationalNumber: personData.nationalNumber,
+      note: personData.note,
+      smoking: personData.smoking,
+      addressId: personData.addressId, // Associate the person with the address
+      fileId: personData.fileId,
     });
 
     // Create the volunteer and associate it with the person
@@ -104,7 +139,6 @@ exports.getVolunteerById = async (req, res) => {
   }
 };
 
-
 exports.updateVolunteer = async (req, res) => {
   try {
     await Volunteer.update(req.body, { where: { volunteerId: req.params.id } });
@@ -114,8 +148,6 @@ exports.updateVolunteer = async (req, res) => {
     res.status(500).json({ message: "Error updating volunteer" });
   }
 };
-
-
 
 exports.deleteVolunteer = async (req, res) => {
   try {
@@ -147,10 +179,6 @@ exports.deleteVolunteer = async (req, res) => {
       .json({ error: "An error occurred while deleting the volunteer." });
   }
 };
-
-
-
-
 
 /*async (req, res) => {
   const { personData, volunteerData } = req.body;  // Destructure from request body

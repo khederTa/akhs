@@ -20,14 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       prevVol: DataTypes.STRING,
       compSkill: DataTypes.STRING,
       koboSkill: DataTypes.STRING,
-      // fileId: {
-      //   type: DataTypes.INTEGER,
-      //   references: {
-      //     model: "Files", // Reference the Files table
-      //     key: "id",
-      //   },
-      //   allowNull: true, // Set to true if file is optional
-      // },
+     
     },
     {
       tableName: "Persons",
