@@ -169,7 +169,7 @@ const Address = ({
         disabled={!selectedState}
       />
       <Autocomplete
-        options={districts || []} // Default to an empty array if districts is null or undefined
+        options={districts || []} 
         getOptionLabel={(option) => option.district}
         onChange={(_event, newValue) => {
           setSelectedDistrict(newValue?.district || null);
