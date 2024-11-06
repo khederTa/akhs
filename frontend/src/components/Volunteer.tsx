@@ -189,7 +189,7 @@ const Volunteer = () => {
     ],
     [rowModesModel]
   );
-  
+
   // Fetch volunteers with associated Person data
   useEffect(() => {
     async function fetchVolunteers() {
@@ -261,7 +261,7 @@ const Volunteer = () => {
   };
 
   useEffect(() => {
-    async function fetchAddress(id :any) {
+    async function fetchAddress(id: any) {
       try {
         // Update the endpoint to match your backend route
         const response = await axios.get(`/address?id=${id}`);
@@ -274,32 +274,32 @@ const Volunteer = () => {
     }
     if (addressId) fetchAddress(addressId);
   }, [addressId]);
-  
+
   // useEffect(() => {
   //   console.log({ newAddress });
   // }, [newAddress]);
   // Delete row using personId and addressId for the backend
-const handleDelete = async () => {
-  try {
-    // Retrieve personId and addressId from the row to delete
+  const handleDelete = async () => {
+    try {
+      // Retrieve personId and addressId from the row to delete
       const row: any = rows.find((row: any) => row.volunteerId === rowToDelete);
 
-    // Delete volunteer data
-    await axios.delete(`/volunteer/${rowToDelete}`);
-    
-    // Delete associated person and address data
-    await axios.delete(`/person/${row.personId}`);
-    await axios.delete(`/address/${row.addressId}`);
+      // Delete volunteer data
+      await axios.delete(`/volunteer/${rowToDelete}`);
 
-    // Update the rows state after deletion
+      // Delete associated person and address data
+      await axios.delete(`/person/${row.personId}`);
+      // await axios.delete(`/address/${row.addressId}`);
+
+      // Update the rows state after deletion
       setRows((prevRows) =>
         prevRows.filter((row: any) => row.volunteerId !== rowToDelete)
       );
-    handleCloseDeleteDialog();
-  } catch (error) {
-    console.error("Error deleting volunteer and related data:", error);
-  }
-};
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting volunteer and related data:", error);
+    }
+  };
   useEffect(() => {
     console.log({ updatedFile });
   }, [updatedFile]);
@@ -309,10 +309,6 @@ const handleDelete = async () => {
       fileData: base64FileData,
     });
   };
-  // //update address
-  //   const updateAddressIdInPerson = async()=>{
-  //     const response = await axios.put(`person/${personId}`, {
-  //   }
 
   const deleteFile = async (id: number, clearFile: boolean = true) => {
     try {
@@ -335,6 +331,7 @@ const handleDelete = async () => {
         } - ${newAddress?.district?.split("/")[1] || ""} - ${
           newAddress?.village?.split("/")[1] || ""
         }`;
+        
         console.log(address);
         const {
           volunteerId,
@@ -387,14 +384,6 @@ const handleDelete = async () => {
           fileId,
         });
 
-        // Update address data
-        // const addressResponse = await axios.put(`/address/${addressId}`, {
-        //   state,
-        //   city,
-        //   district,
-        //   village,
-        // });
-
         if (
           volunteerResponse.status === 200 &&
           personResponse.status === 200
@@ -445,17 +434,7 @@ const handleDelete = async () => {
       if (updatedFile) {
         handleFileUpload(oldRow.file);
       }
-      // if (oldRow && oldRow?.file?.lenngth > 0 && updatedFile) {
-      //   handleFileUpload(oldRow.file);
-      // } else if (updatedFile) {
-      //   console.log({ updatedFile });
-      //   deleteFile(oldRow.fileId, true);
-      // }
-      // setRows((prevRows: any) =>
-      //   prevRows.map((row: any) =>
-      //     row.volunteerId === updatedRow.volunteerId ? { oldRow } : row
-      //   )
-      // );
+
       return oldRow;
     }
   };
@@ -474,7 +453,7 @@ const handleDelete = async () => {
         </Button>
       </Stack>
       <Paper sx={{ height: 400, width: "100%" }}>
-      <DataGrid
+        <DataGrid
           rows={rows.map((row: any) => ({ ...row, id: row?.volunteerId }))} // Use volunteerId as unique key
           columns={columns}
           initialState={{ pagination: { paginationModel } }}
@@ -484,11 +463,6 @@ const handleDelete = async () => {
           rowModesModel={rowModesModel}
           processRowUpdate={processRowUpdate}
           apiRef={apiRef}
-          // getRowId={(row) => row.volunteerId} // Ensure unique row ID
-          // getRowId={(row) =>
-          //   row.volunteerId ||
-          //   `temp-id-${Math.random().toString(36).substr(2, 9)}`
-          // } // Ensure a unique fallback ID
         />
       </Paper>
 

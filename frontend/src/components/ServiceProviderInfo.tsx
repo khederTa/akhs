@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 
@@ -10,12 +10,12 @@ import {
   TextField,
   Button,
   MenuItem,
-  
   Checkbox,
-  
 } from "@mui/material";
-import Select, { SelectChangeEvent } from '@mui/material/Select';
+import Select, { SelectChangeEvent } from "@mui/material/Select";
 import { useNavigate } from "react-router-dom";
+import FileUpload from "./FileUpload";
+import Address from "./Address";
 import axios from "../utils/axios";
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -64,62 +64,122 @@ const ServiceProviderInfo = () => {
   const [roleError, setRoleError] = React.useState(false);
   const [roleErrorMessage, setRoleErrorMessage] = React.useState("");
   const [positionError, setPositionError] = React.useState(false);
-  const [positionErrorMessage, setPositionErrorMessage] =
-    React.useState("");
+  const [positionErrorMessage, setPositionErrorMessage] = React.useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [role, setRole] = React.useState('');
-  const [position, setPosition] = React.useState('');
-  const handleChangePosition = (event: SelectChangeEvent) => {
-    setPosition(event.target.value as string);
-  };
+  const [department, setDepartment] = React.useState("");
+  const [position, setPosition] = React.useState("");
 
-  const handleChangeRole = (event: SelectChangeEvent) => {
-    setRole(event.target.value as string);
-  };
+  const [compSkill, setCompSkill] = useState("No");
+  const [koboSkill, setKoboSkill] = useState("No");
+  const [addressId, setAddressId] = useState<number | null>(null);
+  const [prevVol, setPrevVol] = useState("No");
+  const [smoking, setSmoking] = useState("No");
+  const [fileId, setFileId] = useState<number | null>(null);
+
+  const [departments, setDepartments] = useState<any>([{}]);
+  const [positions, setPositions] = useState<any>([{}]);
+
+
   
-  const navigate = useNavigate();
 
- 
+  const navigate = useNavigate();
+  // Initialize departments and positions with default values if empty
+  const departmentOptions = useMemo(
+    () =>
+      departments.length > 0
+        ? departments.map((department: any) => ({
+            label: department.name,
+            id: department.id,
+          }))
+        : [{ label: "No Departments Available", id: null }],
+    [departments]
+  );
+
+  const positionOptions = useMemo(
+    () =>
+      positions.length > 0
+        ? positions.map((position: any) => ({
+            label: position.name,
+            id: position.id,
+          }))
+        : [{ label: "No Positions Available", id: null }],
+    [positions]
+  );
+  console.log("departmenoptions is", departmentOptions);
+  //fetch departments and position
+  useEffect(() => {
+    async function fetchDepartment() {
+      const res = await axios.get("department");
+      if (res.status === 200) {
+        setDepartments(res.data);
+        console.log("departments", departments);
+      }
+    }
+    async function fetchPosition() {
+      const res = await axios.get("position");
+      if (res.status === 200) {
+        setPositions(res.data);
+        console.log("positions", positions);
+      }
+    }
+    fetchPosition();
+
+    fetchDepartment();
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setIsLoading(true);
-    const email = data.get("email") as string;
-    const fname = data.get("fname") as string;
-    const lname = data.get("lname") as string;
-    const mname = data.get("mname") as string;
+    // const email = data.get("email") as string;
+    // const fname = data.get("fname") as string;
+    // const lname = data.get("lname") as string;
+    // const mname = data.get("mname") as string;
     const gender = data.get("gender") as string;
-    const birthDate = data.get("birthDate") as string;
-    const study = data.get("study") as string;
-    const work = data.get("work") as string;
-    const city = data.get("city") as string;
-    const street = data.get("street") as string;
-    const phone = data.get("phone") as string;
+    // const birthDate = data.get("birthDate") as string;
+    // const study = data.get("study") as string;
+    // const work = data.get("work") as string;
+    // const city = data.get("city") as string;
+    // const street = data.get("street") as string;
+    // const phone = data.get("phone") as string;
+    const selectedDepartment = departmentOptions.filter((depOption: any) => {
+      if (depOption.label === department) return depOption;
+    });
+const sendedDepartmentId = selectedDepartment?.[0].id || null
 
-    
+const selectedPosition = positionOptions.filter((posOption :any)=>{
+  if(posOption.label === position) return posOption;
+})
+const sendedPositionId = selectedPosition?.[0].id || null
 
+    console.log("selected department"  , selectedDepartment)
+    console.log("selected department ID"  , sendedDepartmentId)
     try {
       const payload = {
         personData: {
-          fname,
-          lname,
-          mname,
-          phone,
-          email,
-          bDate: birthDate,
+          fname: data.get("fname"),
+          lname: data.get("lname"),
+          mname: data.get("mname"),
+          momname: data.get("momname"),
+          phone: data.get("phone"),
+          email: data.get("email"),
+          bDate: data.get("birthDate"),
           gender,
-          study,
-          work,
-          address: {
-            city,
-            street,
-          },
+          study: data.get("study"),
+          work: data.get("work"),
+          compSkill,
+          koboSkill,
+          prevVol,
+          smoking,
+          nationalNumber: data.get("nationalNumber"),
+          note: data.get("note"),
+          fixPhone: data.get("fixPhone"),
+          fileId,
+          addressId,
         },
         serviceProviderData: {
-          
-          role,
-          position
+          departmentId : sendedDepartmentId ,
+          positionId : sendedPositionId , 
         },
       };
 
@@ -138,33 +198,9 @@ const ServiceProviderInfo = () => {
     }
   };
 
-  // const validateInputs = () => {
-  //   const email = document.getElementById("email") as HTMLInputElement;
-  //   const password = document.getElementById("password") as HTMLInputElement;
-
-  //   let isValid = true;
-
-  //   if (!email.value || !/\S+@\S+\.\S+/.test(email.value)) {
-  //     setEmailError(true);
-  //     setEmailErrorMessage("Please enter a valid email address.");
-  //     isValid = false;
-  //   } else {
-  //     setEmailError(false);
-  //     setEmailErrorMessage("");
-  //   }
-
-  //   if (!password.value || password.value.length < 6) {
-  //     setPasswordError(true);
-  //     setPasswordErrorMessage("Password must be at least 6 characters long.");
-  //     isValid = false;
-  //   } else {
-  //     setPasswordError(false);
-  //     setPasswordErrorMessage("");
-  //   }
-
-  //   return isValid;
-  // };
-
+  
+  console.log("department is", department);
+  // console.log("departmentId is", departmentId);
   return (
     <Card variant="highlighted">
       <Typography
@@ -172,7 +208,7 @@ const ServiceProviderInfo = () => {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Volunteer
+        Create New ServiceProvider
       </Typography>
       <Box
         component="form"
@@ -236,6 +272,7 @@ const ServiceProviderInfo = () => {
             />
           </FormControl>
         </Box>
+
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="gender-label">Gender</FormLabel>
@@ -307,31 +344,32 @@ const ServiceProviderInfo = () => {
         </Box>
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="city">City</FormLabel>
+            <FormLabel htmlFor="city">National Number</FormLabel>
             <TextField
               error={cityError}
               helperText={cityErrorMessage}
-              id="city"
+              id="nationalNumber"
               type="text"
-              name="city"
-              placeholder="e.g. Salamieh"
-              autoComplete="city"
+              name="nationalNumber"
+              placeholder="050500000"
+              autoComplete="nationalNumber"
               // required
               fullWidth
               variant="outlined"
               color={cityError ? "error" : "primary"}
             />
           </FormControl>
+
           <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="street">Street</FormLabel>
+            <FormLabel htmlFor="street">Fix Phone</FormLabel>
             <TextField
               error={streetError}
               helperText={streetErrorMessage}
-              id="street"
+              id="fixPhone"
               type="text"
-              name="street"
-              placeholder="e.g. Al Thawra Street"
-              autoComplete="street"
+              name="fixPhone"
+              placeholder="033888888"
+              autoComplete="fixPhone"
               // required
               fullWidth
               variant="outlined"
@@ -343,31 +381,39 @@ const ServiceProviderInfo = () => {
           <FormControl sx={{ flex: 1 }}>
             <FormLabel htmlFor="position">Position</FormLabel>
             <Select
-            
-          labelId="position"
-          id="position"
-          value={position}
-          
-          onChange={handleChangePosition}
-        >
-          <MenuItem value= "serviceprovider">serviceprovider</MenuItem>
-          <MenuItem value= "trainer">trainer</MenuItem>
-          
-        </Select>
+              labelId="position"
+              id="position"
+              value={position}
+              onChange={(e) => setPosition(e.target.value)}
+            >
+               {positionOptions?.map((positionoption: any) => (
+                <MenuItem
+                  key={positionoption.id}
+                  value={positionoption.label}
+                >
+                  {positionoption.label}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
           <FormControl sx={{ flex: 1 }}>
-            <FormLabel htmlFor="Role">Role</FormLabel>
+            <FormLabel htmlFor="Department">Department</FormLabel>
             <Select
-          labelId="Role"
-          id="Role"
-          value={role}
-          label="Role"
-          onChange={handleChangeRole}
-        >
-          <MenuItem value="admin">admin</MenuItem>
-          <MenuItem value="user">user</MenuItem>
-          
-        </Select>
+              labelId="Department"
+              id="Department"
+              value={department}
+              label="Department"
+              onChange={(e) => setDepartment(e.target.value)}
+            >
+              {departmentOptions?.map((departmentoption: any) => (
+                <MenuItem
+                  key={departmentoption.id}
+                  value={departmentoption.label}
+                >
+                  {departmentoption.label}
+                </MenuItem>
+              ))}
+            </Select>
           </FormControl>
         </Box>
 
@@ -403,6 +449,145 @@ const ServiceProviderInfo = () => {
             color={emailError ? "error" : "primary"}
           />
         </FormControl>
+        <FormControl
+          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+        >
+          <FormLabel htmlFor="prevVol">
+            Do you have experience in volunteer work previously or currently?
+          </FormLabel>
+          <Select
+            labelId="prevVol"
+            id="prevVol"
+            value={prevVol}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="prevVol"
+            onChange={(event: SelectChangeEvent) => {
+              setPrevVol(event.target.value as string);
+            }}
+          >
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl
+          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+        >
+          <FormLabel htmlFor="compSkill">
+            Do you have skills in Microsoft Office Programs?
+          </FormLabel>
+          <Select
+            labelId="compSkill"
+            id="compSkill"
+            value={compSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="compSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setCompSkill(event.target.value as string);
+            }}
+          >
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl
+          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+        >
+          <FormLabel htmlFor="koboSkill">
+            Do you have experience using the Kobo data collection tool?
+          </FormLabel>
+          <Select
+            labelId="koboSkill"
+            id="koboSkill"
+            value={koboSkill}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="koboSkill"
+            onChange={(event: SelectChangeEvent) => {
+              setKoboSkill(event.target.value as string);
+            }}
+          >
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
+          </Select>
+        </FormControl>
+
+        <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="momname">mother name</FormLabel>
+            <TextField
+              error={workError}
+              helperText={workErrorMessage}
+              id="momname"
+              type="text"
+              name="momname"
+              placeholder="mother name"
+              autoComplete="momname"
+              // required
+              fullWidth
+              variant="outlined"
+              color={workError ? "error" : "primary"}
+            />
+          </FormControl>
+
+
+
+
+
+          <FormControl sx={{ flex: 1 }}>
+            <FormLabel htmlFor="note">Notes</FormLabel>
+            <TextField
+              error={workError}
+              helperText={workErrorMessage}
+              id="note"
+              type="text"
+              name="note"
+              placeholder="Notes"
+              autoComplete="note"
+              // required
+              fullWidth
+              variant="outlined"
+              color={workError ? "error" : "primary"}
+            />
+          </FormControl>
+
+
+        <FormControl
+          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+        >
+          <FormLabel htmlFor="smoking">
+            Are you a smoker / hookah, cigaretet?
+          </FormLabel>
+          <Select
+            labelId="smoking"
+            id="smoking"
+            value={smoking}
+            sx={{
+              backgroundColor:
+                "var(--template-palette-background-default) !important",
+            }}
+            label="smoking"
+            onChange={(event: SelectChangeEvent) => {
+              setSmoking(event.target.value as string);
+            }}
+          >
+            <MenuItem value="Yes">Yes</MenuItem>
+            <MenuItem value="No">No</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl>
+          <FileUpload fileId={fileId} setFileId={setFileId} />
+        </FormControl>
+        <FormControl>
+          <FormLabel>Address</FormLabel>
+          <Address setAddressId={setAddressId} />
+        </FormControl>
 
         <Button
           type="submit"
@@ -410,17 +595,13 @@ const ServiceProviderInfo = () => {
           variant="contained"
           // onClick={validateInputs}
         >
-          {isLoading ? "Creating New ServiceProvider..." : "Create New ServiceProvider"}
+          {isLoading
+            ? "Creating New ServiceProvider..."
+            : "Create New ServiceProvider"}
         </Button>
       </Box>
     </Card>
   );
 };
 
-
-
-
-
-
-
-export default ServiceProviderInfo
+export default ServiceProviderInfo;

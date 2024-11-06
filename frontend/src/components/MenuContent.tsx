@@ -43,11 +43,7 @@ const mainListItems = [
     icon: <SupervisorAccountIcon/>,
     to: "/serviceprovider",
   },
-  {
-    text: "ServiceProvider Information",
-    icon: <SupervisorAccountIcon/>,
-    to: "/serviceprovider-information",
-  },
+ 
   { text: "Activity Types", icon: <EditCalendarRoundedIcon />, to: "/activity-types" },
   { text: "Packages", icon: <ListAltRoundedIcon />, to: "/packages" },
   { text: "Department", icon: <DomainIcon />, to: "/departments" },
