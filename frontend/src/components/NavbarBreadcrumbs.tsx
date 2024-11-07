@@ -5,6 +5,7 @@ import Breadcrumbs, { breadcrumbsClasses } from "@mui/material/Breadcrumbs";
 import NavigateNextRoundedIcon from "@mui/icons-material/NavigateNextRounded";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }: any) => ({
@@ -18,32 +19,35 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }: any) => ({
   },
 }));
 const URL_MAP = {
-  "/": "Home",
-  "/user-management": "User Management",
-  "/create-new-user": "Create New User",
-  "/activity-management": "Activity Management",
-  "/activity-information": "Activiy Information",
-  "/activity-types": "Activiy Types",
-  "/new-activity-type": "Create New Activiy Type",
-  "/packages": "Packages",
-  "/new-package": "Create New Package"
+  "/": "home",
+  "/user-management": "user management",
+  "/create-new-user": "create new user",
+  "/activity-management": "activity management",
+  "/activity-information": "activiy information",
+  "/activity-types": "activity types",
+  "/new-activity-type": "create new activiy type",
+  "/packages": "packages",
+  "/new-package": "create new package",
+  "/position": "position",
+  "/departments": "departments",
+  "/volunteer": "volunteers"
 };
 export default function NavbarBreadcrumbs() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
   const location = useLocation();
-
+  const { t } = useTranslation();
   return (
     <StyledBreadcrumbs
       aria-label="breadcrumb"
       separator={<NavigateNextRoundedIcon fontSize="small" />}
       dir={direction}
     >
-      <Typography variant="body1">Dashboard</Typography>
+      <Typography variant="body1">{t("dashboard")}</Typography>
       <Typography
         variant="body1"
         sx={{ color: "text.primary", fontWeight: 600 }}
       >
-        {URL_MAP[location.pathname as keyof typeof URL_MAP]}
+        {t(URL_MAP[location.pathname as keyof typeof URL_MAP])}
       </Typography>
     </StyledBreadcrumbs>
   );

@@ -7,51 +7,55 @@ import ListItemText from "@mui/material/ListItemText";
 import Stack from "@mui/material/Stack";
 import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
 import AccountBoxRoundedIcon from "@mui/icons-material/AccountBoxRounded";
-import AssignmentRoundedIcon from "@mui/icons-material/AssignmentRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import InfoRoundedIcon from "@mui/icons-material/InfoRounded";
 import HelpRoundedIcon from "@mui/icons-material/HelpRounded";
 import EventRoundedIcon from "@mui/icons-material/EventRounded";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
-import SupervisorAccountIcon from '@mui/icons-material/SupervisorAccount';
-import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
-import EditCalendarRoundedIcon from '@mui/icons-material/EditCalendarRounded';
-import ListAltRoundedIcon from '@mui/icons-material/ListAltRounded';
-import DomainIcon from '@mui/icons-material/Domain';
-import ModeIcon from '@mui/icons-material/Mode';
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import EditCalendarRoundedIcon from "@mui/icons-material/EditCalendarRounded";
+import ListAltRoundedIcon from "@mui/icons-material/ListAltRounded";
+import DomainIcon from "@mui/icons-material/Domain";
+import ModeIcon from "@mui/icons-material/Mode";
+import { useTranslation } from "react-i18next";
 const mainListItems = [
-  { text: "Home", icon: <HomeRoundedIcon />, to: "/" },
+  { text: "home", icon: <HomeRoundedIcon />, to: "/" },
   {
-    text: "User Management",
+    text: "user management",
     icon: <ManageAccountsIcon />,
     to: "/user-management",
   },
   {
-    text: "Activity Management",
+    text: "activity management",
     icon: <EventRoundedIcon />,
     to: "/activity-management",
   },
   {
-    text: "Volunteer",
+    text: "volunteers",
     icon: <AccountBoxRoundedIcon />,
     to: "/volunteer",
   },
-  
+
   {
-    text: "ServiceProvider",
-    icon: <SupervisorAccountIcon/>,
+    text: "service provider",
+    icon: <SupervisorAccountIcon />,
     to: "/serviceprovider",
   },
   {
-    text: "ServiceProvider Information",
-    icon: <SupervisorAccountIcon/>,
+    text: "service provider information",
+    icon: <SupervisorAccountIcon />,
     to: "/serviceprovider-information",
   },
-  { text: "Activity Types", icon: <EditCalendarRoundedIcon />, to: "/activity-types" },
-  { text: "Packages", icon: <ListAltRoundedIcon />, to: "/packages" },
-  { text: "Department", icon: <DomainIcon />, to: "/departments" },
-  { text: "Position", icon: <ModeIcon />, to: "/position" },
+  {
+    text: "activity types",
+    icon: <EditCalendarRoundedIcon />,
+    to: "/activity-types",
+  },
+  { text: "packages", icon: <ListAltRoundedIcon />, to: "/packages" },
+  { text: "department", icon: <DomainIcon />, to: "/departments" },
+  { text: "position", icon: <ModeIcon />, to: "/position" },
 ];
 
 const secondaryListItems = [
@@ -66,6 +70,7 @@ export default function MenuContent() {
     mainListItems.findIndex((item) => item.to === location.pathname)
   );
   const navigate = useNavigate();
+  const { t } = useTranslation();
   return (
     <Stack sx={{ flexGrow: 1, p: 1, justifyContent: "space-between" }}>
       <List dense>
@@ -79,7 +84,7 @@ export default function MenuContent() {
               }}
             >
               <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
+              <ListItemText primary={t(item.text)} />
             </ListItemButton>
           </ListItem>
         ))}

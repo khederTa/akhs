@@ -14,6 +14,7 @@ import { navigationCustomizations } from "./customizations/navigation";
 import { surfacesCustomizations } from "./customizations/surfaces";
 import { colorSchemes, typography, shadows, shape } from "./themePrimitives";
 import i18n from "../i18n"; // Adjust the import path as necessary
+import { arEG, enUS } from "@mui/material/locale";
 
 interface AppThemeProps {
   children: React.ReactNode;
@@ -78,32 +79,32 @@ export default function AppTheme({
   const ltrCache = createCache({
     key: "mui",
   });
-
   // Update the theme with the new direction
   const theme = React.useMemo(() => {
-    return disableCustomTheme
-      ? {}
-      : createTheme({
-          direction: directionState.direction as Direction, // Add direction to the theme
-          cssVariables: {
-            colorSchemeSelector: "data-mui-color-scheme",
-            cssVarPrefix: "template",
-          },
-          colorSchemes,
-          typography,
-          shadows,
-          shape,
-          components: {
-            ...inputsCustomizations,
-            ...dataDisplayCustomizations,
-            ...feedbackCustomizations,
-            ...navigationCustomizations,
-            ...surfacesCustomizations,
-            ...themeComponents,
-          },
-        });
-  }, [disableCustomTheme, themeComponents, directionState.direction]);
-
+    const currentLocale = i18n.language === "ar" ? arEG : enUS;
+    return createTheme(
+      {
+        direction: directionState.direction as Direction,
+        cssVariables: {
+          colorSchemeSelector: "data-mui-color-scheme",
+          cssVarPrefix: "template",
+        },
+        colorSchemes,
+        typography,
+        shadows,
+        shape,
+        components: {
+          ...inputsCustomizations,
+          ...dataDisplayCustomizations,
+          ...feedbackCustomizations,
+          ...navigationCustomizations,
+          ...surfacesCustomizations,
+          ...themeComponents,
+        },
+      },
+      currentLocale
+    );
+  }, [themeComponents, directionState.direction]);
   if (disableCustomTheme) {
     return <React.Fragment>{children}</React.Fragment>;
   }

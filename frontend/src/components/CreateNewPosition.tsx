@@ -57,7 +57,7 @@ const CreateNewPosition = () => {
     setIsLoading(true);
     try {
       const res = await axios.post("/position", payload);
-      if (res.status === 201) {
+      if (res.status === 200) {
         navigate("/position"); // Redirect upon success
       }
     } catch (error) {

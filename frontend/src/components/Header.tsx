@@ -17,20 +17,21 @@ export default function Header() {
   const loggedIn = isLoggedIn();
   const toggleLanguage = () => {
     const newLanguage = language === "en" ? "ar" : "en";
+    const newDirection = newLanguage === "ar" ? "rtl" : "ltr";
+  
+    // Change i18n language and update state
     i18n.changeLanguage(newLanguage);
     setLanguage(newLanguage);
     dispatchDirection({
       type: DIRECTION_ACTIONS.TOGGLE_DIRECTION,
       payload: newLanguage,
-    }); // Dispatch action to update direction
-    const dir = language === "en" ? "ltr" : "rtl";
-    const newDir = language === "en" ? "rtl" : "ltr";
-    localStorage.setItem("dir", newDir)
-    const elements = document.querySelectorAll(`[dir=${dir}]`);
-    elements.forEach((element) => {
-      element.setAttribute("dir", newDir);
     });
+  
+    // Update localStorage and document body direction
+    localStorage.setItem("dir", newDirection);
+    document.documentElement.setAttribute("dir", newDirection); // Apply direction to the whole document
   };
+  
 
   return (
     <Stack
