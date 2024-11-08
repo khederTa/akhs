@@ -1,21 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, debounce, Paper, Stack } from "@mui/material";
+import { Button, Paper } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
-  GridToolbarContainerProps,
-  useGridRootProps,
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarDensitySelector,
 } from "@mui/x-data-grid";
 import { Loading } from "./Loading";
-import { forwardRef, useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -28,6 +22,8 @@ import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
 import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { ReportModal } from "./ReportModal";
 import AlertNotification from "./AlertNotification";
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import GridCustomToolbar from "./GridCustomToolbar";
 const Department = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [oldRow, setOldRow] = useState({});
@@ -36,7 +32,6 @@ const Department = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<any>(null);
-  const navigate = useNavigate();
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
 
@@ -51,92 +46,28 @@ const Department = () => {
   const apiRef = useGridApiRef();
   const paginationModel = { page: 0, pageSize: 5 };
   const { t } = useTranslation();
-  const [filteredRows, setFilteredRows] = useState([]);
-  const [, setIsClient] = useState(false); // Add client-side rendering check
-  const [filterModel, setFilterModel] = useState<{ [key: string]: string }>({
-    name: "",
-    description: "",
+  const {
+    filteredRows,
+    sortModel,
+    filterModel,
+    filterVisibility,
+    setFilteredRows,
+    setFilterVisibility,
+    handleTextFilterChange,
+    clearFilter,
+    clearAllFilters,
+    handleSortClick,
+  } = useGridFilterSort({
+    initialFilterModel: {
+      name: "",
+      description: "",
+    },
+    initialFilterVisibility: {
+      name: false,
+      description: false,
+    },
+    rows, // your initial rows data
   });
-
-  const [filterVisibility, setFilterVisibility] = useState<{
-    [key: string]: boolean;
-  }>({
-    name: false,
-    description: false,
-  });
-  const [sortModel, setSortModel] = useState<{
-    field: string;
-    direction: "asc" | "desc";
-  }>({ field: "", direction: "asc" });
-
-  // Set client-only rendering flag
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  // Create the debounced filter function with useMemo to avoid recreating it on each render
-  const debouncedFilter = useMemo(
-    () =>
-      debounce((filterModel: { [key: string]: string }) => {
-        const filtered = rows.filter((row) => {
-          return Object.entries(filterModel).every(([field, value]) => {
-            // Only apply filtering if a filter value exists
-            if (value) {
-              // Convert both row value and filter value to lowercase to make it case-insensitive
-              const cellValue = row[field]?.toString().toLowerCase() || "";
-              const filterValue = value.toLowerCase();
-
-              // Check if the entire filter string is included in the cell value
-              return cellValue.includes(filterValue);
-            }
-            return true; // If no filter value, consider it a match for that field
-          });
-        });
-        setFilteredRows(filtered as any);
-      }, 300),
-    [rows] // Only re-create if `rows` changes
-  );
-
-  // Memoize the function that triggers debounced filtering
-  const updateFilteredRows = useCallback(
-    (filterModel: { [key: string]: string }) => {
-      debouncedFilter(filterModel);
-    },
-    [debouncedFilter]
-  );
-
-  const handleFilterChange = useCallback(
-    (field: string, value: string) => {
-      if (filterModel[field] === value) return;
-      const newFilterModel = { ...filterModel, [field]: value };
-      setFilterModel(newFilterModel);
-      updateFilteredRows(newFilterModel);
-    },
-    [filterModel, updateFilteredRows]
-  );
-
-  const clearFilter = useCallback(
-    (field: string) => {
-      handleFilterChange(field, "");
-    },
-    [handleFilterChange]
-  );
-
-  const handleSortClick = useCallback(
-    (field: string) => {
-      const isAsc = sortModel.field === field && sortModel.direction === "asc";
-      const direction = isAsc ? "desc" : "asc";
-      setSortModel({ field, direction });
-
-      const sortedRows = [...filteredRows].sort((a, b) => {
-        if (a[field] < b[field]) return direction === "asc" ? -1 : 1;
-        if (a[field] > b[field]) return direction === "asc" ? 1 : -1;
-        return 0;
-      });
-      setFilteredRows(sortedRows);
-    },
-    [filteredRows, sortModel.direction, sortModel.field]
-  );
 
   const handleEditClick = useCallback(
     (id: any) => {
@@ -166,7 +97,7 @@ const Department = () => {
             sortModel={sortModel}
             filterVisibility={filterVisibility}
             handleSortClick={handleSortClick}
-            handleFilterChange={handleFilterChange}
+            handleFilterChange={handleTextFilterChange}
             setFilterVisibility={setFilterVisibility}
             clearFilter={clearFilter}
           />
@@ -187,7 +118,7 @@ const Department = () => {
             sortModel={sortModel}
             filterVisibility={filterVisibility}
             handleSortClick={handleSortClick}
-            handleFilterChange={handleFilterChange}
+            handleFilterChange={handleTextFilterChange}
             setFilterVisibility={setFilterVisibility}
             clearFilter={clearFilter}
           />
@@ -195,7 +126,7 @@ const Department = () => {
       },
       {
         field: "actions",
-        headerName: "Actions",
+        headerName: t("actions"),
         type: "actions",
         width: 150,
         getActions: (params) => {
@@ -246,9 +177,10 @@ const Department = () => {
       filterModel,
       filterVisibility,
       handleEditClick,
-      handleFilterChange,
       handleSortClick,
+      handleTextFilterChange,
       rowModesModel,
+      setFilterVisibility,
       sortModel,
       t,
     ]
@@ -272,7 +204,7 @@ const Department = () => {
       }
     }
     fetchDepartment();
-  }, []);
+  }, [setFilteredRows]);
 
   const handleSave = async (id: any) => {
     setAction("save");
@@ -355,33 +287,16 @@ const Department = () => {
     }
   };
 
-  const GridCustomToolbar = forwardRef<
-    HTMLDivElement,
-    GridToolbarContainerProps
-  >(function GridToolbar(props, ref) {
-    const { className, ...other } = props;
-    const rootProps = useGridRootProps();
+  const [selectedRows, setSelectedRows] = useState([]);
 
-    return (
-      <GridToolbarContainer>
-        <>
-          <Button type="button" onClick={() => navigate("/new-position")}>
-            <AddOutlinedIcon />
-            {t("add")}
-          </Button>
-        </>
-        <GridToolbarColumnsButton />
-        <GridToolbarDensitySelector />
-        <>
-          <Button onClick={() => setReportModalIsOpen(true)}>
-            <FileDownloadOutlinedIcon />
-            {t("export")}
-          </Button>
-        </>
-      </GridToolbarContainer>
-    );
-  });
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return filteredRows.find((row) => row.id === selected);
+    });
+    setSelectedRows(newSelectedRows);
+  };
 
+  useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
     <>
       <ReportModal
@@ -397,38 +312,50 @@ const Department = () => {
         severity={alertSeverity}
         onClose={handleAlertClose}
       />
+      {/* Delete Confirmation Dialog */}
+      <DraggableDialog
+        open={isDeleteDialogOpen}
+        handleClose={handleCloseDeleteDialog}
+        onConfirm={handleDelete}
+      />
       {isLoading ? (
         <Loading />
       ) : (
-        <div>
-          <Paper sx={{ height: 400, width: "100%" }}>
-            <DataGrid
-              rows={filteredRows}
-              columns={columns}
-              initialState={{ pagination: { paginationModel } }}
-              pageSizeOptions={[5, 10]}
-              sx={{ border: 0 }}
-              editMode="row"
-              rowModesModel={rowModesModel}
-              disableColumnFilter
-              disableColumnMenu
-              slots={{ toolbar: GridCustomToolbar }}
-              localeText={{
-                toolbarColumns: t("columns"),
-                toolbarDensity: t("density"),
-              }}
-              processRowUpdate={processRowUpdate}
-              apiRef={apiRef}
-            />
-          </Paper>
-
-          {/* Delete Confirmation Dialog */}
-          <DraggableDialog
-            open={isDeleteDialogOpen}
-            handleClose={handleCloseDeleteDialog}
-            onConfirm={handleDelete}
+        <Paper sx={{ height: 400, width: "100%" }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            // processRowUpdate={handleProcessRowUpdate}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[5, 10]}
+            sx={{ border: 0 }}
+            getRowId={(row) => row.id} // Ensure the correct row ID is used
+            disableColumnFilter
+            disableColumnMenu
+            slots={{
+              toolbar: () => (
+                <GridCustomToolbar
+                  clearAllFilters={clearAllFilters}
+                  rows={selectedRows}
+                  navigateTo={"/new-department"}
+                />
+              ),
+            }}
+            editMode="row"
+            localeText={{
+              toolbarColumns: t("columns"),
+              toolbarDensity: t("density"),
+            }}
+            rowModesModel={rowModesModel}
+            processRowUpdate={processRowUpdate}
+            apiRef={apiRef}
+            checkboxSelection // Enable checkboxes for row selection
+            onRowSelectionModelChange={(newSelection: any) =>
+              handleSelectionChange(newSelection)
+            }
+            disableRowSelectionOnClick
           />
-        </div>
+        </Paper>
       )}
     </>
   );

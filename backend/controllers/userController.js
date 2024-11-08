@@ -95,6 +95,52 @@ exports.createUser = async (req, res) => {
       .json({ error: "An error occurred while creating the user" });
   }
 };
+exports.promoteVolunteer = async (req, res) => {
+  const {
+    volunteerId,
+    providerId,
+    departmentId,
+    positionId,
+    password,
+    roleId,
+  } = req.body;
+  console.log(req.body);
+  try {
+    if (volunteerId && !providerId) {
+      // Step 1: Create the service provider and link volunteerId, departmentId, and positionId
+      const serviceProvider = await ServiceProvider.create({
+        volunteerId: volunteerId, // Link volunteer ID
+        departmentId: departmentId,
+        positionId: positionId,
+      });
+
+      // Step 2: Create the user and associate it with serviceProvider, role, and other required fields
+      const user = await User.create({
+        password: password,
+        providerId: serviceProvider.providerId, // Fixed provider ID assignment
+        roleId: roleId,
+      });
+
+      // Send the created user as the response
+      res.status(201).json(user);
+    } else {
+      // Step 2: Create the user and associate it with serviceProvider, role, and other required fields
+      const user = await User.create({
+        password: password,
+        providerId: providerId, // Fixed provider ID assignment
+        roleId: roleId,
+      });
+
+      // Send the created user as the response
+      res.status(201).json(user);
+    }
+  } catch (error) {
+    console.error("Error creating user:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the user" });
+  }
+};
 
 exports.getUserById = async (req, res) => {
   const user = await User.findByPk(req.params.id);

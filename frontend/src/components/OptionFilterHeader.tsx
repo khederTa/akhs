@@ -20,7 +20,8 @@ import { useTranslation } from "react-i18next";
 import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import { DirectionContext } from "../shared-theme/AppTheme";
 
-type GenderFilterHeaderProps = {
+type OptionFilterHeaderProps = {
+  options: any[];
   field: string;
   filterModel: { [key: string]: string | number | undefined } | any;
   sortModel: { field: string; direction: "asc" | "desc" };
@@ -33,7 +34,8 @@ type GenderFilterHeaderProps = {
   clearFilter: (field: string) => void;
 };
 
-function GenderFilterHeader({
+function OptionFilterHeader({
+  options,
   field,
   filterModel,
   sortModel,
@@ -42,10 +44,9 @@ function GenderFilterHeader({
   handleFilterChange,
   setFilterVisibility,
   clearFilter,
-}: GenderFilterHeaderProps) {
+}: OptionFilterHeaderProps) {
   const { t } = useTranslation();
   const [selectedValue, setSelectedValue] = useState<string>("");
-  const { direction } = useContext(DirectionContext);
 
   // Synchronize local selectedValue with filterModel when dialog opens
   useEffect(() => {
@@ -53,6 +54,7 @@ function GenderFilterHeader({
       setSelectedValue((filterModel[field] as string) || "");
     }
   }, [filterVisibility, field, filterModel]);
+  const { direction } = useContext(DirectionContext);
 
   const handleApplyFilter = () => {
     handleFilterChange(field, selectedValue);
@@ -96,7 +98,7 @@ function GenderFilterHeader({
         <DialogTitle id="filter-dialog-title">{t(field)}</DialogTitle>
         <DialogContent
           sx={{
-            minWidth: 200, // Set a minimum width for consistent sizing
+            minWidth: 250, // Set a minimum width for consistent sizing
           }}
         >
           <Select
@@ -117,15 +119,20 @@ function GenderFilterHeader({
             }
           >
             <MenuItem value="">{t("all")}</MenuItem>
-            <MenuItem value="male">{t("male")}</MenuItem>
-            <MenuItem value="female">{t("female")}</MenuItem>
+            {options.map((option) => (
+              <MenuItem value={option}>{option}</MenuItem>
+            ))}
           </Select>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleResetFilter} color="secondary">
             {t("reset")}
           </Button>
-          <Button onClick={handleApplyFilter} variant="outlined" color="primary">
+          <Button
+            onClick={handleApplyFilter}
+            variant="outlined"
+            color="primary"
+          >
             {t("apply")}
           </Button>
         </DialogActions>
@@ -134,4 +141,4 @@ function GenderFilterHeader({
   );
 }
 
-export default memo(GenderFilterHeader);
+export default memo(OptionFilterHeader);

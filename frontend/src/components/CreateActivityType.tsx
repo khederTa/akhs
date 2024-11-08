@@ -1,4 +1,5 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 import axios from "../utils/axios";
@@ -55,7 +56,11 @@ export function CreateActivityType() {
     async function fetchData() {
       await axios
         .get("/activityType")
-        .then((res) => setPrerequisites(res.data))
+        .then((res) =>
+          setPrerequisites(
+            res.data.filter((item: any) => item.active_status === "active")
+          )
+        )
         .catch((error) => console.error(error));
 
       await axios
@@ -186,7 +191,7 @@ export function CreateActivityType() {
             sx={{ width: "100%" }}
             options={departments}
             value={selectedDepartment}
-            onChange={(event, newValue: any) => {
+            onChange={(_event, newValue: any) => {
               setSelectedDepartment(newValue.id);
             }}
             getOptionLabel={(option) => option.name || ""}
@@ -201,7 +206,7 @@ export function CreateActivityType() {
             multiple
             options={prerequisites}
             value={selectedPrerequisites}
-            onChange={(event, newValue: any) =>
+            onChange={(_event, newValue: any) =>
               setSelectedPrerequisites(newValue)
             }
             getOptionLabel={(option) => option.name || ""}

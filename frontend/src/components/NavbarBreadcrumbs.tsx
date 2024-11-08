@@ -24,13 +24,18 @@ const URL_MAP = {
   "/create-new-user": "create new user",
   "/activity-management": "activity management",
   "/activity-information": "activiy information",
-  "/activity-types": "activity types",
+  "/activity-types": "activity type management",
   "/new-activity-type": "create new activiy type",
-  "/packages": "packages",
+  "/packages": "package management",
   "/new-package": "create new package",
-  "/position": "position",
-  "/departments": "departments",
-  "/volunteer": "volunteers"
+  "/position": "position management",
+  "/departments": "department management",
+  "/volunteer": "volunteer management",
+  "/serviceprovider": "provider management",
+  "/new-position": "create new position",
+  "/new-department": "create new department",
+  "/serviceprovider-information": "create new service provider",
+  "/volunteer-information": "create new volunteer",
 };
 export default function NavbarBreadcrumbs() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction

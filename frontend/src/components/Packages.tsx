@@ -1,33 +1,69 @@
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Chip,
-  Paper,
-  Stack,
-  TextField,
-} from "@mui/material";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { Autocomplete, Box, Chip, Paper, TextField } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
-  GridRenderCellParams,
-  GridRenderEditCellParams,
-  GridRowModel,
+  GridRowModesModel,
+  GridActionsCellItem,
+  useGridApiRef,
 } from "@mui/x-data-grid";
 import { Loading } from "./Loading";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import SaveIcon from "@mui/icons-material/Save";
+import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
-import { Description } from "@mui/icons-material";
+import DraggableDialog from "./DraggableDialog"; // Import the dialog component
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import { useTranslation } from "react-i18next";
+import FilterHeader from "./FilterHeader";
+import GridCustomToolbar from "./GridCustomToolbar";
+import AlertNotification from "./AlertNotification";
 
 export function Packages() {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState<any[]>([]);
+  const [oldRow, setOldRow] = useState<any>({});
+  const [action, setAction] = useState("");
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [rowToDelete, setRowToDelete] = useState<any>(null);
   const [packages, setPackages] = useState<any[]>([]);
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
-  const [error, setError] = useState();
-  const navigate = useNavigate();
-
+  const apiRef = useGridApiRef();
+  const { t } = useTranslation();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
+  const paginationModel = { page: 0, pageSize: 5 };
+  const {
+    filteredRows,
+    sortModel,
+    filterModel,
+    filterVisibility,
+    setFilterVisibility,
+    handleTextFilterChange,
+    clearFilter,
+    clearAllFilters,
+    handleSortClick,
+  } = useGridFilterSort({
+    initialFilterModel: {
+      name: "",
+      description: "",
+    },
+    initialFilterVisibility: {
+      name: false,
+      description: false,
+    },
+    rows, // your initial rows data
+  });
   useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
@@ -49,7 +85,12 @@ export function Packages() {
         }
 
         if (activityTypeResponse.status === 200) {
-          setActivityTypes(activityTypeResponse.data);
+          setActivityTypes(() =>
+            activityTypeResponse.data.filter(
+              (item: { active_status: string }) =>
+                item.active_status === "active"
+            )
+          );
         } else {
           console.error(
             "Unexpected activityType response:",
@@ -66,14 +107,12 @@ export function Packages() {
     fetchData();
   }, []);
 
-  const paginationModel = { page: 0, pageSize: 5 };
-
-  const ActivityTypeEditor = (params: GridRenderEditCellParams) => {
+  const ActivityTypeEditor = (params: any) => {
     const [selectedActivityTypes, setSelectedActivityTypes] = useState<any[]>(
       params.value || []
     );
 
-    const handleChange = (event: any, newValue: any[]) => {
+    const handleChange = (_event: any, newValue: any[]) => {
       setSelectedActivityTypes(newValue);
       try {
         params.api.setEditCellValue({
@@ -113,37 +152,7 @@ export function Packages() {
     );
   };
 
-  const handleProcessRowUpdate = async (newRow: GridRowModel) => {
-    try {
-      console.log(newRow);
-      const payload = {
-        id: newRow.id,
-        name: newRow.name,
-        description: newRow.description,
-        activityTypeIds: newRow.activityTypes.map(
-          (activityType: any) => activityType.id
-        ),
-      };
-      // Update API logic here as needed
-      const response = await axios.put(`/package/${newRow.id}`, payload);
-      if (response.status === 200) {
-        setRows((prevRows: any) =>
-          prevRows.map((row: any) =>
-            row.id === newRow.id ? { ...newRow } : row
-          )
-        );
-        console.log("Row updated successfully:", payload);
-        return payload;
-      } else {
-        throw new Error("Failed to update row");
-      }
-    } catch (error) {
-      console.error("Error updating row:", error);
-      throw error;
-    }
-  };
-
-  const ActivityTypeRenderer = (params: GridRenderCellParams) => {
+  const ActivityTypeRenderer = (params: any) => {
     const selectedActivityTypes = params.value || [];
     return (
       <Box
@@ -163,43 +172,248 @@ export function Packages() {
   };
 
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 200 },
-    { field: "name", headerName: "Name", width: 200 },
-    { field: "description", headerName: "Description", width: 200 },
+    {
+      field: "id",
+      headerName: t("id"),
+      minWidth: 100,
+      sortable: true,
+      editable: false,
+    },
+    {
+      field: "name",
+      headerName: t("name"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      editable: true,
+      renderHeader: () => (
+        <FilterHeader
+          key={"name"}
+          field={"name"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
+    {
+      field: "description",
+      headerName: t("description"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      editable: true,
+      renderHeader: () => (
+        <FilterHeader
+          key={"description"}
+          field={"description"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
     {
       field: "activityTypes",
-      headerName: "Activity Types",
+      headerName: t("activity types"),
       minWidth: 200,
       editable: true,
+      sortable: false,
+      hideSortIcons: true,
       renderEditCell: (params) => <ActivityTypeEditor {...params} />,
       renderCell: (params) => <ActivityTypeRenderer {...params} />,
     },
+    {
+      field: "actions",
+      headerName: t("actions"),
+      type: "actions",
+      width: 150,
+      getActions: (params) => {
+        const isInEditMode = rowModesModel[params.id]?.mode === "edit";
+
+        return [
+          !isInEditMode && (
+            <GridActionsCellItem
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={() => handleEditClick(params.id)}
+              key="edit"
+            />
+          ),
+          !isInEditMode && (
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Delete"
+              onClick={() => handleOpenDeleteDialog(params.id)}
+              key="delete"
+            />
+          ),
+          isInEditMode && (
+            <GridActionsCellItem
+              icon={<SaveIcon />}
+              label="Save"
+              onClick={() => handleSave(params.id)}
+              key="save"
+            />
+          ),
+          isInEditMode && (
+            <GridActionsCellItem
+              icon={<CancelIcon />}
+              label="Cancel"
+              onClick={() => handleCancel(params.id)}
+              key="cancel"
+            />
+          ),
+        ].filter(Boolean) as React.ReactElement[];
+      },
+    },
   ];
 
-  return isLoading ? (
-    <Loading />
-  ) : (
-    <div>
-      {error && <div style={{ color: "red" }}>{error}</div>}
-      <Stack direction="row" justifyContent="flex-start" sx={{ gap: 1 }}>
-        <Button
-          type="button"
-          variant="contained"
-          onClick={() => navigate("/new-package")}
-        >
-          Create New Package
-        </Button>
-      </Stack>
-      <Paper sx={{ height: 400, width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          processRowUpdate={handleProcessRowUpdate}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          sx={{ border: 0 }}
-        />
-      </Paper>
-    </div>
+  const handleEditClick = (id: any) => {
+    const currentRow = rows.find((row: any) => row.id === id);
+    setOldRow(currentRow as any);
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
+    apiRef.current.setCellFocus(id, "name");
+  };
+
+  const handleSave = async (id: any) => {
+    setAction("save");
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
+  };
+
+  const handleCancel = (id: any) => {
+    setAction("cancel");
+    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
+  };
+
+  const handleOpenDeleteDialog = (id: any) => {
+    setRowToDelete(id);
+    setIsDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setIsDeleteDialogOpen(false);
+    setRowToDelete(null);
+  };
+
+  const handleDelete = async () => {
+    try {
+      await axios.delete(`/package/${rowToDelete}`);
+      setRows((prevRows) =>
+        prevRows.filter((row: any) => row.id !== rowToDelete)
+      );
+      handleCloseDeleteDialog();
+    } catch (error) {
+      console.error("Error deleting package:", error);
+    }
+  };
+
+  const processRowUpdate = async (updatedRow: any) => {
+    if (action === "save") {
+      try {
+        const payload = {
+          id: updatedRow.id,
+          name: updatedRow.name,
+          description: updatedRow.description,
+          activityTypeIds: updatedRow.activityTypes.map(
+            (activityType: any) => activityType.id
+          ),
+        };
+        const response = await axios.put(`/package/${updatedRow.id}`, payload);
+        if (response.status === 200) {
+          setRows((prevRows: any) =>
+            prevRows.map((row: any) =>
+              row.id === updatedRow.id ? updatedRow : row
+            )
+          );
+          return updatedRow;
+        } else {
+          throw new Error("Failed to update row");
+        }
+      } catch (error) {
+        console.error("Error updating row:", error);
+        throw error;
+      }
+    } else if (action === "cancel") {
+      setRows((prevRows: any) =>
+        prevRows.map((row: any) => (row.id === updatedRow.id ? oldRow : row))
+      );
+      return oldRow;
+    }
+  };
+
+  const [selectedRows, setSelectedRows] = useState([]);
+
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return filteredRows.find((row) => row.id === selected);
+    });
+    setSelectedRows(newSelectedRows);
+  };
+
+  useEffect(() => console.log(selectedRows), [selectedRows]);
+
+  return (
+    <>
+      <AlertNotification
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={handleAlertClose}
+      />
+      {/* Delete Confirmation Dialog */}
+      <DraggableDialog
+        open={isDeleteDialogOpen}
+        handleClose={handleCloseDeleteDialog}
+        onConfirm={handleDelete}
+      />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <Paper sx={{ height: 400, width: "100%" }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            // processRowUpdate={handleProcessRowUpdate}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[5, 10]}
+            sx={{ border: 0 }}
+            getRowId={(row) => row.id} // Ensure the correct row ID is used
+            disableColumnFilter
+            disableColumnMenu
+            slots={{
+              toolbar: () => (
+                <GridCustomToolbar
+                  clearAllFilters={clearAllFilters}
+                  rows={selectedRows}
+                  navigateTo={"/new-package"}
+                />
+              ),
+            }}
+            editMode="row"
+            localeText={{
+              toolbarColumns: t("columns"),
+              toolbarDensity: t("density"),
+            }}
+            rowModesModel={rowModesModel}
+            processRowUpdate={processRowUpdate}
+            apiRef={apiRef}
+            checkboxSelection // Enable checkboxes for row selection
+            onRowSelectionModelChange={(newSelection: any) =>
+              handleSelectionChange(newSelection)
+            }
+            disableRowSelectionOnClick
+          />
+        </Paper>
+      )}
+    </>
   );
 }

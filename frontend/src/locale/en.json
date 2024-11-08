@@ -86,5 +86,15 @@
   "activity type updated successfully": "Activity Type Updated Successfully",
   "failed to update activity type": "Failed To Update Activity Type",
   "volunteer updated successfully": "Volunteer Updated Successfully",
-  "failed to update volunteer": "Failed To Update Volunteer"
+  "failed to update volunteer": "Failed To Update Volunteer",
+  "volunteer management": "Volunteer Management",
+   "provider management":  "Provider Management",
+   "activity type management": "Activity Type Management",
+   "package management": "Package Management",
+   "department management": "Department Management",
+   "position management": "Position Management",
+   "create new position": "Create New Position",
+   "create new department": "Create New Department",
+   "create new service provider": "Create New Service Provider",
+   "create new volunteer": "Create New Volunteer"
 }

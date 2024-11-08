@@ -1,28 +1,15 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, debounce, Paper, Stack, styled, Switch } from "@mui/material";
+import { Paper, Stack, styled, Switch } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
-  GridToolbarContainerProps,
-  useGridRootProps,
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarDensitySelector,
 } from "@mui/x-data-grid";
 import { Loading } from "./Loading";
-import {
-  forwardRef,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-import { useNavigate } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -35,20 +22,15 @@ import FileUpload from "./FileUpload";
 import { useTranslation } from "react-i18next";
 import FilterHeader from "./FilterHeader";
 import AlertNotification from "./AlertNotification";
-import { ReportModal } from "./ReportModal";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import DateFilterHeader from "./DateFilterHeader";
 import CustomDateRenderer from "./CustomDateRenderer";
 import QAFilterHeader from "./QAFilterHeader";
 import GenderFilterHeader from "./GenderFilterHeader";
-import FilterListOffIcon from "@mui/icons-material/FilterListOff";
 import GridCustomToolbar from "./GridCustomToolbar";
-
-// Define types for date filtering
-type Operator = "equals" | "before" | "after" | "between";
-
-const AntSwitch = styled(Switch)(({ theme }: any) => ({
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
+import VolunteerPromoteModal from "./VolunteerPromoteModal";
+export const AntSwitch = styled(Switch)(({ theme }: any) => ({
   width: 28,
   height: 16,
   padding: 0,
@@ -101,22 +83,19 @@ type DateFilterValue = {
   endDate?: string;
 };
 
-type FilterModel = {
-  [key: string]: string | DateFilterValue; // Supports both string and DateFilterValue
-};
-
 const Volunteer = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [action, setAction] = useState("");
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [rowToDelete, setRowToDelete] = useState<any>(null);
+  const [selectedRow, setSelectedRow] = useState<any>(null);
   const [addressId, setAddressId] = useState<number | null>(null);
   const [address, setAddress] = useState<number | null>(null);
   const [newAddress, setNewAddress] = useState<any | null>(null);
   const [fileId, setFileId] = useState<number | null>(null);
   const [updatedFile, setUpdatedFile] = useState<any | null>(null);
+  const [promoteVolunteerOpen, setPromoteVolunteerOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
@@ -125,141 +104,31 @@ const Volunteer = () => {
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
-  const [oldFile, setOldFile] = useState<any | null>(null);
-  const navigate = useNavigate();
+  const [uploadFileSizeError, setUploadFileSizeError] = useState("");
+  useEffect(() => {
+    if (uploadFileSizeError.length > 0) {
+      setAlertMessage(uploadFileSizeError);
+      setAlertSeverity("error");
+      setAlertOpen(true);
+    }
+  }, [uploadFileSizeError]);
   const apiRef = useGridApiRef();
   const paginationModel = { page: 0, pageSize: 5 };
   const { t } = useTranslation();
-  const [filterModel, setFilterModel] = useState<FilterModel>({
-    fname: "",
-    lname: "",
-    mname: "",
-    momName: "",
-    phone: "",
-    email: "",
-    gender: "",
-    study: "",
-    work: "",
-    address: "",
-    nationalNumber: "",
-    fixPhone: "",
-    compSkills: "",
-    koboSkils: "",
-    prevVol: "",
-    smoking: "",
-    bDate: { value: "", operator: "equals", endDate: "" }, // Example date filter
-  });
-  const [filterVisibility, setFilterVisibility] = useState<{
-    [key: string]: boolean;
-  }>({
-    fname: false,
-    lname: false,
-    mname: false,
-    momName: false,
-    phone: false,
-    email: false,
-    gender: false,
-    study: false,
-    work: false,
-    address: false,
-    nationalNumber: false,
-    fixPhone: false,
-    bDate: false,
-    compSkills: false,
-    koboSkils: false,
-    prevVol: false,
-    smoking: false,
-  });
-
-  const [filteredRows, setFilteredRows] = useState<any[]>([]); // Assuming `rows` is your data
-  const [sortModel, setSortModel] = useState<{
-    field: string;
-    direction: "asc" | "desc";
-  }>({
-    field: "",
-    direction: "asc",
-  });
-
-  // Debounced update filtered rows
-  const updateFilteredRows = useCallback(() => {
-    const filtered = rows.filter((row) => {
-      return Object.entries(filterModel).every(([field, value]) => {
-        if (typeof value === "string") {
-          // Handle string-based filters
-          if (value) {
-            const cellValue = row[field]?.toString().toLowerCase() || "";
-            const filterValue = value.toLowerCase();
-            return field === "gender"
-              ? cellValue === filterValue
-              : cellValue.includes(filterValue);
-          }
-          return true;
-        } else if (value && typeof value === "object") {
-          // Handle date-based filters
-          const { value: filterValue, operator, endDate } = value;
-          if (!filterValue) return true; // Skip filtering if no date value
-
-          const rowDate = new Date(row[field]);
-          const filterDate = new Date(filterValue);
-          const endDateValue = endDate ? new Date(endDate) : undefined;
-
-          switch (operator) {
-            case "equals":
-              return rowDate.toDateString() === filterDate.toDateString();
-            case "before":
-              return rowDate < filterDate;
-            case "after":
-              return rowDate > filterDate;
-            case "between":
-              return endDateValue
-                ? rowDate >= filterDate && rowDate <= endDateValue
-                : false;
-            default:
-              return true;
-          }
-        }
-        return true; // No filter or unsupported filter
-      });
-    });
-    setFilteredRows(filtered);
-  }, [filterModel, rows, setFilteredRows]);
-
-  useEffect(() => {
-    updateFilteredRows();
-  }, [filterModel, updateFilteredRows]);
-
-  // Handle filter change for text fields
-  const handleTextFilterChange = useCallback((field: string, value: string) => {
-    setFilterModel((prev) => ({ ...prev, [field]: value }));
-  }, []);
-
-  // Handle filter change for date fields
-  const handleDateFilterChange = useCallback(
-    (
-      field: string,
-      value: string,
-      operator: "equals" | "before" | "after" | "between",
-      endDate?: string
-    ) => {
-      setFilterModel((prev) => ({
-        ...prev,
-        [field]: { value, operator, endDate },
-      }));
-    },
-    []
-  );
-
-  // Handle reset filter
-  const clearFilter = useCallback((field: string) => {
-    setFilterModel((prev) => ({
-      ...prev,
-      [field]:
-        field === "bDate" ? { value: "", operator: "equals", endDate: "" } : "",
-    }));
-  }, []);
-
-  const clearAllFilters = useCallback(() => {
-    setFilterModel({
+  const {
+    filteredRows,
+    sortModel,
+    filterModel,
+    filterVisibility,
+    setFilteredRows,
+    setFilterVisibility,
+    handleTextFilterChange,
+    handleDateFilterChange,
+    clearFilter,
+    clearAllFilters,
+    handleSortClick,
+  } = useGridFilterSort({
+    initialFilterModel: {
       fname: "",
       lname: "",
       mname: "",
@@ -276,26 +145,29 @@ const Volunteer = () => {
       koboSkils: "",
       prevVol: "",
       smoking: "",
-      bDate: { value: "", operator: "equals", endDate: "" }, // Example date filter
-    });
-  }, []);
-
-  // Sort logic
-  const handleSortClick = useCallback(
-    (field: string) => {
-      const isAsc = sortModel.field === field && sortModel.direction === "asc";
-      const direction = isAsc ? "desc" : "asc";
-      setSortModel({ field, direction });
-
-      const sortedRows = [...filteredRows].sort((a, b) => {
-        if (a[field] < b[field]) return direction === "asc" ? -1 : 1;
-        if (a[field] > b[field]) return direction === "asc" ? 1 : -1;
-        return 0;
-      });
-      setFilteredRows(sortedRows);
+      bDate: { value: "", operator: "equals", endDate: "" },
     },
-    [sortModel.field, sortModel.direction, filteredRows, setFilteredRows]
-  );
+    initialFilterVisibility: {
+      fname: false,
+      lname: false,
+      mname: false,
+      momName: false,
+      phone: false,
+      email: false,
+      gender: false,
+      study: false,
+      work: false,
+      address: false,
+      nationalNumber: false,
+      fixPhone: false,
+      bDate: false,
+      compSkills: false,
+      koboSkils: false,
+      prevVol: false,
+      smoking: false,
+    },
+    rows, // your initial rows data
+  });
 
   // active / inactive volunteer
   const handleToggleActive = useCallback(
@@ -335,8 +207,12 @@ const Volunteer = () => {
         console.error("Error updating active status:", error);
       }
     },
-    [filteredRows, rows]
+    [filteredRows, rows, setFilteredRows]
   );
+
+  // useEffect(() => {
+  //   console.log(filteredRows);
+  // }, [filteredRows]);
 
   // Handle row edit
   const handleEditClick = useCallback(
@@ -367,8 +243,13 @@ const Volunteer = () => {
 
   // Open delete confirmation dialog
   const handleOpenDeleteDialog = useCallback((id: any) => {
-    setRowToDelete(id);
+    setSelectedRow(id);
     setIsDeleteDialogOpen(true);
+  }, []);
+  // Open promote confirmation dialog
+  const handleOpenPromoteDialog = useCallback((id: any) => {
+    setSelectedRow(id);
+    setPromoteVolunteerOpen(true);
   }, []);
 
   // Memoized columns definition to prevent re-rendering
@@ -381,14 +262,6 @@ const Volunteer = () => {
         sortable: true,
         editable: false,
       },
-      // {
-      //   field: "active_status",
-      //   headerName: "Active_status",
-      //   width: 100,
-      //   editable: true,
-      //   type: "boolean",
-      // },
-
       {
         field: "fname",
         headerName: t("fname"),
@@ -783,6 +656,7 @@ const Volunteer = () => {
               setFileId={setFileId}
               setUpdatedFile={setUpdatedFile}
               mode={"edit"}
+              setUploadFileSizeError={setUploadFileSizeError}
             />
           );
         },
@@ -791,7 +665,7 @@ const Volunteer = () => {
         field: "actions",
         headerName: t("actions"),
         type: "actions",
-        width: 150,
+        width: 250,
         getActions: ({ id }) => {
           const isInEditMode = rowModesModel[id]?.mode === "edit";
           return [
@@ -800,6 +674,13 @@ const Volunteer = () => {
                 icon={<EditIcon />}
                 label="Edit"
                 onClick={() => handleEditClick(id)}
+              />
+            ),
+            !isInEditMode && (
+              <GridActionsCellItem
+                icon={<PersonAddAlt1RoundedIcon />}
+                label="Promote"
+                onClick={() => handleOpenPromoteDialog(id)}
               />
             ),
             !isInEditMode && (
@@ -820,7 +701,8 @@ const Volunteer = () => {
               >
                 <AntSwitch
                   defaultChecked={
-                    rows.find((row) => row.id === id).active_status === "active"
+                    rows.find((row) => row.id === id)?.active_status ===
+                    "active"
                   }
                   inputProps={{ "aria-label": "ant design" }}
                   onChange={() => handleToggleActive(id as number)}
@@ -853,12 +735,14 @@ const Volunteer = () => {
       handleDateFilterChange,
       handleEditClick,
       handleOpenDeleteDialog,
+      handleOpenPromoteDialog,
       handleSave,
       handleSortClick,
       handleTextFilterChange,
       handleToggleActive,
       rowModesModel,
       rows,
+      setFilterVisibility,
       sortModel,
       t,
     ]
@@ -905,7 +789,12 @@ const Volunteer = () => {
   // Close delete dialog
   const handleCloseDeleteDialog = useCallback(() => {
     setIsDeleteDialogOpen(false);
-    setRowToDelete(null);
+    setSelectedRow(null);
+  }, []);
+  // Close delete dialog
+  const handleClosePromoteDialog = useCallback(() => {
+    setPromoteVolunteerOpen(false);
+    setSelectedRow(null);
   }, []);
 
   useEffect(() => {
@@ -926,24 +815,28 @@ const Volunteer = () => {
   const handleDelete = useCallback(async () => {
     try {
       // Retrieve personId and addressId from the row to delete
-      const row: any = rows.find((row: any) => row.volunteerId === rowToDelete);
+      const row: any = rows.find((row: any) => row.volunteerId === selectedRow);
 
       // Delete volunteer data
-      await axios.delete(`/volunteer/${rowToDelete}`);
+      await axios.delete(`/volunteer/${selectedRow}`);
 
       // Delete associated person and address data
       await axios.delete(`/person/${row.personId}`);
-      await axios.delete(`/address/${row.addressId}`);
+      // await axios.delete(`/address/${row.addressId}`);
 
       // Update the rows state after deletion
+
+      setFilteredRows((prevRows) =>
+        prevRows.filter((row: any) => row.volunteerId !== selectedRow)
+      );
       setRows((prevRows) =>
-        prevRows.filter((row: any) => row.volunteerId !== rowToDelete)
+        prevRows.filter((row: any) => row.volunteerId !== selectedRow)
       );
       handleCloseDeleteDialog();
     } catch (error) {
       console.error("Error deleting volunteer and related data:", error);
     }
-  }, [handleCloseDeleteDialog, rowToDelete, rows]);
+  }, [rows, selectedRow, setFilteredRows, handleCloseDeleteDialog]);
 
   const handleFileUpload = useCallback(
     async (base64FileData: string) => {
@@ -954,21 +847,21 @@ const Volunteer = () => {
     [fileId]
   );
 
-  const deleteFile = useCallback(
-    async (id: number, clearFile: boolean = true) => {
-      try {
-        console.log({ id });
-        const response = await axios.delete(`file/${id}`);
-        if (response.status === 200) {
-          setFileId(null);
-          if (clearFile) setOldFile(null);
-        }
-      } catch (error) {
-        console.error("File deletion failed:", error);
-      }
-    },
-    []
-  );
+  // const deleteFile = useCallback(
+  //   async (id: number, clearFile: boolean = true) => {
+  //     try {
+  //       console.log({ id });
+  //       const response = await axios.delete(`file/${id}`);
+  //       if (response.status === 200) {
+  //         setFileId(null);
+  //         if (clearFile) setOldFile(null);
+  //       }
+  //     } catch (error) {
+  //       console.error("File deletion failed:", error);
+  //     }
+  //   },
+  //   []
+  // );
   // Process row update for Volunteer, Person, and Address data
   const processRowUpdate = useCallback(
     async (updatedRow: any) => {
@@ -1152,13 +1045,53 @@ const Volunteer = () => {
     ]
   );
 
+  const handlePromote = useCallback(
+    async (data: any) => {
+      try {
+        const { roleId, password } = data;
+        if (password && roleId) {
+          const response = await axios.post("/user/promote/", {
+            ...data,
+            volunteerId: selectedRow,
+          });
+          if (response.status === 201) {
+            setRows((prevRows) =>
+              prevRows.filter((row: any) => row.volunteerId !== selectedRow)
+            );
+            setAlertMessage(t("volunteer has promoted to a user"));
+            setAlertSeverity("success");
+          }
+        } else {
+          const response = await axios.post("/serviceprovider/promote/", {
+            ...data,
+            volunteerId: selectedRow,
+          });
+
+          if (response.status === 201) {
+            setRows((prevRows) =>
+              prevRows.filter((row: any) => row.volunteerId !== selectedRow)
+            );
+            setAlertMessage(t("volunteer has promoted to a provider"));
+            setAlertSeverity("success");
+          }
+        }
+      } catch (error) {
+        setAlertMessage(t("failed to promote volunteer"));
+        setAlertSeverity("error");
+      } finally {
+        setAlertOpen(true);
+      }
+    },
+    [selectedRow, t]
+  );
+
   const [selectedRows, setSelectedRows] = useState([]);
 
   const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows = newSelection.map((selected) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
-    setSelectedRows(newSelectedRows)
+    setSelectedRows(newSelectedRows);
   };
 
   useEffect(() => console.log(selectedRows), [selectedRows]);
@@ -1175,10 +1108,15 @@ const Volunteer = () => {
         handleClose={handleCloseDeleteDialog}
         onConfirm={handleDelete}
       />
+      <VolunteerPromoteModal
+        open={promoteVolunteerOpen}
+        handleClose={handleClosePromoteDialog}
+        onSubmit={handlePromote}
+      />
       {isLoading ? (
         <Loading />
       ) : (
-        <Paper sx={{ height: 400, width: "100%" }}>
+        <Paper sx={{ height: 500, width: "100%" }}>
           <DataGrid
             rows={filteredRows}
             columns={columns}

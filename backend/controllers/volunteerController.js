@@ -158,7 +158,7 @@ exports.deleteVolunteer = async (req, res) => {
     }
 
     const person = await Person.findByPk(volunteer.personId);
-    const addressId = person ? person.addressId : null;
+    // const addressId = person ? person.addressId : null;
 
     // Delete the volunteer
     await volunteer.destroy();
@@ -166,9 +166,9 @@ exports.deleteVolunteer = async (req, res) => {
     // Delete related person and address if they exist
     if (person) {
       await person.destroy();
-      if (addressId) {
-        await Address.destroy({ where: { id: addressId } });
-      }
+      // if (addressId) {
+      //   await Address.destroy({ where: { id: addressId } });
+      // }
     }
 
     res.json({ message: "Volunteer and related data deleted" });
@@ -180,47 +180,3 @@ exports.deleteVolunteer = async (req, res) => {
   }
 };
 
-/*async (req, res) => {
-  const { personData, volunteerData } = req.body;  // Destructure from request body
-console.log("the persondata is" , personData)
-  try {
-    const volunteer = await Volunteer.findByPk(req.params.id);
-
-    if (!volunteer) {
-      return res.status(404).json({ error: "Volunteer not found" });
-    }
-
-    // Only update fields in volunteerData that are provided
-    if (volunteerData) {
-      await volunteer.update(volunteerData);
-    }
-
-    // Check if there's person data to update
-    if (personData) {
-      const person = await Person.findByPk(volunteer.personId);
-
-      if (person) {
-        // Update person data only if fields are provided
-        await person.update(personData);
-
-        // Check if address data exists and should be updated
-        if (personData.address) {
-          const address = await Address.findByPk(person.addressId);
-
-          if (address) {
-            await address.update(personData.address);
-          } else {
-            // If no address exists but data is provided, create a new address
-            const newAddress = await Address.create(personData.address);
-            await person.update({ addressId: newAddress.id });
-          }
-        }
-      }
-    }
-
-    res.json({ message: "Volunteer and related data updated successfully" });
-  } catch (error) {
-    console.error("Error updating volunteer:", error);
-    res.status(500).json({ error: "An error occurred while updating the volunteer." });
-  }
-};*/

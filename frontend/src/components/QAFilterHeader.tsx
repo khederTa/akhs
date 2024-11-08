@@ -125,7 +125,11 @@ function QAFilterHeader({
           <Button onClick={handleResetFilter} color="secondary">
             {t("reset")}
           </Button>
-          <Button onClick={handleApplyFilter} color="primary">
+          <Button
+            onClick={handleApplyFilter}
+            variant="outlined"
+            color="primary"
+          >
             {t("apply")}
           </Button>
         </DialogActions>

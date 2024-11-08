@@ -1,8 +1,14 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { IconButton, InputAdornment, TextField } from "@mui/material";
 import { useState } from "react";
 
-const PasswordInput = ({ passwordError, passwordErrorMessage, onChange }: any) => {
+const PasswordInput = ({
+  label,
+  passwordError,
+  passwordErrorMessage,
+  onChange,
+}: any) => {
   const [showPassword, setShowPassword] = useState(false);
 
   const handleClickShowPassword = () => {
@@ -11,6 +17,7 @@ const PasswordInput = ({ passwordError, passwordErrorMessage, onChange }: any) =
 
   return (
     <TextField
+      label={label}
       size="small"
       type={showPassword ? "text" : "password"}
       name="password"

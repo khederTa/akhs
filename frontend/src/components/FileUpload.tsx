@@ -1,4 +1,5 @@
-import React, { useState, ChangeEvent } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, ChangeEvent } from "react";
 import {
   Box,
   Button,
@@ -14,6 +15,7 @@ import {
   Delete as DeleteIcon,
 } from "@mui/icons-material";
 import axios from "../utils/axios";
+import { useTranslation } from "react-i18next";
 
 type UploadedFile = {
   file: File;
@@ -25,16 +27,19 @@ type FileUploadProps = {
   setFileId: (fileId: number | null) => void;
   setUpdatedFile?: (file: any) => void;
   mode?: string;
+  setUploadFileSizeError?: (value: string) => void;
 };
 const FileUpload = ({
   fileId,
   setFileId,
   setUpdatedFile,
   mode,
+  setUploadFileSizeError,
 }: FileUploadProps): JSX.Element => {
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [fileError, setFileError] = useState(false);
   const [fileErrorMessage, setFileErrorMessage] = useState("");
+  const { t } = useTranslation();
   // console.log(fileId, mode);
   const handleFileUpload = async (base64FileData: string) => {
     try {
@@ -55,16 +60,18 @@ const FileUpload = ({
         setFileError(false);
         setFileErrorMessage("");
       } else {
-      if (fileId) await deleteFile(false); // Delete old file if present
-      const response = await axios.post("file", { fileData: base64FileData });
-      setFileId(response.data.fileId);
-      setFileError(false);
-      setFileErrorMessage("");
+        if (fileId) await deleteFile(false); // Delete old file if present
+        const response = await axios.post("file", { fileData: base64FileData });
+        setFileId(response.data.fileId);
+        setFileError(false);
+        setFileErrorMessage("");
       }
     } catch (error) {
       console.error("File upload failed:", error);
       setFileError(true);
-      setFileErrorMessage("Your file size must be 2MB or less");
+      setFileErrorMessage("your file size must be 2MB or less");
+      if (setUploadFileSizeError)
+        setUploadFileSizeError("your file size must be 2MB or less");
     }
   };
 
@@ -113,42 +120,42 @@ const FileUpload = ({
           <input type="file" hidden onChange={handleFileChange} />
         </IconButton>
       ) : (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
-      <Button
-        variant="contained"
-        component="label"
-        startIcon={<UploadFileIcon />}
-      >
-        Upload Your CV
-        <input type="file" hidden onChange={handleFileChange} />
-      </Button>
-
-      <List>
-        {uploadedFile && !fileError ? (
-          <ListItem
-            secondaryAction={
-              <IconButton edge="end" onClick={() => deleteFile(true)}>
-                <DeleteIcon />
-              </IconButton>
-            }
+        <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
+          <Button
+            variant="contained"
+            component="label"
+            startIcon={<UploadFileIcon />}
           >
-            <ListItemText
-              primary={uploadedFile.file.name}
-              secondary={`${uploadedFile.progress}%`}
-            />
-            <Box sx={{ width: "100%", mr: 1 }}>
-              <LinearProgress
-                variant="determinate"
-                value={uploadedFile.progress}
-                sx={{ height: 8, borderRadius: 5 }}
-              />
-            </Box>
-          </ListItem>
-        ) : (
-          <Typography color="error">{fileErrorMessage}</Typography>
-        )}
-      </List>
-    </Box>
+            Upload Your CV
+            <input type="file" hidden onChange={handleFileChange} />
+          </Button>
+
+          <List>
+            {uploadedFile && !fileError ? (
+              <ListItem
+                secondaryAction={
+                  <IconButton edge="end" onClick={() => deleteFile(true)}>
+                    <DeleteIcon />
+                  </IconButton>
+                }
+              >
+                <ListItemText
+                  primary={uploadedFile.file.name}
+                  secondary={`${uploadedFile.progress}%`}
+                />
+                <Box sx={{ width: "100%", mr: 1 }}>
+                  <LinearProgress
+                    variant="determinate"
+                    value={uploadedFile.progress}
+                    sx={{ height: 8, borderRadius: 5 }}
+                  />
+                </Box>
+              </ListItem>
+            ) : (
+              <Typography color="error">{t(fileErrorMessage)}</Typography>
+            )}
+          </List>
+        </Box>
       )}
     </>
   );

@@ -138,7 +138,6 @@ function DateFilterHeader({
 
           <Stack
             direction={{ xs: "column", sm: "row" }}
-
             spacing={2} // Adjust the spacing as needed
           >
             <div>
@@ -180,7 +179,11 @@ function DateFilterHeader({
           <Button onClick={handleResetFilter} color="secondary">
             {t("reset")}
           </Button>
-          <Button onClick={handleApplyFilter} color="primary">
+          <Button
+            onClick={handleApplyFilter}
+            variant="outlined"
+            color="primary"
+          >
             {t("apply")}
           </Button>
         </DialogActions>

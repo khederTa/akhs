@@ -1,25 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  forwardRef,
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   DataGrid,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
-  GridToolbarContainer,
-  GridToolbarColumnsButton,
-  GridToolbarDensitySelector,
   GridRenderEditCellParams,
   GridRenderCellParams,
-  GridToolbarContainerProps,
-  useGridRootProps,
 } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import EditIcon from "@mui/icons-material/Edit";
@@ -35,16 +23,16 @@ import {
   Autocomplete,
   TextField,
   Switch,
-  debounce,
 } from "@mui/material";
 import axios from "../utils/axios";
 import { Loading } from "./Loading";
 import { ReportModal } from "./ReportModal";
-import { useNavigate } from "react-router-dom";
 import styled from "@emotion/styled";
 import FilterHeader from "./FilterHeader";
 import { useTranslation } from "react-i18next";
 import AlertNotification from "./AlertNotification";
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import GridCustomToolbar from "./GridCustomToolbar";
 const paginationModel = { page: 0, pageSize: 5 };
 
 const AntSwitch = styled(Switch)(({ theme }: any) => ({
@@ -96,7 +84,6 @@ const AntSwitch = styled(Switch)(({ theme }: any) => ({
 
 export function ActivityTypes() {
   const [rows, setRows] = useState<any[]>([]);
-  const [filteredRows, setFilteredRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
@@ -112,32 +99,29 @@ export function ActivityTypes() {
   const [action, setAction] = useState("");
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const apiRef = useGridApiRef();
-  const navigate = useNavigate();
   const { t } = useTranslation();
-  const [, setIsClient] = useState(false); // Add client-side rendering check
-  const [filterModel, setFilterModel] = useState<{ [key: string]: string }>({
-    name: "",
-    department: "",
-    description: "",
+  const {
+    filteredRows,
+    sortModel,
+    filterModel,
+    filterVisibility,
+    setFilterVisibility,
+    setFilteredRows,
+    handleTextFilterChange,
+    clearFilter,
+    clearAllFilters,
+    handleSortClick,
+  } = useGridFilterSort({
+    initialFilterModel: {
+      name: "",
+      department: "",
+      description: "",
+    },
+    initialFilterVisibility: {
+      description: false,
+    },
+    rows, // your initial rows data
   });
-
-  const [filterVisibility, setFilterVisibility] = useState<{
-    [key: string]: boolean;
-  }>({
-    name: false,
-    department: false,
-    description: false,
-  });
-  const [sortModel, setSortModel] = useState<{
-    field: string;
-    direction: "asc" | "desc";
-  }>({ field: "", direction: "asc" });
-
-  // Set client-only rendering flag
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
   const handleEditClick = useCallback(
     (id: any) => {
       setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
@@ -190,71 +174,7 @@ export function ActivityTypes() {
 
     fetchActivityTypes();
     fetchDepartments();
-  }, []);
-
-  // Create the debounced filter function with useMemo to avoid recreating it on each render
-  const debouncedFilter = useMemo(
-    () =>
-      debounce((filterModel: { [key: string]: string }) => {
-        const filtered = rows.filter((row) => {
-          return Object.entries(filterModel).every(([field, value]) => {
-            // Only apply filtering if a filter value exists
-            if (value) {
-              // Convert both row value and filter value to lowercase to make it case-insensitive
-              const cellValue = row[field]?.toString().toLowerCase() || "";
-              const filterValue = value.toLowerCase();
-
-              // Check if the entire filter string is included in the cell value
-              return cellValue.includes(filterValue);
-            }
-            return true; // If no filter value, consider it a match for that field
-          });
-        });
-        setFilteredRows(filtered as any);
-      }, 300),
-    [rows] // Only re-create if `rows` changes
-  );
-
-  // Memoize the function that triggers debounced filtering
-  const updateFilteredRows = useCallback(
-    (filterModel: { [key: string]: string }) => {
-      debouncedFilter(filterModel);
-    },
-    [debouncedFilter]
-  );
-
-  const handleFilterChange = useCallback(
-    (field: string, value: string) => {
-      if (filterModel[field] === value) return;
-      const newFilterModel = { ...filterModel, [field]: value };
-      setFilterModel(newFilterModel);
-      updateFilteredRows(newFilterModel);
-    },
-    [filterModel, updateFilteredRows]
-  );
-
-  const clearFilter = useCallback(
-    (field: string) => {
-      handleFilterChange(field, "");
-    },
-    [handleFilterChange]
-  );
-
-  const handleSortClick = useCallback(
-    (field: string) => {
-      const isAsc = sortModel.field === field && sortModel.direction === "asc";
-      const direction = isAsc ? "desc" : "asc";
-      setSortModel({ field, direction });
-
-      const sortedRows = [...filteredRows].sort((a, b) => {
-        if (a[field] < b[field]) return direction === "asc" ? -1 : 1;
-        if (a[field] > b[field]) return direction === "asc" ? 1 : -1;
-        return 0;
-      });
-      setFilteredRows(sortedRows);
-    },
-    [filteredRows, sortModel.direction, sortModel.field]
-  );
+  }, [setFilteredRows]);
 
   // active / inactive an activity type
   const handleToggleActive = useCallback(
@@ -297,7 +217,7 @@ export function ActivityTypes() {
         console.error("Error updating active status:", error);
       }
     },
-    [filteredRows, rows]
+    [filteredRows, rows, setFilteredRows]
   );
 
   const DepartmentEditor = memo((params: GridRenderEditCellParams) => {
@@ -410,7 +330,7 @@ export function ActivityTypes() {
       {
         field: "id",
         headerName: t("id"),
-        minWidth: 150,
+        minWidth: 100,
         sortable: true,
         // hideSortIcons: true,
         editable: false,
@@ -418,7 +338,7 @@ export function ActivityTypes() {
       {
         field: "name",
         headerName: t("name"),
-        minWidth: 250,
+        minWidth: 200,
         sortable: false,
         hideSortIcons: true,
         editable: true,
@@ -430,7 +350,7 @@ export function ActivityTypes() {
             sortModel={sortModel}
             filterVisibility={filterVisibility}
             handleSortClick={handleSortClick}
-            handleFilterChange={handleFilterChange}
+            handleFilterChange={handleTextFilterChange}
             setFilterVisibility={setFilterVisibility}
             clearFilter={clearFilter}
           />
@@ -449,7 +369,7 @@ export function ActivityTypes() {
       {
         field: "department",
         headerName: t("department"),
-        minWidth: 300,
+        minWidth: 200,
         sortable: false,
         hideSortIcons: true,
         editable: true,
@@ -462,7 +382,7 @@ export function ActivityTypes() {
             sortModel={sortModel}
             filterVisibility={filterVisibility}
             handleSortClick={handleSortClick}
-            handleFilterChange={handleFilterChange}
+            handleFilterChange={handleTextFilterChange}
             setFilterVisibility={setFilterVisibility}
             clearFilter={clearFilter}
           />
@@ -471,7 +391,7 @@ export function ActivityTypes() {
       {
         field: "description",
         headerName: t("description"),
-        minWidth: 300,
+        minWidth: 200,
         sortable: false,
         hideSortIcons: true,
         editable: true,
@@ -483,7 +403,7 @@ export function ActivityTypes() {
             sortModel={sortModel}
             filterVisibility={filterVisibility}
             handleSortClick={handleSortClick}
-            handleFilterChange={handleFilterChange}
+            handleFilterChange={handleTextFilterChange}
             setFilterVisibility={setFilterVisibility}
             clearFilter={clearFilter}
           />
@@ -577,61 +497,18 @@ export function ActivityTypes() {
       filterVisibility,
       handleCancel,
       handleEditClick,
-      handleFilterChange,
       handleSave,
       handleSortClick,
+      handleTextFilterChange,
       handleToggleActive,
       rowModesModel,
       rows,
+      setFilterVisibility,
       sortModel,
       t,
     ]
   );
-  // const CustomToolbar = memo(() => (
-  //   <GridToolbarContainer>
-  //     <>
-  //       <Button type="button" onClick={() => navigate("/new-activity-type")}>
-  //         <AddOutlinedIcon />
-  //         Add
-  //       </Button>
-  //     </>
-  //     <GridToolbarColumnsButton />
-  //     <GridToolbarDensitySelector slotProps={{ button: { text: 'Change density' } }} />
-  //     <>
-  //       <Button onClick={() => setReportModalIsOpen(true)}>
-  //         <FileDownloadOutlinedIcon />
-  //         Export
-  //       </Button>
-  //     </>
-  //   </GridToolbarContainer>
-  // ));
 
-  const GridCustomToolbar = forwardRef<
-    HTMLDivElement,
-    GridToolbarContainerProps
-  >(function GridToolbar(props, ref) {
-    const { className, ...other } = props;
-    const rootProps = useGridRootProps();
-
-    return (
-      <GridToolbarContainer>
-        <>
-          <Button type="button" onClick={() => navigate("/new-activity-type")}>
-            <AddOutlinedIcon />
-            {t("add")}
-          </Button>
-        </>
-        <GridToolbarColumnsButton />
-        <GridToolbarDensitySelector />
-        <>
-          <Button onClick={() => setReportModalIsOpen(true)}>
-            <FileDownloadOutlinedIcon />
-            {t("export")}
-          </Button>
-        </>
-      </GridToolbarContainer>
-    );
-  });
   const processRowUpdate = useCallback(
     async (newRow: any) => {
       if (action === "save") {
@@ -687,15 +564,19 @@ export function ActivityTypes() {
     [action, departments, rows]
   );
 
+  const [selectedRows, setSelectedRows] = useState([]);
+
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return filteredRows.find((row) => row.id === selected);
+    });
+    setSelectedRows(newSelectedRows);
+  };
+
+  useEffect(() => console.log(selectedRows), [selectedRows]);
+
   return (
     <>
-      <ReportModal
-        open={reportModalIsOpen}
-        handleClose={() => setReportModalIsOpen(false)}
-        setReportName={setReportName}
-        reportName={reportName}
-        rows={rows}
-      />
       <AlertNotification
         open={alertOpen}
         message={alertMessage}
@@ -716,7 +597,15 @@ export function ActivityTypes() {
             getRowId={(row) => row.id} // Ensure the correct row ID is used
             disableColumnFilter
             disableColumnMenu
-            slots={{ toolbar: GridCustomToolbar }}
+            slots={{
+              toolbar: () => (
+                <GridCustomToolbar
+                  clearAllFilters={clearAllFilters}
+                  rows={selectedRows}
+                  navigateTo={"/new-activity-type"}
+                />
+              ),
+            }}
             editMode="row"
             localeText={{
               toolbarColumns: t("columns"),
@@ -725,6 +614,11 @@ export function ActivityTypes() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
+            checkboxSelection // Enable checkboxes for row selection
+            onRowSelectionModelChange={(newSelection: any) =>
+              handleSelectionChange(newSelection)
+            }
+            disableRowSelectionOnClick
           />
         </Paper>
       )}

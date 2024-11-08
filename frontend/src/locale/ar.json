@@ -86,5 +86,16 @@
   "activity type updated successfully": "تم تعديل نوع النشاط بنجاح",
   "failed to update activity type": "فشل في تعديل نوع النشاط",
   "volunteer updated successfully": "تم تعديل بيانات المتطوع بنجاح",
-  "failed to update volunteer": "فشل في تعديل بيانات المتطوع"
+  "failed to update volunteer": "فشل في تعديل بيانات المتطوع",
+  "volunteer management": "إدارة المتطوعين",
+   "provider management":  "إدارة المزودين",
+   "activity type management": "إدارة أنواع الأنشطة",
+   "package management": "إدارة الحزم",
+   "department management": "إدارة الأقسام",
+   "position management": "إدارة المنصب الوظيفي",
+   "create new position": "إنشاء منصب وظيفي جديد",
+   "create new department": "إنشاء قسم جديد",
+   "create new service provider": "إنشاء مزود خدمة جديد",
+   "create new volunteer": "إنشاء متطوع جديد"
+
 }

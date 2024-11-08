@@ -30,7 +30,6 @@ const GridCustomToolbar = forwardRef<
   const rootProps = useGridRootProps();
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
-  console.log({ selectedRows: rows });
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (

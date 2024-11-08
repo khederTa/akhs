@@ -1,4 +1,5 @@
-import React, { MutableRefObject, useEffect, useRef, useState } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 import axios from "../utils/axios";
@@ -53,7 +54,14 @@ export function CreatePackage() {
     async function fetchActivityTypes() {
       await axios
         .get("/activityType")
-        .then((res) => setActivityTypes(res.data))
+        .then((res) =>
+          setActivityTypes(() =>
+            res.data.filter(
+              (item: { active_status: string }) =>
+                item.active_status === "active"
+            )
+          )
+        )
         .catch((error) => console.error(error));
     }
     fetchActivityTypes();
