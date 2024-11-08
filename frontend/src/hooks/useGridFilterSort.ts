@@ -61,7 +61,9 @@ export function useGridFilterSort({
           if (value) {
             const cellValue = row[field]?.toString().toLowerCase() || "";
             const filterValue = value.toLowerCase();
-            return cellValue.includes(filterValue);
+            return field === "gender"
+              ? cellValue === filterValue
+              : cellValue.includes(filterValue);
           }
           return true;
         } else if (value && typeof value === "object") {
