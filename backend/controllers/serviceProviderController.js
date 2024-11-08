@@ -198,20 +198,20 @@ exports.deleteServiceProvider = async (req, res) => {
       return res.status(404).json({ error: "ServiceProvider not found" });
     }
 
-    const person = serviceProvider.Volunteer.Person;
+    // const person = serviceProvider.Volunteer.Person;
     // const addressId = person ? person.addressId : null;
 
     // Delete ServiceProvider
     await serviceProvider.destroy();
 
     // Delete associated Volunteer and Person if they exist
-    await serviceProvider.Volunteer.destroy();
-    if (person) {
-      await person.destroy();
-      // if (addressId) {
-      //   await Address.destroy({ where: { id: addressId } });
-      // }
-    }
+    // await serviceProvider.Volunteer.destroy();
+    // if (person) {
+    //   await person.destroy();
+    //   // if (addressId) {
+    //   //   await Address.destroy({ where: { id: addressId } });
+    //   // }
+    // }
 
     res.json({
       message: "ServiceProvider and associated data deleted successfully.",

@@ -251,6 +251,7 @@ const ServiceProvider = () => {
         if (response && response.status === 200) {
           const enrichedData = response.data.map((provider: any) => ({
             providerId: provider.providerId,
+            volunteerId: provider.Volunteer?.volunteerId,
             position: provider.Position?.name,
             department: provider.Department?.name,
             ...(provider.Volunteer.Person || {}),
@@ -306,6 +307,16 @@ const ServiceProvider = () => {
     setNewBdate(oldBdate);
     setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
   };
+
+  // const handleCancel = (id: any) => {
+
+  //   setAction("cancel"); setNewBdate(oldBdate);
+
+  //   setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } })); // Revert other state variables to their original values
+
+  // setFileId(null);
+
+  // setAddressId(null); setAddress(null); setDepartmentId(null); setPositionId(null); setRoleId(null); };
 
   // Open delete confirmation dialog
   const handleOpenDeleteDialog = (id: any) => {
@@ -392,10 +403,12 @@ const ServiceProvider = () => {
       console.error("File deletion failed:", error);
     }
   };
+
   console.log("deprtmrntID is ", departmentId);
   console.log("positionID is ", positionId);
   console.log("print oldBdate", oldBdate);
   console.log("print newBdate", newBdate);
+
   const processRowUpdate = async (updatedRow: any) => {
     if (action === "save") {
       try {
@@ -446,11 +459,14 @@ const ServiceProvider = () => {
           koboSkill,
         } = updatedRow;
         console.log("updatedRow: ", updatedRow);
-        await axios.put(`/serviceprovider/${providerId}`, {
-          positionId: updatedPositionId,
-          departmentId: updatedDepartmentId,
-        });
-        await axios.put(`/person/${personId}`, {
+        const providerResponse = await axios.put(
+          `/serviceprovider/${providerId}`,
+          {
+            positionId: updatedPositionId,
+            departmentId: updatedDepartmentId,
+          }
+        );
+        const personResponse = await axios.put(`/person/${personId}`, {
           fname,
           lname,
           mname,
@@ -471,28 +487,30 @@ const ServiceProvider = () => {
           addressId,
           fileId,
         });
-        setRows((prevRows: any) =>
-          prevRows.map((row: any) =>
-            row.providerId === providerId
-              ? {
-                  ...updatedRow,
-                  address: updatedAddress ? updatedAddress : address,
-                  addressId: addressId,
+        if (providerResponse.status === 200 && personResponse.status === 200) {
+          setRows((prevRows: any) =>
+            prevRows.map((row: any) =>
+              row.providerId === providerId
+                ? {
+                    ...updatedRow,
+                    address: updatedAddress ? updatedAddress : address,
+                    addressId: addressId,
 
-                  positionId: updatedPositionId,
-                  departmentId: updatedDepartmentId,
-                  bDate: updatedBdate,
-                  file: updatedFile ? updatedFile : updatedRow.file,
-                  File: updatedFile
-                    ? {
-                        id: fileId,
-                        file: updatedFile,
-                      }
-                    : updatedRow.File,
-                }
-              : row
-          )
-        );
+                    positionId: updatedPositionId,
+                    departmentId: updatedDepartmentId,
+                    bDate: updatedBdate,
+                    file: updatedFile ? updatedFile : updatedRow.file,
+                    File: updatedFile
+                      ? {
+                          id: fileId,
+                          file: updatedFile,
+                        }
+                      : updatedRow.File,
+                  }
+                : row
+            )
+          );
+        }
         return {
           ...updatedRow,
 
@@ -541,7 +559,7 @@ const ServiceProvider = () => {
       </Stack>
       <Paper sx={{ height: 400, width: "100%" }}>
         <DataGrid
-          rows={rows.map((row: any) => ({ ...row, id: row.providerId }))}
+          rows={rows.map((row: any) => ({ ...row, id: row?.providerId }))}
           columns={columns}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
