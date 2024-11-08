@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper, Stack } from "@mui/material";
+import { Paper, Stack, TextField } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -437,6 +437,14 @@ const ServiceProvider = () => {
         hideSortIcons: true,
         editable: true,
         renderCell: (params) => <CustomDateRenderer value={params.value} />,
+        renderEditCell: (_params) => (
+          <TextField
+            type="date"
+            value={newBdate}
+            onChange={(e: any) => setNewBdate(e.target.value)}
+            fullWidth
+          />
+        ),
         renderHeader: () => (
           <DateFilterHeader
             key={"bDate"}
@@ -776,6 +784,7 @@ const ServiceProvider = () => {
       handleTextFilterChange,
       setFilterVisibility,
       clearFilter,
+      newBdate,
       handleDateFilterChange,
       rowModesModel,
       rows,
@@ -973,11 +982,14 @@ const ServiceProvider = () => {
             koboSkill,
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
-          await axios.put(`/serviceprovider/${providerId}`, {
-            positionId: updatedPositionId,
-            departmentId: updatedDepartmentId,
-          });
-          await axios.put(`/person/${personId}`, {
+          const providerResponse = await axios.put(
+            `/serviceprovider/${providerId}`,
+            {
+              positionId: updatedPositionId,
+              departmentId: updatedDepartmentId,
+            }
+          );
+          const personResponse = await axios.put(`/person/${personId}`, {
             fname,
             lname,
             mname,
@@ -998,28 +1010,33 @@ const ServiceProvider = () => {
             addressId,
             fileId,
           });
-          setRows((prevRows: any) =>
-            prevRows.map((row: any) =>
-              row.providerId === providerId
-                ? {
-                    ...updatedRow,
-                    address: updatedAddress ? updatedAddress : address,
-                    addressId: addressId,
+          if (
+            providerResponse.status === 200 &&
+            personResponse.status === 200
+          ) {
+            setRows((prevRows: any) =>
+              prevRows.map((row: any) =>
+                row.providerId === providerId
+                  ? {
+                      ...updatedRow,
+                      address: updatedAddress ? updatedAddress : address,
+                      addressId: addressId,
 
-                    positionId: updatedPositionId,
-                    departmentId: updatedDepartmentId,
-                    bDate: updatedBdate,
-                    file: updatedFile ? updatedFile : updatedRow.file,
-                    File: updatedFile
-                      ? {
-                          id: fileId,
-                          file: updatedFile,
-                        }
-                      : updatedRow.File,
-                  }
-                : row
-            )
-          );
+                      positionId: updatedPositionId,
+                      departmentId: updatedDepartmentId,
+                      bDate: updatedBdate,
+                      file: updatedFile ? updatedFile : updatedRow.file,
+                      File: updatedFile
+                        ? {
+                            id: fileId,
+                            file: updatedFile,
+                          }
+                        : updatedRow.File,
+                    }
+                  : row
+              )
+            );
+          }
           return {
             ...updatedRow,
 
@@ -1141,7 +1158,7 @@ const ServiceProvider = () => {
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
-            getRowId={(row) => row.id} // Ensure the correct row ID is used
+            getRowId={(row) => row.providerId} // Ensure the correct row ID is used
             disableColumnFilter
             disableColumnMenu
             slots={{

@@ -20,19 +20,18 @@ import { Packages } from "./components/Packages";
 import { CreatePackage } from "./components/CreatePackage";
 import Department from "./components/Department";
 import Position from "./components/Position";
-import CreateNewDepartment from "./components/CreateNewDepartment"
+import CreateNewDepartment from "./components/CreateNewDepartment";
 import CreateNewPosition from "./components/CreateNewPosition";
 import Volunteer from "./components/Volunteer";
 import ServiceProvider from "./components/ServiceProvider";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     setLoading(true);
     setUser();
     setLoading(false);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -76,11 +75,11 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
-             <Route
+            <Route
               path="/volunteer"
               element={
                 <Layout>
-                  <Volunteer/>
+                  <Volunteer />
                 </Layout>
               }
             />
@@ -96,7 +95,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               path="/serviceprovider"
               element={
                 <Layout>
-                  <ServiceProvider/>
+                  <ServiceProvider />
                 </Layout>
               }
             />
@@ -105,7 +104,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               path="/serviceprovider-information"
               element={
                 <Layout>
-                  <ServiceProviderInfo/>
+                  <ServiceProviderInfo />
                 </Layout>
               }
             />
@@ -154,15 +153,15 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               path="/departments"
               element={
                 <Layout>
-                  <Department/>
+                  <Department />
                 </Layout>
               }
             />
-             <Route
+            <Route
               path="/new-department"
               element={
                 <Layout>
-                  <CreateNewDepartment/>
+                  <CreateNewDepartment />
                 </Layout>
               }
             />
@@ -170,7 +169,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               path="/position"
               element={
                 <Layout>
-                  <Position/>
+                  <Position />
                 </Layout>
               }
             />
@@ -178,7 +177,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               path="/new-position"
               element={
                 <Layout>
-                  <CreateNewPosition/>
+                  <CreateNewPosition />
                 </Layout>
               }
             />

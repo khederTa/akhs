@@ -766,13 +766,13 @@ const Volunteer = () => {
               volunteer?.Person?.Address?.district?.split("/")[1] || ""
             } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
 
-            personId: volunteer.Person?.id,
-            fileId: volunteer.Person.fileId,
-            file: volunteer?.Person?.File?.file.data,
-            addressId: volunteer.Person?.Address?.id,
+            personId: volunteer?.Person?.id,
+            fileId: volunteer?.Person?.fileId,
+            file: volunteer?.Person?.File?.file?.data,
+            addressId: volunteer?.Person?.Address?.id,
           }));
           setRows(enrichedData);
-          // setFilteredRows(enrichedData);
+          setFilteredRows(enrichedData);
           console.log("enricheddata is ", enrichedData);
         } else {
           console.error("Unexpected response:", response);
@@ -1124,7 +1124,7 @@ const Volunteer = () => {
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
-            getRowId={(row) => row.id} // Ensure the correct row ID is used
+            getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
             disableColumnFilter
             disableColumnMenu
             slots={{
