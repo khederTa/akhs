@@ -239,6 +239,13 @@ const ServiceProvider = () => {
     (id: any) => {
       setAction("cancel");
       setNewBdate(oldBdate);
+
+      setFileId(null);
+      setUpdatedFile(null);
+      setAddressId(null);
+      setAddress(null);
+      setDepartmentId(null);
+      setPositionId(null);
       setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
     },
     [oldBdate]
