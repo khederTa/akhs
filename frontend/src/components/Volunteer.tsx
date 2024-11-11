@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper, Stack, styled, Switch } from "@mui/material";
+import { Paper, Stack, styled, Switch,TextField } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -95,6 +95,8 @@ const Volunteer = () => {
   const [newAddress, setNewAddress] = useState<any | null>(null);
   const [fileId, setFileId] = useState<number | null>(null);
   const [updatedFile, setUpdatedFile] = useState<any | null>(null);
+  const [oldBdate, setOldBdate] = useState<any>(null);
+  const [newBdate, setNewBdate] = useState<any>(null);
   const [promoteVolunteerOpen, setPromoteVolunteerOpen] = useState(false);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -223,6 +225,7 @@ const Volunteer = () => {
       setFileId(currentRow.fileId);
       setAddressId(currentRow.addressId);
       setAddress(currentRow.address);
+      setOldBdate(currentRow?.bDate || null);
       setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
       apiRef.current.setCellFocus(id, "disable");
     },
@@ -238,6 +241,11 @@ const Volunteer = () => {
   // Cancel row updates
   const handleCancel = useCallback((id: any) => {
     setAction("cancel");
+    setNewBdate(oldBdate);
+    setFileId(null);
+    setUpdatedFile(null);
+    setAddressId(null);
+    setAddress(null);
     setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
   }, []);
 
@@ -396,6 +404,14 @@ const Volunteer = () => {
         hideSortIcons: true,
         editable: true,
         renderCell: (params) => <CustomDateRenderer value={params.value} />,
+        renderEditCell: (_params) => (
+          <TextField
+            type="date"
+            value={newBdate}
+            onChange={(e: any) => setNewBdate(e.target.value)}
+            fullWidth
+          />
+        ),
         renderHeader: () => (
           <DateFilterHeader
             key={"bDate"}
@@ -731,6 +747,7 @@ const Volunteer = () => {
       clearFilter,
       filterModel,
       filterVisibility,
+      newBdate,
       handleCancel,
       handleDateFilterChange,
       handleEditClick,
@@ -872,6 +889,8 @@ const Volunteer = () => {
           } - ${newAddress?.district?.split("/")[1] || ""} - ${
             newAddress?.village?.split("/")[1] || ""
           }`;
+          const updatedBdate = newBdate || oldBdate;
+          updatedRow.bDate = updatedBdate;
 
           console.log(address);
           const {
@@ -1041,6 +1060,8 @@ const Volunteer = () => {
       newAddress?.district,
       newAddress?.state,
       newAddress?.village,
+      newBdate,
+      oldBdate,
       rows,
       updatedFile,
     ]
