@@ -11,6 +11,7 @@ import {
   Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -42,7 +43,7 @@ const CreateNewDepartment = () => {
   const [isValidInput, setIsValidInput] = useState(false);
 
   const navigate = useNavigate();
-
+  const { t } = useTranslation();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!isValidInput) {
@@ -57,13 +58,13 @@ const CreateNewDepartment = () => {
     setIsLoading(true);
     try {
       const res = await axios.post("/department", payload);
-      console.log(res)
+      console.log(res);
       if (res.status === 200) {
         navigate("/departments"); // Redirect upon success
       }
     } catch (error) {
       console.error("Error creating department:", error);
-      alert("An error occurred while creating the department.");
+      // alert("An error occurred while creating the department.");
     } finally {
       setIsLoading(false);
     }
@@ -73,7 +74,7 @@ const CreateNewDepartment = () => {
     let isValid = true;
     if (!name || name.length === 0) {
       setNameError(true);
-      setNameErrorMessage("Department Name is Required");
+      setNameErrorMessage("department name is required");
       isValid = false;
     } else {
       setNameError(false);
@@ -82,7 +83,7 @@ const CreateNewDepartment = () => {
 
     if (!description || description.length === 0) {
       setDescriptionError(true);
-      setDescriptionErrorMessage("Description Field is Required");
+      setDescriptionErrorMessage("description field is required");
       isValid = false;
     } else {
       setDescriptionError(false);
@@ -98,7 +99,7 @@ const CreateNewDepartment = () => {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Department
+        {t("create new department")}
       </Typography>
       <Box
         component="form"
@@ -112,12 +113,12 @@ const CreateNewDepartment = () => {
         }}
       >
         <FormControl>
-          <FormLabel htmlFor="name">Name</FormLabel>
+          <FormLabel htmlFor="name">{t("name")}</FormLabel>
           <TextField
             error={nameError}
-            helperText={nameErrorMessage}
+            helperText={t(nameErrorMessage)}
             name="name"
-            placeholder="e.g. Human Resources"
+            placeholder={t("human resources")}
             id="name"
             required
             fullWidth
@@ -127,12 +128,12 @@ const CreateNewDepartment = () => {
           />
         </FormControl>
         <FormControl>
-          <FormLabel htmlFor="description">Description</FormLabel>
+          <FormLabel htmlFor="description">{t("description")}</FormLabel>
           <TextField
             error={descriptionError}
-            helperText={descriptionErrorMessage}
+            helperText={t(descriptionErrorMessage)}
             name="description"
-            placeholder="e.g. Manages employee relations"
+            placeholder={t("human resources description")}
             id="description"
             required
             fullWidth
@@ -147,7 +148,7 @@ const CreateNewDepartment = () => {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? "Creating New Department..." : "Create New Department"}
+          {isLoading ? t("creating new department...") : t("create new department")}
         </Button>
       </Box>
     </Card>

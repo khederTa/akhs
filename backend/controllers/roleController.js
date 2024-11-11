@@ -1,4 +1,4 @@
-const { Role } = require("../models");
+const { Role, Permission } = require("../models");
 
 exports.getAllRoles = async (req, res) => {
   try {
@@ -19,6 +19,37 @@ exports.getAllRoles = async (req, res) => {
 //   const role = await Role.findByPk(req.params.id);
 //   res.json(role);
 // };
+
+exports.getRolePermissionsById = async (req, res) => {
+  const { roleId } = req.params;
+  console.log("hi")
+  try {
+    // Find the role by ID and include associated permissions
+    const role = await Role.findByPk(roleId, {
+      include: [
+        {
+          model: Permission,
+          through: { attributes: [] }, // Exclude the join table attributes
+        },
+      ],
+    });
+
+    if (!role) {
+      return res.status(404).json({ message: "Role not found" });
+    }
+
+    // Extract permissions data
+    const permissions = role.Permissions.map((perm) => ({
+      action: perm.action,
+      resource: perm.resource,
+    }));
+
+    return res.json(permissions);
+  } catch (error) {
+    console.error("Error fetching role permissions:", error);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
 
 // exports.updateRole = async (req, res) => {
 //   await Role.update(req.body, { where: { id: req.params.id } });

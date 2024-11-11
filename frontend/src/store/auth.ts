@@ -4,8 +4,10 @@ import { mountStoreDevtool } from "simple-zustand-devtools";
 // User and AuthState interfaces
 interface User {
   userId: string | null;
-  username?: string;
+  username: string | null;
+  roleId: number | null;
 }
+
 interface AuthState {
   allUserData: User | null;
   loading: boolean;
@@ -21,7 +23,8 @@ const useAuthStore = create<AuthState>((set, get) => ({
   loading: true,
   user: () => ({
     userId: get().allUserData?.userId || null,
-    username: get().allUserData?.username,
+    username: get().allUserData?.username || null,
+    roleId: get().allUserData?.roleId || null,
   }),
   setUser: (user) => set({ allUserData: user }),
   setLoading: (loading) => set({ loading }),

@@ -2,36 +2,36 @@ const express = require("express");
 const router = express.Router();
 const activityTypeController = require("../controllers/activityTypeController");
 const authenticateToken = require("../middleware/auth");
-const { authenticateRole } = require("../middleware/roleBasedAccess");
+// const { authenticateRole } = require("../middleware/roleBasedAccess");
 
 router.get(
   "/",
   authenticateToken,
-  authenticateRole,
+  // authenticateRole,
   activityTypeController.getAllActivityTypes
 );
 router.post(
   "/",
   authenticateToken,
-  authenticateRole,
+  // authenticateRole,
   activityTypeController.createActivityType
 );
 router.get(
   "/:id",
   authenticateToken,
-  authenticateRole,
+  // authenticateRole,
   activityTypeController.getActivityTypeById
 );
 router.put(
   "/:id",
   authenticateToken,
-  authenticateRole,
+  // authenticateRole,
   activityTypeController.updateActivityType
 );
 router.delete(
   "/:id",
   authenticateToken,
-  authenticateRole,
+  // authenticateRole,
   activityTypeController.deleteActivityType
 );
 

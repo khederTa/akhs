@@ -13,6 +13,7 @@ import {
   TextField,
   CircularProgress,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 function PaperComponent(props: PaperProps) {
   return (
@@ -40,8 +41,8 @@ export default function DraggableDialog({
   const [typedTextError, setTypedTextError] = React.useState(false);
   const [typedTextErrorMessage, setTypedTextErrorMessage] = React.useState("");
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isValidText, setIsValidText] = React.useState(false);
-
+  const [, setIsValidText] = React.useState(false);
+  const { t } = useTranslation();
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateInputs()) {
@@ -51,7 +52,7 @@ export default function DraggableDialog({
 
     try {
       await onConfirm(); // Await confirmation to ensure action is completed
-      setTypedText("")
+      setTypedText("");
       handleClose();
     } catch (error) {
       alert(error);
@@ -65,11 +66,11 @@ export default function DraggableDialog({
 
     if (!typedText || typedText.length === 0) {
       setTypedTextError(true);
-      setTypedTextErrorMessage("Please enter 'delete' to confirm");
+      setTypedTextErrorMessage(t("please enter 'delete' to confirm"));
       isValid = false;
-    } else if (typedText !== "delete") {
+    } else if (typedText !== t("delete")) {
       setTypedTextError(true);
-      setTypedTextErrorMessage("The typed text must be 'delete'");
+      setTypedTextErrorMessage(t("the typed text must be 'delete'"));
       isValid = false;
     } else {
       setTypedTextError(false);
@@ -101,12 +102,12 @@ export default function DraggableDialog({
           }}
         >
           <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
-            Delete Dialog
+            {t("delete confirmation")}
           </DialogTitle>
           <DialogContent sx={{ padding: "0px 8px" }}>
             <FormControl fullWidth>
               <FormLabel htmlFor="text">
-                Type delete for Confirmation:
+                {t("please enter 'delete' to confirm")}
               </FormLabel>
               <TextField
                 error={typedTextError}
@@ -116,7 +117,7 @@ export default function DraggableDialog({
                 name="text"
                 value={typedText}
                 onChange={(e) => setTypedText(e.target.value)}
-                placeholder="e.g. delete"
+                placeholder={t("delete")}
                 autoFocus
                 required
                 fullWidth
@@ -127,13 +128,13 @@ export default function DraggableDialog({
           </DialogContent>
           <DialogActions>
             <Button autoFocus onClick={handleClose} disabled={isLoading}>
-              Cancel
+              {t("cancel")}
             </Button>
             <Button
               type="submit"
               onClick={validateInputs}
               color="error"
-              sx={{ backgroundColor: isLoading ? "grey.400" : "error.main" }}
+              sx={{ backgroundColor: isLoading ? "grey.400" : "error.main", color: "white" }}
               disabled={isLoading}
               startIcon={
                 isLoading ? (
@@ -141,7 +142,7 @@ export default function DraggableDialog({
                 ) : null
               }
             >
-              {isLoading ? "Deleting..." : "Delete"}
+              {isLoading ? t("deleting...") : t("delete")}
             </Button>
           </DialogActions>
         </Box>

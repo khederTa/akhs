@@ -1,8 +1,8 @@
 import CssBaseline from "@mui/material/CssBaseline";
 import AppTheme, { DirectionContext } from "./shared-theme/AppTheme";
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { setUser } from "./utils/auth";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
@@ -10,7 +10,7 @@ import { Stack } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
-import { CreateNewUser } from "./components/CreateNewUser";
+import CreateNewUser from "./components/CreateNewUser";
 import Activity from "./components/Activity";
 import VolunteerInfo from "./components/VolunteerInfo";
 import ServiceProviderInfo from "./components/ServiceProviderInfo";
@@ -24,20 +24,28 @@ import CreateNewDepartment from "./components/CreateNewDepartment";
 import CreateNewPosition from "./components/CreateNewPosition";
 import Volunteer from "./components/Volunteer";
 import ServiceProvider from "./components/ServiceProvider";
+import { usePermissionStore } from "./store/permissionStore";
+import PermissionInitializer from "./components/PermissionInitializer";
+import { useAuthStore } from "./store/auth";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
-  const [loading, setLoading] = useState(true);
-
+  const authLoading = useAuthStore((state) => state.loading);
+  const permissionsLoading = usePermissionStore(
+    (state) => state.permissionsLoading
+  );
+  const { permissions } = usePermissionStore((state) => state);
   useEffect(() => {
-    setLoading(true);
     setUser();
-    setLoading(false);
   }, []);
-
+  useEffect(() => {
+    console.log({ authLoading });
+    console.log({ permissionsLoading });
+  }, [authLoading, permissionsLoading]);
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
-      {loading ? (
+      <PermissionInitializer />
+      {authLoading || permissionsLoading ? (
         <Loading />
       ) : (
         <BrowserRouter>
@@ -46,139 +54,207 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/"
               element={
-                <Layout>
-                  <h2>Welcome to the dashboard</h2>
-                </Layout>
+                permissions["read_home"] ? (
+                  <Layout>
+                    <h2>Welcome to the dashboard</h2>
+                  </Layout>
+                ) : (
+                  <Loading />
+                )
               }
             />
             <Route
               path="/user-management"
               element={
-                <Layout>
-                  <UserManagement />
-                </Layout>
+                permissions["read_user"] ? (
+                  <Layout>
+                    <UserManagement />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/activity-management"
               element={
-                <Layout>
-                  <Activity />
-                </Layout>
+                permissions["read_activity"] ? (
+                  <Layout>
+                    <Activity />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/activity-information"
               element={
-                <Layout>
-                  <ActivityInfo />
-                </Layout>
+                permissions["create_activity"] ? (
+                  <Layout>
+                    <ActivityInfo />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/volunteer"
               element={
-                <Layout>
-                  <Volunteer />
-                </Layout>
+                permissions["read_volunteer"] ? (
+                  <Layout>
+                    <Volunteer />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/volunteer-information"
               element={
-                <Layout>
-                  <VolunteerInfo />
-                </Layout>
+                permissions["create_volunteer"] ? (
+                  <Layout>
+                    <VolunteerInfo />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/serviceprovider"
               element={
-                <Layout>
-                  <ServiceProvider />
-                </Layout>
+                permissions["read_serviceProvider"] ? (
+                  <Layout>
+                    <ServiceProvider />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
 
             <Route
               path="/serviceprovider-information"
               element={
-                <Layout>
-                  <ServiceProviderInfo />
-                </Layout>
+                permissions["create_serviceProvider"] ? (
+                  <Layout>
+                    <ServiceProviderInfo />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
 
             <Route
               path="/create-new-user"
               element={
-                <Layout>
-                  <CreateNewUser />
-                </Layout>
+                permissions["create_user"] ? (
+                  <Layout>
+                    <CreateNewUser />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/activity-types"
               element={
-                <Layout>
-                  <ActivityTypes />
-                </Layout>
+                permissions["read_activityType"] ? (
+                  <Layout>
+                    <ActivityTypes />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/new-activity-type"
               element={
-                <Layout>
-                  <CreateActivityType />
-                </Layout>
+                permissions["create_activityType"] ? (
+                  <Layout>
+                    <CreateActivityType />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/packages"
               element={
-                <Layout>
-                  <Packages />
-                </Layout>
+                permissions["read_package"] ? (
+                  <Layout>
+                    <Packages />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/new-package"
               element={
-                <Layout>
-                  <CreatePackage />
-                </Layout>
+                permissions["create_package"] ? (
+                  <Layout>
+                    <CreatePackage />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/departments"
               element={
-                <Layout>
-                  <Department />
-                </Layout>
+                permissions["read_department"] ? (
+                  <Layout>
+                    <Department />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/new-department"
               element={
-                <Layout>
-                  <CreateNewDepartment />
-                </Layout>
+                permissions["create_department"] ? (
+                  <Layout>
+                    <CreateNewDepartment />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/position"
               element={
-                <Layout>
-                  <Position />
-                </Layout>
+                permissions["read_position"] ? (
+                  <Layout>
+                    <Position />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             <Route
               path="/new-position"
               element={
-                <Layout>
-                  <CreateNewPosition />
-                </Layout>
+                permissions["create_position"] ? (
+                  <Layout>
+                    <CreateNewPosition />
+                  </Layout>
+                ) : (
+                  permissionsLoading && <Navigate to="/" replace />
+                )
               }
             />
             {/* Sign In page */}

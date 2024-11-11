@@ -14,6 +14,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -48,6 +49,7 @@ export function CreatePackage() {
   const [activityTypes, setActivityTypes] = useState([]);
   const [selectedActivityTypes, setSelectedActivityTypes] = useState([]);
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -97,7 +99,7 @@ export function CreatePackage() {
         .catch((error) => console.error(error));
     } catch (error) {
       console.error("Error creating activity type:", error);
-      alert("An error occurred while submitting the form.");
+      // alert("An error occurred while submitting the form.");
     } finally {
       setIsLoading(false); // Stop loading state
     }
@@ -106,7 +108,7 @@ export function CreatePackage() {
     let isValid = true;
     if (!name || name.length === 0) {
       setNameError(true);
-      setNameErrorMessage("Activity Type Name is Required");
+      setNameErrorMessage(t("package name is required"));
       isValid = false;
     } else {
       setNameError(false);
@@ -115,7 +117,7 @@ export function CreatePackage() {
 
     if (!description || description.length === 0) {
       setDescriptionError(true);
-      setDescriptionErrorMessage("Description Field is Required");
+      setDescriptionErrorMessage(t("description field is required"));
       isValid = false;
     } else {
       setDescriptionError(false);
@@ -132,7 +134,7 @@ export function CreatePackage() {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Package
+        {t("create new package")}
       </Typography>
       <Box
         component="form"
@@ -147,7 +149,7 @@ export function CreatePackage() {
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl>
-            <FormLabel htmlFor="name">Name</FormLabel>
+            <FormLabel htmlFor="name">{t("name")}</FormLabel>
             <TextField
               error={nameError}
               helperText={nameErrorMessage}
@@ -164,12 +166,12 @@ export function CreatePackage() {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="description">Desciption</FormLabel>
+            <FormLabel htmlFor="description">{t("description")}</FormLabel>
             <TextField
               error={descriptionError}
               helperText={descriptionErrorMessage}
               name="description"
-              placeholder="e.g. Public Health Description"
+              placeholder={t("Public Health Description")}
               type="description"
               id="description"
               autoComplete="current-description"
@@ -183,7 +185,7 @@ export function CreatePackage() {
         </Box>
         <Box>
           <FormLabel htmlFor="package'sActivityType">
-            Package's Activity Types
+            {t("Package's Activity Types")}
           </FormLabel>
           <Autocomplete
             id="package'sActivityType"
@@ -205,7 +207,7 @@ export function CreatePackage() {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? "Creating New Package..." : "Create New Package"}
+          {isLoading ? t("creating new package...") : t("create new package")}
         </Button>
       </Box>
     </Card>

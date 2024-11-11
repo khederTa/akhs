@@ -28,6 +28,8 @@ export const login = async (
   email: string,
   password: string
 ): Promise<{ data: LoginResponse | null; error: string | null }> => {
+  const authStore = useAuthStore.getState();
+  authStore.setLoading(true); // Set loading to true at start
   try {
     const { data, status } = await axios.post<LoginResponse>("auth/login", {
       email,
@@ -38,8 +40,10 @@ export const login = async (
       setAuthUser(data.accessToken, data.refreshToken);
     }
 
+    authStore.setLoading(false); // Set loading to false on success
     return { data, error: null };
   } catch (error: any) {
+    authStore.setLoading(false); // Set loading to false on failure
     return {
       data: null,
       error: error.response?.data?.detail || "Something went wrong",
@@ -87,11 +91,14 @@ export const logout = async () => {
 
 // Set user function
 export const setUser = async (): Promise<void> => {
+  const authStore = useAuthStore.getState();
+  authStore.setLoading(true);
   const accessToken = getCookie("access_token");
   const refreshToken = getCookie("refresh_token");
 
   if (!accessToken || !refreshToken) {
-    useAuthStore.getState().setUser(null);
+    authStore.setUser(null);
+    authStore.setLoading(false); // Set loading to false if tokens are missing
     return;
   }
 
@@ -101,6 +108,7 @@ export const setUser = async (): Promise<void> => {
   } else {
     setAuthUser(accessToken, refreshToken);
   }
+  authStore.setLoading(false); // Set loading to false after setting user
 };
 
 // Set auth user
@@ -108,22 +116,17 @@ export const setAuthUser = (
   access_token: string,
   refresh_token: string
 ): void => {
-  Cookies.set("access_token", access_token, {
-    expires: 1,
-    secure: true,
-  });
-  Cookies.set("refresh_token", refresh_token, {
-    expires: 7,
-    secure: true,
-  });
+  Cookies.set("access_token", access_token, { expires: 1, secure: true });
+  Cookies.set("refresh_token", refresh_token, { expires: 7, secure: true });
 
-  const user: { userId: string; username: string } = jwtDecode(access_token);
+  const user: { userId: string; username: string; roleId: number } = jwtDecode(access_token);
 
   if (user) {
     useAuthStore.getState().setUser(user);
   }
-  useAuthStore.getState().setLoading(false);
+  useAuthStore.getState().setLoading(false); // Set loading to false after setting user
 };
+
 
 // Get refresh token function
 export const getRefreshToken = async (refresh_token: string) => {
