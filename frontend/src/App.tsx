@@ -24,6 +24,10 @@ import CreateNewDepartment from "./components/CreateNewDepartment";
 import CreateNewPosition from "./components/CreateNewPosition";
 import Volunteer from "./components/Volunteer";
 import ServiceProvider from "./components/ServiceProvider";
+
+import ActivityPage from "./components/ActivityPage";
+import ActivitySummary from "./components/ActivitySummary";
+import VolunteerPage from "./components/VolunteerPage";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const [loading, setLoading] = useState(true);
@@ -75,6 +79,25 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
+
+            <Route
+              path="/activity-draggable-modal"
+              element={
+                <Layout>
+                  <ActivityPage />
+                </Layout>
+              }
+            />
+
+            <Route
+              path="/activity-summary"
+              element={
+                <Layout>
+                  <ActivitySummary />
+                </Layout>
+              }
+            />
+
             <Route
               path="/volunteer"
               element={
@@ -91,6 +114,15 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
+            <Route
+              path="/volunteer-page"
+              element={
+                <Layout>
+                  <VolunteerPage />
+                </Layout>
+              }
+            />
+
             <Route
               path="/serviceprovider"
               element={

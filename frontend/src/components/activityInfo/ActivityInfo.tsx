@@ -224,7 +224,7 @@ const ActivityInfo = () => {
         />
       </Paper>
       <Button variant="contained" color="primary" onClick={handleSubmit}>
-        Create Sessions
+        Create Activity
       </Button>
     </div>
   );

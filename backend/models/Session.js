@@ -17,7 +17,12 @@
       Session.belongsTo(models.Activity, {foreignKey: "activityId",} );
       // Session.belongsTo(models.Address, {foreignKey: "addressId",} );
       Session.belongsToMany(models.ServiceProvider, { through: 'ServiceProviderSessions' });
-      Session.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedSessions' });
+Session.belongsToMany(models.Volunteer, {
+  through: models.VolunteerAttendedSessions,
+  foreignKey: 'sessionId',
+  otherKey: 'volunteerId'
+});
+
 
   
   

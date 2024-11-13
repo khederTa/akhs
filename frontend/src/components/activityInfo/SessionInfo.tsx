@@ -33,25 +33,21 @@ const SessionInfo = ({
   // Fetch data from API
   useEffect(() => {
     axios
-      .get("serviceproviders") // Replace with your API endpoint
+      .get("serviceprovider") // Replace with your API endpoint
       .then((response) => {
         const serviceproviders = response.data;
         setTrainers(
-          serviceproviders
-            .filter((provider: any) => provider.position === "trainer")
-            .map((provider: any) => ({
-              label: provider.Person.fname,
-              value: provider.providerId,
-            }))
+          serviceproviders.map((provider: any) => ({
+            label: provider.Volunteer.Person.fname,
+            value: provider.providerId,
+          }))
         );
 
         setServiceProviders(
-          serviceproviders
-            .filter((provider: any) => provider.position === "serviceprovider")
-            .map((provider: any) => ({
-              label: provider.Person.fname,
-              value: provider.providerId,
-            }))
+          serviceproviders.map((provider: any) => ({
+            label: provider.Volunteer.Person.fname,
+            value: provider.providerId,
+          }))
         );
       })
       .catch((error) => {
@@ -67,7 +63,7 @@ const SessionInfo = ({
         sx={{
           display: "flex",
           height: "auto",
-          width: 1270,
+          width: 1200,
           justifyContent: "space-between",
         }}
       >
@@ -83,9 +79,9 @@ const SessionInfo = ({
         <Stack>
           <FormLabel>Date</FormLabel>
           <TextField
-            sx={{ width: 100 }}
+            sx={{ width: 120 }}
             type="date"
-            value={dateValue}
+            defaultValue={dayjs(dateValue).format("YYYY-MM-DD")}
             onChange={(e) => setDateValue(e.target.value)}
           />
         </Stack>
@@ -103,7 +99,7 @@ const SessionInfo = ({
           <FormLabel>Trainer</FormLabel>
           <Autocomplete
             id="tags-filled"
-            sx={{ width: 170 }}
+            sx={{ width: 160 }}
             multiple
             options={trainers}
             value={trainerName}
@@ -120,7 +116,7 @@ const SessionInfo = ({
           <FormLabel>Service Provider</FormLabel>
           <Autocomplete
             id="tags-filled"
-            sx={{ width: 170 }}
+            sx={{ width: 160 }}
             multiple
             options={serviceProviders}
             value={providerNames}

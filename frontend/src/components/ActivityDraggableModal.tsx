@@ -1,6 +1,5 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
+// ActivityDraggableModal.tsx
 import * as React from "react";
-import { useState, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -15,8 +14,8 @@ import {
 } from "@mui/material";
 import Draggable from "react-draggable";
 import axios from "../utils/axios";
+import useSessionStore from "../store/activityStore"; // Import Zustand store
 
-// Function to make the dialog draggable
 function PaperComponent(props: any) {
   return (
     <Draggable
@@ -35,55 +34,62 @@ type ItemType = {
 type PropsType = {
   open: boolean;
   onClose: () => void;
+  onCreate: (formData: any) => void;
 };
 
-export default function ActivityDraggableModal({ open, onClose }: PropsType) {
-  const [activityTypes, setActivityTypes] = useState([]);
-  const [departments, setDepartments] = useState([]);
-  const [selectedActivityType, setSelectedActivityType] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [title, setTitle] = useState("");
-  const [numSessions, setNumSessions] = useState(1);
-  const [minSessions, setMinSessions] = useState(Math.ceil(numSessions / 2));
-  const [startDate, setStartDate] = useState("");
+export default function ActivityDraggableModal({
+  open,
+  onClose,
+  onCreate,
+}: PropsType) {
+  const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
+  const [departments, setDepartments] = React.useState<ItemType[]>([]);
+  const [selectedActivityType, setSelectedActivityType] = React.useState("");
+  const [selectedDepartment, setSelectedDepartment] = React.useState("");
+  const [title, setTitle] = React.useState<string>("");
+  const { numSessions, setNumSessions, minSessions, setMinSessions } =
+    useSessionStore((state) => (
+      {
+      numSessions: state.numSessions,
+      setNumSessions: state.setNumSessions,
+      minSessions: state.minSessions,
+      setMinSessions: state.setMinSessions,
+    }
+  ));
+  const [startDate, setStartDate] = React.useState("");
 
-  useEffect(() => {
-    // Fetch Activity Types
-    const fetchActivityTypes = async () => {
+  React.useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("/activityType");
-        setActivityTypes(response.data);
+        const activityResponse = await axios.get("/activityType");
+        setActivityTypes(activityResponse.data);
+        const departmentResponse = await axios.get("/department");
+        setDepartments(departmentResponse.data);
       } catch (error) {
-        console.error("Error fetching activity types:", error);
+        console.error("Error fetching data:", error);
       }
     };
-
-    // Fetch Departments
-    const fetchDepartments = async () => {
-      try {
-        const response = await axios.get("/department");
-        setDepartments(response.data);
-      } catch (error) {
-        console.error("Error fetching departments:", error);
-      }
-    };
-
-    fetchActivityTypes();
-    fetchDepartments();
+    fetchData();
   }, []);
+  console.log("selectedDepartment is", selectedDepartment);
+  const depObject = departments.find((dep) => {
+    return dep.id === parseInt(selectedDepartment);
+  });
+  const activitytypeObject = activityTypes.find((act) => {
+    return act.id === parseInt(selectedActivityType);
+  });
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = {
-      activityType: selectedActivityType,
-      department: selectedDepartment,
+      activityType: activitytypeObject,
+      department: depObject,
       title,
       numSessions,
       minSessions,
       startDate,
     };
-    console.log("Form Data:", formData);
-    onClose();
+    onCreate(formData); // Pass form data to parent
   };
 
   return (
@@ -102,95 +108,72 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
         </DialogContentText>
         <Box
           component="form"
-          id="activity-form" // Added ID here
           onSubmit={handleFormSubmit}
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
         >
           <TextField
             label="Title"
             value={title}
-            onChange={(e: any) => setTitle(e.target.value)}
+            onChange={(e) => setTitle(e.target.value)}
             fullWidth
             required
           />
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-            <TextField
-              select
-              label="Activity Type"
-              value={selectedActivityType}
-              onChange={(e: any) => setSelectedActivityType(e.target.value)}
-              sx={{ flex: "1 1 100%" }}
-              required
-            >
-              {activityTypes.map((type: ItemType) => (
-                <MenuItem key={type.id} value={type.id}>
-                  {type.name}
-                </MenuItem>
-              ))}
-            </TextField>
-            <TextField
-              select
-              label="Department"
-              value={selectedDepartment}
-              onChange={(e: any) => setSelectedDepartment(e.target.value)}
-              sx={{ flex: "1 1 100%" }}
-              required
-            >
-              {departments.map((dept: ItemType) => (
-                <MenuItem key={dept.id} value={dept.id}>
-                  {dept.name}
-                </MenuItem>
-              ))}
-            </TextField>
-          </Box>
-
-          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-            <TextField
-              label="Number of Sessions"
-              type="number"
-              value={numSessions}
-              onChange={(e: any) => {
-                const noSessions = parseInt(e.target.value);
-                if (noSessions >= 1) {
-                  setNumSessions(noSessions);
-                  setMinSessions(Math.ceil(noSessions / 2));
-                }
-              }}
-              sx={{ flex: "1 1 45%" }}
-              required
-            />
-            <TextField
-              label="Minimum Required Sessions"
-              type="number"
-              value={minSessions}
-              onChange={(e: any) => {
-                const noMinSessions = parseInt(e.target.value);
-                if (
-                  noMinSessions >= Math.ceil(numSessions / 2) &&
-                  noMinSessions <= numSessions
-                ) {
-                  setMinSessions(noMinSessions);
-                }
-              }}
-              sx={{ flex: "1 1 45%" }}
-              required
-            />
-          </Box>
+          <TextField
+            select
+            label="Activity Type"
+            value={selectedActivityType}
+            onChange={(e) => setSelectedActivityType(e.target.value)}
+            required
+          >
+            {activityTypes.map((type) => (
+              <MenuItem key={type.id} value={type.id}>
+                {type.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            select
+            label="Department"
+            value={selectedDepartment}
+            onChange={(e) => setSelectedDepartment(e.target.value)}
+            required
+          >
+            {departments.map((dept) => (
+              <MenuItem key={dept.id} value={dept.id}>
+                {dept.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <TextField
+            label="Number of Sessions"
+            type="number"
+            value={numSessions}
+            onChange={(e) => {
+              const val = Math.max(1, parseInt(e.target.value) || 1);
+              setNumSessions(val);
+              setMinSessions(Math.ceil(val / 2));
+            }}
+            required
+          />
+          <TextField
+            label="Minimum Required Sessions"
+            type="number"
+            value={minSessions}
+            onChange={(e) => {
+              const val = parseInt(e.target.value) || 1;
+              if (val >= Math.ceil(numSessions / 2) && val <= numSessions)
+                setMinSessions(val);
+            }}
+            required
+          />
           <TextField
             label="Start Date"
             type="date"
             value={startDate}
-            onChange={(e: any) => setStartDate(e.target.value)}
-            fullWidth
+            onChange={(e) => setStartDate(e.target.value)}
+            InputLabelProps={{ shrink: true }}
             required
-            InputLabelProps={{
-              shrink: true,
-            }}
-            inputProps={{
-              placeholder: "",
-            }}
           />
-
           <DialogActions>
             <Button onClick={onClose}>Cancel</Button>
             <Button type="submit" variant="contained" color="primary">

@@ -12,7 +12,11 @@ const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
+  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+
+
+  
   const paginationModel = { page: 0, pageSize: 5 };
   const columns: GridColDef[] = [
     { field: "id", headerName: "ID", width: 200 },
@@ -20,6 +24,7 @@ const Activity = () => {
           // Mapping TINYINT(1) value (0 or 1) to a user-friendly display (Done/Not Done)
       renderCell: (params) => (params?.value === true ? "Done" : "Not Done"),
      },
+     { field: "title", headerName: "Activity Title ", width: 200 },
   ];
 
   useEffect(() => {
@@ -31,6 +36,7 @@ const Activity = () => {
             return {
               id: activity?.id,
               done: activity?.done,
+              title: activity?.title,
             };
           });
           setLoading(false);
@@ -94,7 +100,7 @@ const Activity = () => {
         <Button
           type="button"
           variant="contained"
-          onClick={() => navigate("/activity-information")}
+          onClick={() => navigate("/activity-draggable-modal")}
         >
           Add New Activity
         </Button>

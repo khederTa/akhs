@@ -43,6 +43,8 @@ app.use("/api/v1/attendees", require("./routes/attendees"));
 app.use("/api/v1/logs", require("./routes/log"));
 app.use("/api/v1/role", require("./routes/role"));
 app.use("/api/v1/file", require("./routes/file"));
+app.use("/api/v1/volunteerAttendedSession", require("./routes/volunteerAttendedSessions"));
+app.use("/api/v1/volunteerAttendedActivity", require("./routes/volunteerAttendedActivity"));
 
 // Sync database and start server
 // db.sequelize.sync().then(() => {

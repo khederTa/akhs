@@ -18,7 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     });
 
     Activity.hasMany(models.Session, { foreignKey: "activityId" });
-    Activity.belongsToMany(models.Volunteer, { through: 'VolunteerAttendedActivity' });
+    Activity.belongsToMany(models.Volunteer, {
+      through: models.VolunteerAttendedActivity,
+      foreignKey: "activityId",
+      otherKey: "volunteerId",
+    });
+    
     
   };
 
