@@ -342,7 +342,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
-import dayjs from "dayjs";
 import SessionInfo from "./activityInfo/SessionInfo";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
 
@@ -405,7 +404,7 @@ export default function ActivitySummary() {
 
   useEffect(() => {
     syncSessionsWithNum();
-    setMinSessions(Math.ceil(numSessions / 2))
+    setMinSessions(Math.ceil(numSessions / 2));
   }, [numSessions]);
 
   // Fetch activity types and departments
@@ -424,8 +423,6 @@ export default function ActivitySummary() {
     };
     fetchData();
   }, []);
-
-  
 
   console.log("session number is", numSessions);
 

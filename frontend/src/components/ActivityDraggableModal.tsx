@@ -48,14 +48,12 @@ export default function ActivityDraggableModal({
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
   const [title, setTitle] = React.useState<string>("");
   const { numSessions, setNumSessions, minSessions, setMinSessions } =
-    useSessionStore((state) => (
-      {
+    useSessionStore((state) => ({
       numSessions: state.numSessions,
       setNumSessions: state.setNumSessions,
       minSessions: state.minSessions,
       setMinSessions: state.setMinSessions,
-    }
-  ));
+    }));
   const [startDate, setStartDate] = React.useState("");
 
   React.useEffect(() => {

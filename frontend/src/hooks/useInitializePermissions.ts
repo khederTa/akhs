@@ -12,7 +12,7 @@ const useInitializePermissions = () => {
     const fetchPermissions = async () => {
       if (roleId === null) return;
       try {
-        console.log("render")
+        console.log("render");
         const response = await axios.get(`/role/${roleId}/permissions`);
         const permissionsMap = response.data.reduce(
           (
@@ -24,7 +24,7 @@ const useInitializePermissions = () => {
           },
           {}
         );
-        setPermissions({...permissionsMap, "read_home": true});
+        setPermissions({ ...permissionsMap, read_home: true });
       } catch (error) {
         console.error("Error fetching permissions:", error);
         setPermissions({});

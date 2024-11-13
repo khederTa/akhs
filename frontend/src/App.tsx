@@ -62,7 +62,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <h2>Welcome to the dashboard</h2>
                   </Layout>
                 ) : (
-                  <Loading />
+                  <Navigate to="/sign-in" replace />
                 )
               }
             />
