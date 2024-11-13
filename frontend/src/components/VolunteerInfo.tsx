@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
@@ -8,15 +9,16 @@ import {
   FormLabel,
   TextField,
   Button,
-  MenuItem,
-  Select,
-  Checkbox,
-  SelectChangeEvent,
+  RadioGroup,
+  Radio,
+  FormControlLabel,
+  FormHelperText,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import FileUpload from "./FileUpload";
 import Address from "./Address";
 import axios from "../utils/axios";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -32,48 +34,64 @@ const Card = styled(MuiCard)(({ theme }) => ({
 }));
 
 const VolunteerInfo = () => {
-  const [fnameError, setFnameError] = useState(false);
-  const [fnameErrorMessage, setFnameErrorMessage] = useState("");
-  const [lnameError, setLnameError] = useState(false);
-  const [lnameErrorMessage, setLnameErrorMessage] = useState("");
-  const [mnameError, setMnameError] = useState(false);
-  const [mnameErrorMessage, setMnameErrorMessage] = useState("");
-  const [studyError, setStudyError] = useState(false);
-  const [studyErrorMessage, setStudyErrorMessage] = useState("");
-  const [workError, setWorkError] = useState(false);
-  const [workErrorMessage, setWorkErrorMessage] = useState("");
-  const [fixPhoneError, setFixPhoneError] = useState(false);
-  const [fixPhoneErrorMessage, setFixPhoneErrorMessage] = useState("");
-  const [nationalNumberError, setNationalNumberError] = useState(false);
-  const [nationalNumberErrorMessage, setNationalNumberErrorMessage] =
-    useState("");
-  const [momnameError, setMomnameError] = useState(false);
-  const [momnameErrorMessage, setMomnameErrorMessage] = useState("");
-  const [gender, setGender] = useState("");
+  const [gender, setGender] = useState("Male");
   const [birthDate, setBirthDate] = useState("");
-
-  const [phoneError, setPhoneError] = useState(false);
-  const [phoneErrorMessage, setPhoneErrorMessage] = useState("");
-  const [emailError, setEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [active_status, setActive_status] = useState(false);
   const [addressId, setAddressId] = useState<number | null>(null);
   const [prevVol, setPrevVol] = useState("No");
   const [smoking, setSmoking] = useState("No");
   const [fileId, setFileId] = useState<number | null>(null);
-
-  // const [ynQuestion, setynQuestion] = useState([
-  //   { id: "No", name: "No" },
-  //   { id: "Yes", name: "Yes" },
-  // ]);
-
   const [compSkill, setCompSkill] = useState("No");
   const [koboSkill, setKoboSkill] = useState("No");
+  const [errors, setErrors] = useState<any>({});
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const validateForm = () => {
+    const newErrors: any = {};
+    if (!gender) newErrors.gender = t("gender is required");
+    if (!birthDate) newErrors.birthDate = t("birth date is required");
+    if (!prevVol)
+      newErrors.prevVol = t("previous volunteer experience is required");
+    if (!compSkill)
+      newErrors.compSkill = t("microsoft office skills is required");
+    if (!smoking) newErrors.smoking = t("smoking status is required");
+    if (!koboSkill) newErrors.koboSkill = t("kobo tool experience is required");
+    if (!fileId) newErrors.fileId = t("file upload is required");
+    if (!addressId) newErrors.addressId = t("address is required");
+
+    // Validate required text fields
+    [
+      "fname",
+      "lname",
+      "phone",
+      "email",
+      "nationalNumber",
+      "phone",
+      "fixPhone",
+    ].forEach((field) => {
+      const value = (
+        document.querySelector(`[name=${field}]`) as HTMLInputElement
+      )?.value;
+      if (!value) {
+        newErrors[field] = t(`${field} is required`);
+      }
+    });
+
+    // Validate email
+    const email = (document.querySelector(`[name=email]`) as HTMLInputElement)
+      ?.value;
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (email && !email.match(emailPattern))
+      newErrors.email = t("invalid email address");
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!validateForm()) return;
+
     setIsLoading(true);
     const data = new FormData(event.currentTarget);
 
@@ -100,34 +118,30 @@ const VolunteerInfo = () => {
         addressId,
       },
       volunteerData: {
-        active_status,
+        active_status: "active",
       },
     };
-    console.log(payload)
+
     try {
       const response = await axios.post("/volunteer", payload);
       if (response.status === 201) {
         navigate("/volunteer");
       }
     } catch (error) {
-      alert("An error occurred while submitting the form.");
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
-    console.log("the payload data that we send is ", payload);
   };
-  // console.log("kobovalue", koboSkill);
-  // console.log("compskille", compSkill);
-  // console.log("prevvol", prevVol);
-  // console.log("nationalnumber");
+
   return (
     <Card variant="highlighted">
       <Typography
         component="h1"
         variant="h4"
-        sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+        sx={{ width: "100%", fontSize: "clamp(1.8rem, 5vw, 2.5rem)" }}
       >
-        Create New Volunteer
+        {t("create new volunteer")}
       </Typography>
       <Box
         component="form"
@@ -144,119 +158,80 @@ const VolunteerInfo = () => {
         {[
           {
             id: "fname",
-            label: "First Name",
-            placeholder: "John",
-            error: fnameError,
-            helperText: fnameErrorMessage,
+            label: t("fname"),
+            placeholder: t("John"),
           },
           {
             id: "mname",
-            label: "Middle Name",
-            placeholder: "Adam",
-            error: mnameError,
-            helperText: mnameErrorMessage,
+            label: t("mname"),
+            placeholder: t("Adam"),
           },
           {
             id: "lname",
-            label: "Last Name",
-            placeholder: "Doe",
-            error: lnameError,
-            helperText: lnameErrorMessage,
+            label: t("lname"),
+            placeholder: t("Doe"),
           },
           {
             id: "momname",
-            label: "Mother Name",
-            placeholder: "Jane",
-            error: momnameError,
-            helperText: momnameErrorMessage,
+            label: t("momName"),
+            placeholder: t("Jane"),
           },
           {
             id: "phone",
-            label: "Phone",
+            label: t("phone"),
             placeholder: "0988776655",
-            error: phoneError,
-            helperText: phoneErrorMessage,
           },
           {
             id: "email",
-            label: "Email",
+            label: t("email"),
             placeholder: "example@akhs.com",
-            error: emailError,
-            helperText: emailErrorMessage,
           },
-         
           {
             id: "study",
-            label: "Study",
-            placeholder: "e.g. Software Engineering",
-            error: studyError,
-            helperText: studyErrorMessage,
+            label: t("study"),
+            placeholder: t("software engineering"),
           },
           {
             id: "work",
-            label: "Work",
-            placeholder: "e.g. Software Developer",
-            error: workError,
-            helperText: workErrorMessage,
+            label: t("work"),
+            placeholder: t("software developer"),
           },
           {
             id: "nationalNumber",
-            label: "National Number",
+            label: t("nationalNumber"),
             placeholder: "050500",
-            error: nationalNumberError,
-            helperText: nationalNumberErrorMessage,
           },
           {
             id: "fixPhone",
-            label: "Fix Phone",
+            label: t("fixPhone"),
             placeholder: "0338800000",
-            error: fixPhoneError,
-            helperText: fixPhoneErrorMessage,
           },
-          {
-            id: "note",
-            label: "Notes",
-            placeholder: "add your notes",
-            error: workError,
-            helperText: workErrorMessage,
-          },
-        ].map(({ id, label, placeholder, error, helperText }) => (
+        ].map(({ id, label, placeholder }) => (
           <FormControl
-            sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+            sx={{
+              flex: { xs: "1 1 100%", md: "1 1 30%" },
+              minWidth: "20%",
+            }}
             key={id}
+            error={!!errors[id]}
           >
             <FormLabel htmlFor={id}>{label}</FormLabel>
             <TextField
               id={id}
               name={id}
               placeholder={placeholder}
-              error={error}
-              helperText={helperText}
               fullWidth
+              error={!!errors[id]}
             />
+            {errors[id] && <FormHelperText>{errors[id]}</FormHelperText>}
           </FormControl>
         ))}
 
         <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+          sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
+          error={!!errors.birthDate}
         >
-          <FormLabel htmlFor="gender">Gender</FormLabel>
-          <Select
-            id="gender"
-            name="gender"
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
-            fullWidth
-          >
-            <MenuItem value="male">Male</MenuItem>
-            <MenuItem value="female">Female</MenuItem>
-          </Select>
-        </FormControl>
-
-        <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
-        >
-          <FormLabel htmlFor="birthDate">Birth Date</FormLabel>
+          <FormLabel htmlFor="birthDate">{t("birth date")}</FormLabel>
           <TextField
             id="birthDate"
             name="birthDate"
@@ -264,130 +239,145 @@ const VolunteerInfo = () => {
             value={birthDate}
             onChange={(e) => setBirthDate(e.target.value)}
             fullWidth
+            error={!!errors.birthDate}
           />
+          {errors.birthDate && (
+            <FormHelperText>{errors.birthDate}</FormHelperText>
+          )}
         </FormControl>
-
-        <FormControl>
-          <FormLabel>Address</FormLabel>
+        <FormControl
+          sx={{
+            flex: { xs: "1 1 100%", md: "1 1 30%" },
+            minWidth: "20%",
+          }}
+          key={"note"}
+          error={!!errors["note"]}
+        >
+          <FormLabel htmlFor={"note"}>{t("notes")}</FormLabel>
+          <TextField
+            id={"note"}
+            name={"note"}
+            placeholder={t("add your notes")}
+            fullWidth
+            error={!!errors["note"]}
+          />
+          {errors["note"] && <FormHelperText>{errors["note"]}</FormHelperText>}
+        </FormControl>
+        <FormControl
+          component="fieldset"
+          sx={{ flex: "1 1 40%" }}
+          error={!!errors.addressId}
+        >
+          <FormLabel>{t("address")}</FormLabel>
           <Address setAddressId={setAddressId} />
+          {errors.addressId && (
+            <FormHelperText>{errors.addressId}</FormHelperText>
+          )}
         </FormControl>
 
         <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
+          component="fieldset"
+          sx={{ flex: "1 1 100%" }}
+          error={!!errors.gender}
         >
-          <FormLabel htmlFor="disable">Active Status</FormLabel>
-          <Checkbox
-            id="active_status"
-            name="active_status"
-            checked={active_status}
-            onChange={(e) => setActive_status(e.target.checked)}
-          />
+          <FormLabel component="legend">{t("gender")}</FormLabel>
+          <RadioGroup
+            row
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+          >
+            <FormControlLabel value="Male" control={<Radio />} label={t("male")} />
+            <FormControlLabel
+              value="Female"
+              control={<Radio />}
+              label={t("female")}
+            />
+          </RadioGroup>
+          {errors.gender && <FormHelperText>{errors.gender}</FormHelperText>}
         </FormControl>
 
-        <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
-        >
-          <FormLabel htmlFor="prevVol">
-            Do you have experience in volunteer work previously or currently?
+        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+          <FormLabel component="legend">
+            {t("do you have past or current volunteer experience?")}
           </FormLabel>
-          <Select
-            labelId="prevVol"
-            id="prevVol"
+          <RadioGroup
+            row
             value={prevVol}
-            sx={{
-              backgroundColor:
-                "var(--template-palette-background-default) !important",
-            }}
-            label="prevVol"
-            onChange={(event: SelectChangeEvent) => {
-              setPrevVol(event.target.value as string);
-            }}
+            onChange={(e) => setPrevVol(e.target.value)}
           >
-          
-            <MenuItem value="Yes">Yes</MenuItem>
-            <MenuItem value="No">No</MenuItem>
-          
-          </Select>
+            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
+            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
+          </RadioGroup>
         </FormControl>
-        <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
-        >
-          <FormLabel htmlFor="compSkill">
-            Do you have skills in Microsoft Office Programs?
+        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+          <FormLabel component="legend">
+            {t("do you have skills in Microsoft Office Programs?")}
           </FormLabel>
-          <Select
-            labelId="compSkill"
-            id="compSkill"
+          <RadioGroup
+            row
             value={compSkill}
-            sx={{
-              backgroundColor:
-                "var(--template-palette-background-default) !important",
-            }}
-            label="compSkill"
-            onChange={(event: SelectChangeEvent) => {
-              setCompSkill(event.target.value as string);
-            }}
+            onChange={(e) => setCompSkill(e.target.value)}
           >
-             <MenuItem value="Yes">Yes</MenuItem>
-             <MenuItem value="No">No</MenuItem>
-          </Select>
+            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
+            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
+          </RadioGroup>
         </FormControl>
-        <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
-        >
-          <FormLabel htmlFor="koboSkill">
-            Do you have experience using the Kobo data collection tool?
+        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+          <FormLabel component="legend">
+            {t("are you a smoker / hookah, cigarette?")}
           </FormLabel>
-          <Select
-            labelId="koboSkill"
-            id="koboSkill"
-            value={koboSkill}
-            sx={{
-              backgroundColor:
-                "var(--template-palette-background-default) !important",
-            }}
-            label="koboSkill"
-            onChange={(event: SelectChangeEvent) => {
-              setKoboSkill(event.target.value as string);
-            }}
-          >
-           <MenuItem value="Yes">Yes</MenuItem>
-           <MenuItem value="No">No</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl
-          sx={{ flex: 1, minWidth: "20%", maxWidth: "calc(50% - 8px)" }}
-        >
-          <FormLabel htmlFor="smoking">
-            Are you a smoker / hookah, cigaretet?
-          </FormLabel>
-          <Select
-            labelId="smoking"
-            id="smoking"
+          <RadioGroup
+            row
             value={smoking}
-            sx={{
-              backgroundColor:
-                "var(--template-palette-background-default) !important",
-            }}
-            label="smoking"
-            onChange={(event: SelectChangeEvent) => {
-              setSmoking(event.target.value as string);
-            }}
+            onChange={(e) => setSmoking(e.target.value)}
           >
-             <MenuItem value="Yes">Yes</MenuItem>
-             <MenuItem value="No">No</MenuItem>
-          </Select>
+            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
+            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
+          </RadioGroup>
         </FormControl>
-        <FormControl>
-          <FileUpload fileId={fileId} setFileId={setFileId} />
+
+        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+          <FormLabel component="legend">
+            {t("have you used the Kobo data tool?")}
+          </FormLabel>
+          <RadioGroup
+            row
+            value={koboSkill}
+            onChange={(e) => setKoboSkill(e.target.value)}
+          >
+            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
+            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
+          </RadioGroup>
         </FormControl>
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{ flex: "1 0 100%", mt: 2 }}
+
+        <FormControl
+          error={!!errors.fileId}
+          component="fieldset"
+          sx={{ flex: "1 1 50%" }}
         >
-          {isLoading ? "Creating New Volunteer..." : "Create New Volunteer"}
-        </Button>
+          <FormLabel htmlFor="compSkill">{t("your resume")}</FormLabel>
+          <FileUpload fileId={fileId} setFileId={setFileId} />
+          {errors.fileId && <FormHelperText>{errors.fileId}</FormHelperText>}
+        </FormControl>
+
+        <Box
+          sx={{
+            width: "100%",
+            display: "flex",
+            justifyContent: "center",
+            marginTop: 2,
+          }}
+        >
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ flex: "1 0 100%", mt: 2 }}
+          >
+            {isLoading
+              ? t("creating new volunteer...")
+              : t("create new volunteer")}
+          </Button>
+        </Box>
       </Box>
     </Card>
   );

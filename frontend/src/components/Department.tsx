@@ -321,7 +321,7 @@ const Department = () => {
       {isLoading ? (
         <Loading />
       ) : (
-        <Paper sx={{ height: 400, width: "100%" }}>
+        <Paper sx={{ height: 500, width: "100%" }}>
           <DataGrid
             rows={filteredRows}
             columns={columns}

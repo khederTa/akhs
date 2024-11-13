@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Autocomplete, TextField, CircularProgress, Box } from "@mui/material";
 import axios from "../utils/axios";
+import { useTranslation } from "react-i18next";
 
 interface AddressType {
   id: number;
@@ -26,6 +27,7 @@ const Address = ({
   const [selectedVillage, setSelectedVillage] = useState<string | null>(null);
 
   const [loading, setLoading] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchStates = async () => {
@@ -111,7 +113,7 @@ const Address = ({
   }, [selectedVillage, villages, setAddressId]);
 
   return (
-    <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+    <Box sx={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
       <Autocomplete
         options={states || []} // Default to an empty array if states is null or undefined
         getOptionLabel={(option) => option.state}
@@ -124,7 +126,7 @@ const Address = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="State"
+            label={t("state")}
             variant="outlined"
             InputProps={{
               ...params.InputProps,
@@ -151,7 +153,7 @@ const Address = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="City"
+            label={t("city")}
             variant="outlined"
             InputProps={{
               ...params.InputProps,
@@ -178,7 +180,7 @@ const Address = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="District"
+            label={t("district")}
             variant="outlined"
             InputProps={{
               ...params.InputProps,
@@ -204,7 +206,7 @@ const Address = ({
         renderInput={(params) => (
           <TextField
             {...params}
-            label="Village"
+            label={t("village")}
             variant="outlined"
             InputProps={{
               ...params.InputProps,

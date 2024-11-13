@@ -122,11 +122,11 @@ const FileUpload = ({
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Button
-            variant="contained"
+            variant="outlined"
             component="label"
             startIcon={<UploadFileIcon />}
           >
-            Upload Your CV
+            {t("upload your resume")}
             <input type="file" hidden onChange={handleFileChange} />
           </Button>
 

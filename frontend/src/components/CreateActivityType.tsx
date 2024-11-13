@@ -14,6 +14,7 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -50,6 +51,7 @@ export function CreateActivityType() {
   const [departments, setDepartments] = useState([]);
   const [selectedDepartment, setSelectedDepartment] = useState<number>();
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -100,8 +102,7 @@ export function CreateActivityType() {
         })
         .catch((error) => console.error(error));
     } catch (error) {
-      console.error("Error creating activity type:", error);
-      alert("An error occurred while submitting the form.");
+      console.error("Error creating activity  type:", error);
     } finally {
       setIsLoading(false); // Stop loading state
     }
@@ -110,7 +111,7 @@ export function CreateActivityType() {
     let isValid = true;
     if (!name || name.length === 0) {
       setNameError(true);
-      setNameErrorMessage("Activity Type Name is Required");
+      setNameErrorMessage("activity type name is required");
       isValid = false;
     } else {
       setNameError(false);
@@ -119,7 +120,7 @@ export function CreateActivityType() {
 
     if (!description || description.length === 0) {
       setDescriptionError(true);
-      setDescriptionErrorMessage("Description Field is Required");
+      setDescriptionErrorMessage("description field is required");
       isValid = false;
     } else {
       setDescriptionError(false);
@@ -136,7 +137,7 @@ export function CreateActivityType() {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Activity Type
+        {t("create new activity type")}
       </Typography>
       <Box
         component="form"
@@ -151,12 +152,12 @@ export function CreateActivityType() {
       >
         <Box sx={{ display: "flex", flexDirection: "row", gap: 2 }}>
           <FormControl>
-            <FormLabel htmlFor="name">Name</FormLabel>
+            <FormLabel htmlFor="name">{t("name")}</FormLabel>
             <TextField
               error={nameError}
-              helperText={nameErrorMessage}
+              helperText={t(nameErrorMessage)}
               name="name"
-              placeholder="e.g. Public Health"
+              placeholder={t("Public Health")}
               type="name"
               id="name"
               autoComplete="current-name"
@@ -168,12 +169,12 @@ export function CreateActivityType() {
             />
           </FormControl>
           <FormControl>
-            <FormLabel htmlFor="description">Desciption</FormLabel>
+            <FormLabel htmlFor="description">{t("description")}</FormLabel>
             <TextField
               error={descriptionError}
-              helperText={descriptionErrorMessage}
+              helperText={t(descriptionErrorMessage)}
               name="description"
-              placeholder="e.g. Public Health Description"
+              placeholder={t("Public Health Description")}
               type="description"
               id="description"
               autoComplete="current-description"
@@ -186,7 +187,7 @@ export function CreateActivityType() {
           </FormControl>
         </Box>
         <Box>
-          <FormLabel>Department</FormLabel>
+          <FormLabel>{t("department")}</FormLabel>
           <Autocomplete
             sx={{ width: "100%" }}
             options={departments}
@@ -200,7 +201,7 @@ export function CreateActivityType() {
           />
         </Box>
         <Box>
-          <FormLabel>Activity Type Prerequisite</FormLabel>
+          <FormLabel>{t("activity type prerequisite")}</FormLabel>
           <Autocomplete
             sx={{ width: "100%" }}
             multiple
@@ -221,8 +222,8 @@ export function CreateActivityType() {
           onClick={validateInputs}
         >
           {isLoading
-            ? "Creating New Activity Type..."
-            : "Create New Activity Type"}
+            ? t("creating new activity type...")
+            : t("create new activity type")}
         </Button>
       </Box>
     </Card>

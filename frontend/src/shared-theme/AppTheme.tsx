@@ -51,7 +51,9 @@ export default function AppTheme({
   disableCustomTheme,
   themeComponents,
 }: AppThemeProps) {
-  const dir = localStorage.getItem("dir") || "ltr";
+  const [dir, setDir] = React.useState(
+    () => localStorage.getItem("dir") || "ltr"
+  );
   // State for direction based on current language
   const [directionState, dispatchDirection] = React.useReducer(
     directionReducer,
@@ -61,6 +63,21 @@ export default function AppTheme({
   );
 
   React.useEffect(() => {
+    document.documentElement.setAttribute("dir", dir); // Apply direction to the whole document
+  }, [dir]);
+
+  // React.useEffect(() => {
+  //   const newLanguage = (i18n.language) === "en" ? "ar" : "en";
+
+  //   dispatchDirection({
+  //     type: DIRECTION_ACTIONS.TOGGLE_DIRECTION,
+  //     payload: newLanguage,
+  //   });
+  //   console.log(dir)
+  //   console.log(directionState)
+  // }, [dir]);
+
+  React.useEffect(() => {
     i18n.changeLanguage(dir === "ltr" ? "en" : "ar");
     if (i18n.language === "ar") {
       const elements = document.querySelectorAll(`[dir=ltr]`);
@@ -68,7 +85,7 @@ export default function AppTheme({
         element.setAttribute("dir", "rtl");
       });
     }
-  }, []);
+  }, [dir]);
 
   // Create the RTL or LTR cache based on the current direction
   const rtlCache = createCache({

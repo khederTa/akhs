@@ -95,11 +95,11 @@ export default function ProviderPromoteModal({
       aria-labelledby="draggable-dialog-title"
     >
       <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
-        Promote Volunteer
+        {t("promote provider")}
       </DialogTitle>
       <DialogContent>
         <DialogContentText>
-          Please fill out the form below to promote the volunteer.
+          {t("please fill out the form below to promote the provider.")}
         </DialogContentText>
         <Box
           component="form"
@@ -110,7 +110,7 @@ export default function ProviderPromoteModal({
           <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
             <TextField
               select
-              label="Role"
+              label={t("role")}
               value={selectedRole}
               onChange={(e: any) => setSelectedRole(e.target.value)}
               sx={{ flex: "1 1 100%" }}

@@ -716,7 +716,7 @@ const ServiceProvider = () => {
       },
       {
         field: "actions",
-        headerName: "Actions",
+        headerName: t("action"),
         type: "actions",
         width: 250,
         getActions: ({ id }) => {
@@ -754,7 +754,7 @@ const ServiceProvider = () => {
               >
                 <AntSwitch
                   defaultChecked={
-                    rows.find((row) => row.id === id)?.active_status ===
+                    rows.find((row) => row.providerId === id)?.active_status ===
                     "active"
                   }
                   inputProps={{ "aria-label": "ant design" }}
@@ -816,10 +816,10 @@ const ServiceProvider = () => {
             position: provider.Position?.name,
             department: provider.Department?.name,
             ...(provider.Volunteer.Person || {}),
-            address: `${provider?.Volunteer?.Person?.Address?.state || ""} - ${
-              provider?.Volunteer?.Person?.Address?.city || ""
-            } - ${provider?.Volunteer?.Person?.Address?.district || ""} - ${
-              provider?.Volunteer?.Person?.Address?.village || ""
+            address: `${provider?.Volunteer?.Person?.Address?.state.split("/")[1] || ""} - ${
+              provider?.Volunteer?.Person?.Address?.city.split("/")[1] || ""
+            } - ${provider?.Volunteer?.Person?.Address?.district.split("/")[1] || ""} - ${
+              provider?.Volunteer?.Person?.Address?.village.split("/")[1] || ""
             }`,
             personId: provider?.Volunteer?.Person?.id,
             fileId: provider?.Volunteer?.Person?.fileId,

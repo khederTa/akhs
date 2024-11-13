@@ -11,6 +11,7 @@ import {
   Button,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -41,6 +42,7 @@ const CreateNewPosition = () => {
   const [descriptionErrorMessage, setDescriptionErrorMessage] = useState("");
   const [isValidInput, setIsValidInput] = useState(false);
 
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -62,7 +64,7 @@ const CreateNewPosition = () => {
       }
     } catch (error) {
       console.error("Error creating position:", error);
-      alert("An error occurred while creating the position.");
+      // alert("An error occurred while creating the position.");
     } finally {
       setIsLoading(false);
     }
@@ -72,7 +74,7 @@ const CreateNewPosition = () => {
     let isValid = true;
     if (!name || name.length === 0) {
       setNameError(true);
-      setNameErrorMessage("Position Name is Required");
+      setNameErrorMessage("position name is required");
       isValid = false;
     } else {
       setNameError(false);
@@ -81,7 +83,7 @@ const CreateNewPosition = () => {
 
     if (!description || description.length === 0) {
       setDescriptionError(true);
-      setDescriptionErrorMessage("Description Field is Required");
+      setDescriptionErrorMessage("description field is required");
       isValid = false;
     } else {
       setDescriptionError(false);
@@ -97,7 +99,7 @@ const CreateNewPosition = () => {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        Create New Position
+        {t("create new position")}
       </Typography>
       <Box
         component="form"
@@ -111,12 +113,12 @@ const CreateNewPosition = () => {
         }}
       >
         <FormControl>
-          <FormLabel htmlFor="name">Name</FormLabel>
+          <FormLabel htmlFor="name">{t("name")}</FormLabel>
           <TextField
             error={nameError}
-            helperText={nameErrorMessage}
+            helperText={t(nameErrorMessage)}
             name="name"
-            placeholder="e.g. Officer"
+            placeholder={t("officer")}
             id="name"
             required
             fullWidth
@@ -126,12 +128,12 @@ const CreateNewPosition = () => {
           />
         </FormControl>
         <FormControl>
-          <FormLabel htmlFor="description">Description</FormLabel>
+          <FormLabel htmlFor="description">{t("description")}</FormLabel>
           <TextField
             error={descriptionError}
-            helperText={descriptionErrorMessage}
+            helperText={t(descriptionErrorMessage)}
             name="description"
-            placeholder="e.g. Responsible for management"
+            placeholder={t("responsible for management")}
             id="description"
             required
             fullWidth
@@ -146,7 +148,7 @@ const CreateNewPosition = () => {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? "Creating New Position..." : "Create New Position"}
+          {isLoading ? t("creating new position...") : t("create new position")}
         </Button>
       </Box>
     </Card>

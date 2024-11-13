@@ -809,7 +809,7 @@ export function UserManagement() {
       },
       {
         field: "actions",
-        headerName: "Actions",
+        headerName: t("actions"),
         type: "actions",
         width: 150,
         getActions: ({ id }) => {
@@ -866,27 +866,7 @@ export function UserManagement() {
         },
       },
     ],
-    [
-      t,
-      positionOptions,
-      departmentOptions,
-      filterModel,
-      sortModel,
-      filterVisibility,
-      handleSortClick,
-      handleTextFilterChange,
-      setFilterVisibility,
-      clearFilter,
-      newBdate,
-      handleDateFilterChange,
-      rowModesModel,
-      rows,
-      handleEditClick,
-      handleOpenDeleteDialog,
-      handleToggleActive,
-      handleSave,
-      handleCancel,
-    ]
+    [t, roleOptions, positionOptions, departmentOptions, filterModel, sortModel, filterVisibility, handleSortClick, handleTextFilterChange, setFilterVisibility, clearFilter, newBdate, handleDateFilterChange, rowModesModel, rows, handleEditClick, handleOpenDeleteDialog, handleToggleActive, handleSave, handleCancel]
   );
 
   useEffect(() => {

@@ -1,6 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
-import { useState, useEffect } from "react";
 import {
   Button,
   TextField,
@@ -20,7 +19,6 @@ import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
 
-// Function to make the dialog draggable
 function PaperComponent(props: any) {
   return (
     <Draggable
@@ -32,10 +30,7 @@ function PaperComponent(props: any) {
   );
 }
 
-type ItemType = {
-  id: number;
-  name: string;
-};
+type ItemType = { id: number; name: string };
 type PropsType = {
   open: boolean;
   handleClose: () => void;
@@ -48,114 +43,97 @@ interface TabPanelProps {
   value: number;
 }
 
-function CustomTabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props;
-
+function CustomTabPanel({ children, value, index, ...other }: TabPanelProps) {
   return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-      {...other}
-    >
+    <div role="tabpanel" hidden={value !== index} {...other}>
       {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
     </div>
   );
 }
 
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    "aria-controls": `simple-tabpanel-${index}`,
-  };
-}
 export default function VolunteerPromoteModal({
   open,
   handleClose,
   onSubmit,
 }: PropsType) {
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    setValue(newValue);
-  };
-  const [departments, setDepartments] = useState([]);
-  const [positions, setPositions] = useState([]);
-  const [roles, setRoles] = useState([]);
-  const [selectedPosition, setSelectedPosition] = useState("");
-  const [selectedDepartment, setSelectedDepartment] = useState("");
-  const [selectedRole, setSelectedRole] = useState("");
-  const [password1, setPassword1] = useState<any>();
-  const [password2, setPassword2] = useState<any>();
-  const [passwordError, setPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const { t } = useTranslation();
-  useEffect(() => {
-    // Fetch Activity Types
-    const fetchPositions = async () => {
-      try {
-        const response = await axios.get("/position");
-        setPositions(response.data);
-      } catch (error) {
-        console.error("Error fetching position:", error);
-      }
-    };
+  const [tabIndex, setTabIndex] = React.useState(0);
+  const [departments, setDepartments] = React.useState<ItemType[]>([]);
+  const [positions, setPositions] = React.useState<ItemType[]>([]);
+  const [roles, setRoles] = React.useState<ItemType[]>([]);
+  const [selectedPosition, setSelectedPosition] = React.useState<string>("");
+  const [selectedDepartment, setSelectedDepartment] =
+    React.useState<string>("");
+  const [selectedRole, setSelectedRole] = React.useState<string>("");
+  const [password1, setPassword1] = React.useState<string>("");
+  const [password2, setPassword2] = React.useState<string>("");
+  const [passwordError, setPasswordError] = React.useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
 
-    // Fetch Departments
-    const fetchDepartments = async () => {
+  React.useEffect(() => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get("/department");
-        setDepartments(response.data);
+        const [positionRes, departmentRes, roleRes] = await Promise.all([
+          axios.get("/position"),
+          axios.get("/department"),
+          axios.get("/role"),
+        ]);
+        setPositions(positionRes.data);
+        setDepartments(departmentRes.data);
+        setRoles(roleRes.data);
       } catch (error) {
-        console.error("Error fetching departments:", error);
+        console.error("Error fetching data:", error);
       }
     };
-    // Fetch Roles
-    const fetchRoles = async () => {
-      try {
-        const response = await axios.get("/role");
-        setRoles(response.data);
-      } catch (error) {
-        console.error("Error fetching Roles:", error);
-      }
-    };
-
-    fetchPositions();
-    fetchDepartments();
-    fetchRoles();
+    fetchData();
   }, []);
 
-  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleChangeTab = (_event: React.SyntheticEvent, newValue: number) =>
+    setTabIndex(newValue);
+
+  const handleFormSubmit = (event: React.FormEvent) => {
     event.preventDefault();
     setPasswordError(false);
     setPasswordErrorMessage("");
-    let formData;
-    if (value === 0) {
-      formData = {
-        positionId: selectedPosition,
-        departmentId: selectedDepartment,
-      };
-    } else {
-      const pass1 = password1.target.value;
-      const pass2 = password2.target.value;
-      if (pass1 !== pass2) {
-        setPasswordError(true);
-        setPasswordErrorMessage(
-          t("password and confirm password must be same")
-        );
-        return;
-      }
-      formData = {
-        positionId: selectedPosition,
-        departmentId: selectedDepartment,
-        roleId: selectedRole,
-        password: pass1,
-      };
+
+    if (tabIndex === 1 && password1 !== password2) {
+      setPasswordError(true);
+      setPasswordErrorMessage(t("password and confirm password must be same"));
+      return;
     }
+
+    const formData = {
+      positionId: selectedPosition,
+      departmentId: selectedDepartment,
+      roleId: tabIndex === 1 ? selectedRole : undefined,
+      password: tabIndex === 1 ? password1 : undefined,
+    };
     onSubmit(formData);
     handleClose();
   };
+
+  const renderSelectField = (
+    label: string,
+    value: string,
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void,
+    items: ItemType[],
+    required = true
+  ) => (
+    <TextField
+      select
+      label={t(label)}
+      value={value}
+      onChange={onChange}
+      sx={{ flex: "1 1 100%" }}
+      required={required}
+    >
+      {items.map((item) => (
+        <MenuItem key={item.id} value={item.id}>
+          {item.name}
+        </MenuItem>
+      ))}
+    </TextField>
+  );
 
   return (
     <Dialog
@@ -165,136 +143,69 @@ export default function VolunteerPromoteModal({
       aria-labelledby="draggable-dialog-title"
     >
       <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
-        Promote Volunteer
+        {t("promote volunteer")}
       </DialogTitle>
       <DialogContent>
         <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-          <Tabs
-            value={value}
-            onChange={handleChange}
-            aria-label="basic tabs example"
-          >
-            <Tab label={t("promote to provider")} {...a11yProps(0)} />
-            <Tab label={t("promote to user")} {...a11yProps(1)} />
+          <Tabs value={tabIndex} onChange={handleChangeTab}>
+            <Tab label={t("promote to provider")} />
+            <Tab label={t("promote to user")} />
           </Tabs>
         </Box>
-        <CustomTabPanel value={value} index={0}>
-          <DialogContentText>
-            Please fill out the form below to promote the volunteer.
-          </DialogContentText>
-          <Box
-            component="form"
-            id="activity-form" // Added ID here
-            onSubmit={handleFormSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
-          >
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              <TextField
-                select
-                label="Position"
-                value={selectedPosition}
-                onChange={(e: any) => setSelectedPosition(e.target.value)}
-                sx={{ flex: "1 1 100%" }}
-                required
-              >
-                {positions.map((type: ItemType) => (
-                  <MenuItem key={type.id} value={type.id}>
-                    {type.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Department"
-                value={selectedDepartment}
-                onChange={(e: any) => setSelectedDepartment(e.target.value)}
-                sx={{ flex: "1 1 100%" }}
-                required
-              >
-                {departments.map((dept: ItemType) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </MenuItem>
-                ))}
-              </TextField>
+        {[0, 1].map((index) => (
+          <CustomTabPanel key={index} value={tabIndex} index={index}>
+            <DialogContentText>
+              {t("please fill out the form below to promote the volunteer.")}
+            </DialogContentText>
+            <Box
+              component="form"
+              onSubmit={handleFormSubmit}
+              sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
+            >
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
+                {renderSelectField(
+                  "position",
+                  selectedPosition,
+                  (e) => setSelectedPosition(e.target.value),
+                  positions
+                )}
+                {renderSelectField(
+                  "department",
+                  selectedDepartment,
+                  (e) => setSelectedDepartment(e.target.value),
+                  departments
+                )}
+                {tabIndex === 1 &&
+                  renderSelectField(
+                    "role",
+                    selectedRole,
+                    (e) => setSelectedRole(e.target.value),
+                    roles
+                  )}
+                {tabIndex === 1 && (
+                  <>
+                    <PasswordInput
+                      label={t("password")}
+                      onChange={(e: any) => setPassword1(e.target.value)}
+                    />
+                    <PasswordInput
+                      label={t("confirm password")}
+                      onChange={(e: any) => setPassword2(e.target.value)}
+                      passwordError={passwordError}
+                      passwordErrorMessage={passwordErrorMessage}
+                    />
+                  </>
+                )}
+              </Box>
+              <DialogActions>
+                <Button onClick={handleClose}>{t("cancel")}</Button>
+                <Button type="submit" variant="contained" color="primary">
+                  {t("promote")}
+                </Button>
+              </DialogActions>
             </Box>
-            <DialogActions>
-              <Button onClick={handleClose}>{t("cancel")}</Button>
-              <Button type="submit" variant="contained" color="primary">
-                {t("promote")}
-              </Button>
-            </DialogActions>
-          </Box>
-        </CustomTabPanel>
-        <CustomTabPanel value={value} index={1}>
-          <DialogContentText>
-            Please fill out the form below to promote the volunteer.
-          </DialogContentText>
-          <Box
-            component="form"
-            id="activity-form" // Added ID here
-            onSubmit={handleFormSubmit}
-            sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
-          >
-            <Box sx={{ display: "flex", flexWrap: "wrap", gap: 2 }}>
-              <TextField
-                select
-                label="Position"
-                value={selectedPosition}
-                onChange={(e: any) => setSelectedPosition(e.target.value)}
-                sx={{ flex: "1 1 100%" }}
-                required
-              >
-                {positions.map((type: ItemType) => (
-                  <MenuItem key={type.id} value={type.id}>
-                    {type.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Department"
-                value={selectedDepartment}
-                onChange={(e: any) => setSelectedDepartment(e.target.value)}
-                sx={{ flex: "1 1 100%" }}
-                required
-              >
-                {departments.map((dept: ItemType) => (
-                  <MenuItem key={dept.id} value={dept.id}>
-                    {dept.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <TextField
-                select
-                label="Role"
-                value={selectedRole}
-                onChange={(e: any) => setSelectedRole(e.target.value)}
-                sx={{ flex: "1 1 100%" }}
-                required
-              >
-                {roles.map((role: ItemType) => (
-                  <MenuItem key={role.id} value={role.id}>
-                    {role.name}
-                  </MenuItem>
-                ))}
-              </TextField>
-              <PasswordInput label={t("password")} onChange={setPassword1} />
-              <PasswordInput
-                label={t("confirm password")}
-                onChange={setPassword2}
-                passwordError={passwordError}
-                passwordErrorMessage={passwordErrorMessage}
-              />
-            </Box>
-            <DialogActions>
-              <Button onClick={handleClose}>{t("cancel")}</Button>
-              <Button type="submit" variant="contained" color="primary">
-                {t("promote")}
-              </Button>
-            </DialogActions>
-          </Box>
-        </CustomTabPanel>
+          </CustomTabPanel>
+        ))}
       </DialogContent>
     </Dialog>
   );

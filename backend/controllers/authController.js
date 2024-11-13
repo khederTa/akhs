@@ -73,12 +73,21 @@ exports.login = async (req, res) => {
     }
     // 6. Generate JWT tokens
     const accessToken = jwt.sign(
-      { userId: user.userId, username: `${person.fname} ${person.lname}` },
+      {
+        userId: user.userId,
+        username: `${person.fname} ${person.lname}`,
+        roleId: user.roleId,
+      },
       jwtSecret,
       { expiresIn: jwtExpiration }
     );
     const refreshToken = jwt.sign(
-      { userId: user.userId, username: person.fname },
+      {
+        userId: user.userId,
+        username: `${person.fname} ${person.lname}`,
+        roleId: user.roleId,
+      },
+
       jwtRefreshSecret,
       { expiresIn: jwtRefreshExpiration }
     );
@@ -107,9 +116,32 @@ exports.refreshToken = async (req, res) => {
       return res.sendStatus(403);
     }
 
+    const serviceProvider = await ServiceProvider.findOne({
+      where: { providerId: user.providerId },
+    });
+    if (!serviceProvider) {
+      return res.status(401).json({ message: "ServiceProvider Not Found" });
+    }
+
+    const volunteer = await Volunteer.findOne({
+      where: { volunteerId: serviceProvider.volunteerId },
+    });
+    if (!volunteer) {
+      return res.status(401).json({ message: "Volunteer Not Found" });
+    }
+    const person = await Person.findOne({ where: { id: volunteer.personId } });
+    if (!person) {
+      return res.status(401).json({ message: "Person Not Found" });
+    }
+
     // Generate a new access token
     const accessToken = jwt.sign(
-      { userId: user.userId, username: `${user.fname} ${user.lname}` },
+      {
+        userId: user.userId,
+        username: `${person.fname} ${person.lname}`,
+        roleId: user.roleId,
+      },
+
       jwtSecret,
       { expiresIn: jwtExpiration }
     );

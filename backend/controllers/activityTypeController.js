@@ -33,18 +33,22 @@ exports.createActivityType = async (req, res) => {
       departmentId,
       active_status: "active"
     });
+    
     // Prepare the values for the insert statement
-    const values = prerequisites
-      .map((record) => `(${activityType.id}, ${record.id})`)
-      .join(", ");
+    if(prerequisites.length > 0){
+      const values = prerequisites
+        .map((record) => `(${activityType.id}, ${record.id})`)
+        .join(", ");
+  
+      // Insert the prerequisites
+      await db.sequelize.query(
+        `INSERT INTO akhs.activitytypeprerequisites (activityTypeId, prerequisiteId) VALUES ${values}`,
+        {
+          type: QueryTypes.INSERT,
+        }
+      );
 
-    // Insert the prerequisites
-    await db.sequelize.query(
-      `INSERT INTO akhs.activitytypeprerequisites (activityTypeId, prerequisiteId) VALUES ${values}`,
-      {
-        type: QueryTypes.INSERT,
-      }
-    );
+    }
 
     res.json(activityType);
   } catch (error) {
