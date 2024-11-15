@@ -2,7 +2,7 @@
 // VolunteerPage.tsx
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Box, Typography, CircularProgress } from "@mui/material";
+import { Button, Typography, Paper } from "@mui/material";
 import axios from "../utils/axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
 import dayjs from "dayjs";
+import { Loading } from "./Loading";
 
 export default function VolunteerPage() {
   const [selectedRows, setSelectedRows] = useState([]);
@@ -47,10 +48,10 @@ export default function VolunteerPage() {
     const processedSessions = sessions.map((session) => ({
       ...session,
       dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
-      startTime: dayjs(session.startTime.$d).format('HH:mm:ss'),
+      startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
       endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
     }));
-    
+
     const payload: any = {
       activityData: {
         title,
@@ -597,56 +598,63 @@ export default function VolunteerPage() {
   };
 
   return (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4">Volunteer Information</Typography>
-      <Typography variant="body1">Activity Title: {title}</Typography>
-      <Typography variant="body1">Department: {department.name}</Typography>
-      <Typography variant="body1">
-        Activity Type: {activityType.name}
-      </Typography>
-      <Typography variant="body1">Sessions: {sessions.length}</Typography>
-      <Typography variant="body1">Start Date: {startDate}</Typography>
+    <>
       {isLoading ? (
-        <CircularProgress />
+        <Loading />
       ) : (
-        <DataGrid
-          rows={filteredRows}
-          getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
-          columns={columns}
-          disableColumnFilter
-          disableColumnMenu
-          localeText={{
-            toolbarColumns: t("columns"),
-            toolbarDensity: t("density"),
-          }}
-          slots={{
-            toolbar: () => (
-              <GridCustomToolbar
-                clearAllFilters={clearAllFilters}
-                rows={selectedRows}
-                navigateTo={"/volunteer-information"}
-                mode={"show"}
-                setGetEligible={setGetEligible}
-                getEligible={getEligible}
-              />
-            ),
-          }}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          checkboxSelection // Enable checkboxes for row selection
-          onRowSelectionModelChange={(newSelection: any) =>
-            handleSelectionChange(newSelection)
-          }
-          disableRowSelectionOnClick
-        />
+        <>
+          <Typography variant="h4">Volunteer Information</Typography>
+          <Typography variant="body1">Activity Title: {title}</Typography>
+          <Typography variant="body1">Department: {department.name}</Typography>
+          <Typography variant="body1">
+            Activity Type: {activityType.name}
+          </Typography>
+          <Typography variant="body1">Sessions: {sessions.length}</Typography>
+          <Typography variant="body1">Start Date: {startDate}</Typography>
+          <Paper sx={{ height: 500, width: "100%" }}>
+            <DataGrid
+              rows={filteredRows}
+              getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
+              columns={columns}
+              disableColumnFilter
+              disableColumnMenu
+              localeText={{
+                toolbarColumns: t("columns"),
+                toolbarDensity: t("density"),
+              }}
+              slots={{
+                toolbar: () => (
+                  <GridCustomToolbar
+                    clearAllFilters={clearAllFilters}
+                    rows={selectedRows}
+                    navigateTo={"/volunteer-information"}
+                    mode={"show"}
+                    setGetEligible={setGetEligible}
+                    getEligible={getEligible}
+                  />
+                ),
+              }}
+              initialState={{ pagination: { paginationModel } }}
+              pageSizeOptions={[5, 10]}
+              checkboxSelection // Enable checkboxes for row selection
+              onRowSelectionModelChange={(newSelection: any) =>
+                handleSelectionChange(newSelection)
+              }
+              disableRowSelectionOnClick
+            />
+          </Paper>
+          <Button
+            variant="contained"
+            sx={{ mt: 2, mr: 2 }}
+            onClick={handleBack}
+          >
+            Back to Activity Summary
+          </Button>
+          <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+            Create Activity
+          </Button>
+        </>
       )}
-
-      <Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={handleBack}>
-        Back to Activity Summary
-      </Button>
-      <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-        Create Activity
-      </Button>
-    </Box>
+    </>
   );
 }
