@@ -31,7 +31,7 @@ app.use("/api/v1/address", require("./routes/address"));
 app.use("/api/v1/user", require("./routes/user"));
 app.use("/api/v1/serviceprovider", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteer", require("./routes/volunteer"));
-app.use("/api/v1/sessions", require("./routes/session"));
+app.use("/api/v1/session", require("./routes/session"));
 app.use("/api/v1/activityType", require("./routes/activityType"));
 app.use("/api/v1/activities", require("./routes/activity"));
 app.use("/api/v1/package", require("./routes/package"));
@@ -47,11 +47,11 @@ app.use("/api/v1/volunteerAttendedSession", require("./routes/volunteerAttendedS
 app.use("/api/v1/volunteerAttendedActivity", require("./routes/volunteerAttendedActivity"));
 
 // Sync database and start server
-// db.sequelize.sync().then(() => {
-//   app.listen(3000, () => {
-//     console.log("Server is running on port 3000");
-//   });
-// });
-app.listen(3000, () => {
-  console.log("Server is running on port 3000");
+db.sequelize.sync().then(() => {
+  app.listen(3000, () => {
+    console.log("Server is running on port 3000");
+  });
 });
+// app.listen(3000, () => {
+//   console.log("Server is running on port 3000");
+// });

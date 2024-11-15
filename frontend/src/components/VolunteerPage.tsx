@@ -15,6 +15,7 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
 import Address from "./Address";
 import DownloadButton from "./DownloadButton";
+import dayjs from "dayjs";
 
 export default function VolunteerPage() {
   // const location = useLocation();
@@ -36,6 +37,7 @@ export default function VolunteerPage() {
   const [sessions, setSessions] = useState(location.state?.sessions || []);
   const [startDate , setStartDate] = useState(location.state.startDate || null) ; 
   console.log("information from the previous page is" , location.state);
+  console.log("sessions is " , sessions);
   
 
   const handleNext = () => {
@@ -64,6 +66,46 @@ export default function VolunteerPage() {
         minSessions,
         startDate,
       },
+    });
+  };
+
+  const handleSubmit = (event: any) => {
+    event.preventDefault();
+
+    const nonEmptySessions = sessions.filter((session:any) => {
+      return (
+        session.sessionName.trim() !== "" &&
+        session.serviceProviders.length > 0 &&
+        session.trainers.length > 0 &&
+        session.hallName.trim() !== "" &&
+        session.dateValue.isValid()
+      );
+    });
+
+    nonEmptySessions.forEach((session :any) => {
+      const sessionData = {
+        name: session.sessionName,
+        date: session.dateValue.format("YYYY-MM-DD"),
+        hall_name: session.hallName,
+        startTime: session.startTime.format("HH:mm:ss"),
+        endTime: session.endTime.format("HH:mm:ss"),
+        trainerIds: session.trainerName.map((trainer: any) => trainer.value),
+        serviceProviderIds: session.providerNames.map(
+          (provider: any) => provider.value
+        ),
+      };
+      console.log("nonEmptySessions is" , nonEmptySessions);
+      
+
+      axios
+        .post("/session", sessionData)
+        .then((response) => {
+          console.log("Session created:", response.data);
+          window.location.reload();
+        })
+        .catch((error) => {
+          console.error("Error creating session:", error);
+        });
     });
   };
 
@@ -159,6 +201,8 @@ export default function VolunteerPage() {
     fetchVolunteers();
   }, []);
   console.log("the rows is ", rows);
+  console.log("selected rows is ", selectedRows);
+  
 
   // Memoized columns definition to prevent re-rendering
   const columns: GridColDef[] = useMemo(
@@ -648,8 +692,8 @@ export default function VolunteerPage() {
 <Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={handleBack}>
         Back to Activity Summary
       </Button>
-      <Button variant="contained" sx={{ mt: 2 }} onClick={handleNext}>
-        Next
+      <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+        Create Activity
       </Button>
     </Box>
   );

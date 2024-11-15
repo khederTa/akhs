@@ -10,6 +10,7 @@ import { TimePicker } from "@mui/x-date-pickers/TimePicker";
 
 const SessionInfo = ({
   id,
+  selectedDepartment,
   removeSession,
   sessionName,
   setSessionName,
@@ -40,6 +41,7 @@ const SessionInfo = ({
           serviceproviders.map((provider: any) => ({
             label: provider.Volunteer.Person.fname,
             value: provider.providerId,
+            depId: provider.Department.id,
           }))
         );
 
@@ -47,6 +49,7 @@ const SessionInfo = ({
           serviceproviders.map((provider: any) => ({
             label: provider.Volunteer.Person.fname,
             value: provider.providerId,
+            depId: provider.Department.id,
           }))
         );
       })
@@ -54,7 +57,13 @@ const SessionInfo = ({
         console.error("Error fetching data:", error);
       });
   }, []);
+  const selectedServiceProvider =  serviceProviders.filter((serv :any)=>serv.depId ===parseInt(selectedDepartment))
+  console.log("selected departmen is" , selectedDepartment)
+  console.log("selectedServiceProvideris" , selectedServiceProvider)
+  console.log("serviceProviders is " , serviceProviders);
+  
 
+  
   // Handle form submission
 
   return (
@@ -73,6 +82,7 @@ const SessionInfo = ({
             sx={{ width: 100 }}
             value={sessionName}
             onChange={(e) => setSessionName(e.target.value)}
+            
           />
         </Stack>
 
@@ -118,7 +128,7 @@ const SessionInfo = ({
             id="tags-filled"
             sx={{ width: 160 }}
             multiple
-            options={serviceProviders}
+            options={selectedServiceProvider}
             value={providerNames}
             onChange={(event, newValue: any) => setProviderNames(newValue)}
             getOptionLabel={(option) => option.label || ""}
