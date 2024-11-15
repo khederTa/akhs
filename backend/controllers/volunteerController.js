@@ -4,8 +4,10 @@ const {
   Address,
   ServiceProvider,
   File,
+  ActivityType,
+  Activity,
+  VolunteerAttendedActivity,
 } = require("../models");
-
 exports.getAllVolunteers = async (req, res) => {
   try {
     const volunteers = await Volunteer.findAll({
@@ -180,3 +182,141 @@ exports.deleteVolunteer = async (req, res) => {
   }
 };
 
+exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
+  try {
+    const { activityTypeId } = req.params;
+    // Step 1: Find prerequisite activity types for the given activity type
+    const activityType = await ActivityType.findByPk(activityTypeId, {
+      include: {
+        model: ActivityType,
+        as: "Prerequisites",
+        attributes: ["id"],
+        through: { attributes: [] }, // Exclude the join table fields
+      },
+    });
+
+    // Get the list of prerequisite activity type IDs
+    const prerequisiteTypeIds = activityType.Prerequisites.map(
+      (prerequisite) => prerequisite.id
+    );
+
+    // return all volunteers where there are no conditions to attend the activity
+    if (prerequisiteTypeIds.length === 0) {
+      const volunteers = await Volunteer.findAll({
+        attributes: ["volunteerId", "active_status"],
+        include: [
+          {
+            model: Person,
+            attributes: [
+              "id",
+              "fname",
+              "lname",
+              "mname",
+              "momName",
+              "phone",
+              "email",
+              "bDate",
+              "gender",
+              "study",
+              "work",
+              "nationalNumber",
+              "fixPhone",
+              "smoking",
+              "note",
+              "prevVol",
+              "compSkill",
+              "koboSkill",
+              "fileId",
+            ],
+            include: [
+              {
+                model: Address,
+                attributes: ["id", "state", "city", "district", "village"],
+              },
+              { model: File },
+            ],
+          },
+          {
+            model: ServiceProvider,
+            required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
+            attributes: [], // We don’t need to retrieve any columns from ServiceProvider
+          },
+        ],
+        where: {
+          "$ServiceProvider.volunteerId$": null, // Filter volunteers with no associated ServiceProvider
+        },
+      });
+      return res.json(volunteers);
+    }
+    
+    // Step 2: Find activities that belong to these prerequisite activity types
+    const prerequisiteActivities = await Activity.findAll({
+      where: {
+        activityTypeId: prerequisiteTypeIds,
+      },
+      attributes: ["id"],
+    });
+
+    // Get the list of prerequisite activity IDs
+    const prerequisiteActivityIds = prerequisiteActivities.map(
+      (activity) => activity.id
+    );
+
+    // Step 3: Retrieve volunteers who attended these prerequisite activities
+    const volunteers = await Volunteer.findAll({
+      include: [
+        {
+          model: Activity,
+          where: { id: prerequisiteActivityIds },
+          through: {
+            attributes: [], // Exclude the join table fields
+            where: { status: "attended" }, // Optional: Only get those who attended
+          },
+        },
+        {
+          model: Person,
+          attributes: [
+            "id",
+            "fname",
+            "lname",
+            "mname",
+            "momName",
+            "phone",
+            "email",
+            "bDate",
+            "gender",
+            "study",
+            "work",
+            "nationalNumber",
+            "fixPhone",
+            "smoking",
+            "note",
+            "prevVol",
+            "compSkill",
+            "koboSkill",
+            "fileId",
+          ],
+          include: [
+            {
+              model: Address,
+              attributes: ["id", "state", "city", "district", "village"],
+            },
+            { model: File },
+          ],
+        },
+        {
+          model: ServiceProvider,
+          required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
+          attributes: [], // We don’t need to retrieve any columns from ServiceProvider
+        },
+      ],
+      where: {
+        "$ServiceProvider.volunteerId$": null, // Filter volunteers with no associated ServiceProvider
+      },
+    });
+
+    return res.json(volunteers);
+  } catch (error) {
+    console.error("Error fetching volunteers:", error);
+  }
+};

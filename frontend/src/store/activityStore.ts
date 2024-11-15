@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import dayjs from "dayjs";
 
@@ -8,11 +9,11 @@ type SessionType = {
   serviceProviders: any[];
   trainers: any[];
   hallName: string;
-  dateValue: any; // Will be a dayjs object
+  dateValue: string; // Will be a dayjs object
   providerNames: any[];
   trainerName: any[];
-  startTime: any; // dayjs object
-  endTime: any; // dayjs object
+  startTime: string; // dayjs object
+  endTime: string; // dayjs object
 };
 
 type SessionStore = {
@@ -34,9 +35,9 @@ const useSessionStore = create<SessionStore>((set) => ({
 
   // Add a new session with default values
   addSession: () =>
-    set((state) => {
+    set((state: any) => {
       const newKey = state.sessions.length
-        ? Math.max(...state.sessions.map((s) => s.key)) + 1
+        ? Math.max(...state.sessions.map((s: any) => s.key)) + 1
         : 1;
 
       return {
@@ -76,7 +77,7 @@ const useSessionStore = create<SessionStore>((set) => ({
 
   // Sync sessions with numSessions
   syncSessionsWithNum: () =>
-    set((state) => {
+    set((state: any) => {
       const updatedSessions = Array.from(
         { length: state.numSessions },
         (_, index) => {
