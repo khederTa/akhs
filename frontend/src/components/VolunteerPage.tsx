@@ -1,12 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // VolunteerPage.tsx
-import React, { useEffect, useState, useMemo } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
-import {Button, Box, Typography, CircularProgress, TextField } from "@mui/material";
+import { useEffect, useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Box, Typography, CircularProgress } from "@mui/material";
 import axios from "../utils/axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
-import AlertNotification from "./AlertNotification";
 import DateFilterHeader from "./DateFilterHeader";
 import CustomDateRenderer from "./CustomDateRenderer";
 import QAFilterHeader from "./QAFilterHeader";
@@ -14,102 +13,89 @@ import GenderFilterHeader from "./GenderFilterHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
-import Address from "./Address";
 import DownloadButton from "./DownloadButton";
+import useSessionStore from "../store/activityStore";
 import dayjs from "dayjs";
 
 export default function VolunteerPage() {
-  // const location = useLocation();
-  // const { title, department, activityType, sessions } = location.state;
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsId, setSelectedRowsId] = useState([]);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [addressId, setAddressId] = useState<number | null>(null);
   const { t } = useTranslation();
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
-  const location = useLocation();
+  const [getEligible, setGetEligible] = useState(false);
 
-  const [title, setTitle] = useState(location.state?.title || "");
-  const [department, setDepartment] = useState(location.state?.department || "");
-  const [activityType, setActivityType] = useState(location.state?.activityType || "");
-  const [numSessions, setNumSessions] = useState(location.state?.numSessions || 1);
-  const [minSessions, setminSessions] = useState(location.state?.minSessions || 1);
-  const [sessions, setSessions] = useState(location.state?.sessions || []);
-  const [startDate , setStartDate] = useState(location.state.startDate || null) ; 
-  console.log("information from the previous page is" , location.state);
-  console.log("sessions is " , sessions);
-  
-
-  const handleNext = () => {
-    navigate("/another-page", {
-      state: { 
-        title,
-        department,
-        activityType,
-        numSessions,
-        sessions,
-        minSessions,
-        startDate,
-
-      }
-    });
-  };
+  // Zustand store session state management
+  const { sessions, title, startDate, activityType, department } =
+    useSessionStore((state) => ({
+      sessions: state.sessions,
+      title: state.title,
+      startDate: state.startDate,
+      activityType: state.activityType,
+      department: state.department,
+    }));
 
   const handleBack = () => {
-    navigate("/activity-summary", {
-      state: {
-        title,
-        department,
-        activityType,
-        numSessions,
-        sessions,
-        minSessions,
-        startDate,
-      },
-    });
+    navigate("/activity-management");
   };
 
-  const handleSubmit = (event: any) => {
+  const handleSubmit = async (event: any) => {
     event.preventDefault();
 
-    // const nonEmptySessions = sessions.filter((session:any) => {
-    //   return (
-    //     session.sessionName.trim() !== "" &&
-    //     session.serviceProviders.length > 0 &&
-    //     session.trainers.length > 0 &&
-    //     session.hallName.trim() !== "" &&
-    //     session.dateValue.isValid()
-    //   );
+    const processedSessions = sessions.map((session) => ({
+      ...session,
+      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
+      startTime: dayjs(session.startTime.$d).format('HH:mm:ss'),
+      endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
+    }));
+    
+    const payload: any = {
+      activityData: {
+        title,
+        activityTypeId: activityType.id,
+        departmentId: department.id,
+      },
+      sessionsData: {
+        sessions: processedSessions,
+      },
+      invitedVolunteersData: {
+        volunteerIds: selectedRowsId,
+      },
+    };
+    console.log({ payload });
+    const response = await axios.post("/activity", payload);
+
+    if (response.status === 201) {
+      navigate("/activity-management");
+    }
+
+    // sessions.forEach((session: any) => {
+    //   const sessionData = {
+    //     name: session.sessionName,
+    //     date: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
+    //     hall_name: session.hallName,
+    //     startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
+    //     endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
+    //     trainerIds: session.trainerName.map((trainer: any) => trainer.value),
+    //     serviceProviderIds: session.providerNames.map(
+    //       (provider: any) => provider.value
+    //     ),
+    //   };
+    //   console.log("sessionData is", sessionData);
+
+    //   axios
+    //     .post("/session", sessionData)
+    //     .then((response) => {
+    //       console.log("Session created:", response.data);
+    //       navigate("/activity-management");
+    //     })
+    //     .catch((error) => {
+    //       console.error("Error creating session:", error);
+    //     });
     // });
-
-    sessions.forEach((session :any) => {
-      const sessionData = {
-        name: session.sessionName,
-        date: dayjs(session.dateValue.$d).format('YYYY-MM-DD'),
-        hall_name: session.hallName,
-        startTime: dayjs(session.startTime.$d).format('HH:mm:ss'),
-        endTime: dayjs(session.endTime.$d).format('HH:mm:ss'),
-        trainerIds: session.trainerName.map((trainer: any) => trainer.value),
-        serviceProviderIds: session.providerNames.map(
-          (provider: any) => provider.value
-        ),
-      };
-      console.log("sessionData is" , sessionData);
-      
-
-      axios
-        .post("/session", sessionData)
-        .then((response) => {
-          console.log("Session created:", response.data);
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.error("Error creating session:", error);
-        });
-    });
   };
-
 
   const {
     filteredRows,
@@ -166,11 +152,19 @@ export default function VolunteerPage() {
   });
   // Fetch volunteers with associated Person data
   useEffect(() => {
+    console.log({ activityType });
     async function fetchVolunteers() {
       setIsLoading(true);
       try {
-        const response = await axios.get("/volunteer");
-        console.log("response is", response.data);
+        let response;
+        if (getEligible) {
+          response = await axios.get(
+            `/volunteer/${activityType.id}/eligible-volunteer`
+          );
+        } else {
+          response = await axios.get("/volunteer");
+        }
+        console.log("response is", response);
         if (response && response.status === 200) {
           const enrichedData = response.data.map((volunteer: any) => ({
             volunteerId: volunteer.volunteerId,
@@ -200,10 +194,9 @@ export default function VolunteerPage() {
       }
     }
     fetchVolunteers();
-  }, []);
+  }, [getEligible]);
   console.log("the rows is ", rows);
   console.log("selected rows is ", selectedRows);
-  
 
   // Memoized columns definition to prevent re-rendering
   const columns: GridColDef[] = useMemo(
@@ -213,7 +206,6 @@ export default function VolunteerPage() {
         headerName: t("id"),
         minWidth: 100,
         sortable: true,
-        editable: false,
       },
       {
         field: "fname",
@@ -221,7 +213,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"fname"}
@@ -242,7 +233,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"lname"}
@@ -263,7 +253,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"mname"}
@@ -284,7 +273,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"momName"}
@@ -305,7 +293,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"phone"}
@@ -326,7 +313,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"email"}
@@ -347,16 +333,7 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderCell: (params) => <CustomDateRenderer value={params.value} />,
-        renderEditCell: (_params) => (
-          <TextField
-            type="date"
-            // value={newBdate}
-            // onChange={(e: any) => setNewBdate(e.target.value)}
-            fullWidth
-          />
-        ),
         renderHeader: () => (
           <DateFilterHeader
             key={"bDate"}
@@ -377,7 +354,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <GenderFilterHeader
             key={"gender"}
@@ -400,7 +376,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"study"}
@@ -421,7 +396,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"work"}
@@ -442,7 +416,6 @@ export default function VolunteerPage() {
         minWidth: 300,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"address"}
@@ -456,7 +429,6 @@ export default function VolunteerPage() {
             clearFilter={clearFilter}
           />
         ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
 
       {
@@ -465,7 +437,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"nationalNumber"}
@@ -486,7 +457,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <FilterHeader
             key={"fixPhone"}
@@ -509,7 +479,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <QAFilterHeader
             key={"smoking"}
@@ -532,7 +501,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <QAFilterHeader
             key={"prevVol"}
@@ -555,7 +523,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <QAFilterHeader
             key={"compSkill"}
@@ -578,7 +545,6 @@ export default function VolunteerPage() {
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        editable: true,
         renderHeader: () => (
           <QAFilterHeader
             key={"koboSkill"}
@@ -593,7 +559,6 @@ export default function VolunteerPage() {
           />
         ),
       },
-      { field: "note", headerName: t("note"), width: 200, editable: true },
       {
         field: "file",
         headerName: t("cv"),
@@ -608,61 +573,44 @@ export default function VolunteerPage() {
             />
           );
         },
-        // editable: true,
-        // renderEditCell: (params) => {
-        //   // console.log(params.row);
-        //   return (
-        //     <FileUpload
-        //       fileId={params.row.fileId as number}
-        //       setFileId={setFileId}
-        //       setUpdatedFile={setUpdatedFile}
-        //       mode={"edit"}
-        //       setUploadFileSizeError={setUploadFileSizeError}
-        //     />
-        //   );
-        // },
       },
     ],
-    [  clearFilter,
+    [
+      clearFilter,
       filterModel,
       filterVisibility,
-      // newBdate,
-      // handleCancel,
       handleDateFilterChange,
-      // handleEditClick,
-      // handleOpenDeleteDialog,
-      // handleOpenPromoteDialog,
-      // handleSave,
       handleSortClick,
       handleTextFilterChange,
-      // handleToggleActive,
-      // rowModesModel,
       rows,
       setFilterVisibility,
       sortModel,
-      t,]
+      t,
+    ]
   );
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
-    setSelectedRows(newSelectedRows);}
-
-
+    setSelectedRowsId(newSelection as any);
+    setSelectedRows(newSelectedRows);
+  };
 
   return (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4">Volunteer Information</Typography>
       <Typography variant="body1">Activity Title: {title}</Typography>
       <Typography variant="body1">Department: {department.name}</Typography>
-      <Typography variant="body1">Activity Type: {activityType.name}</Typography>
+      <Typography variant="body1">
+        Activity Type: {activityType.name}
+      </Typography>
       <Typography variant="body1">Sessions: {sessions.length}</Typography>
       <Typography variant="body1">Start Date: {startDate}</Typography>
       {isLoading ? (
         <CircularProgress />
       ) : (
         <DataGrid
-        rows={filteredRows}
+          rows={filteredRows}
           getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
           columns={columns}
           disableColumnFilter
@@ -677,6 +625,9 @@ export default function VolunteerPage() {
                 clearAllFilters={clearAllFilters}
                 rows={selectedRows}
                 navigateTo={"/volunteer-information"}
+                mode={"show"}
+                setGetEligible={setGetEligible}
+                getEligible={getEligible}
               />
             ),
           }}
@@ -690,7 +641,7 @@ export default function VolunteerPage() {
         />
       )}
 
-<Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={handleBack}>
+      <Button variant="contained" sx={{ mt: 2, mr: 2 }} onClick={handleBack}>
         Back to Activity Summary
       </Button>
       <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>

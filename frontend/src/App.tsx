@@ -24,7 +24,6 @@ import CreateNewDepartment from "./components/CreateNewDepartment";
 import CreateNewPosition from "./components/CreateNewPosition";
 import Volunteer from "./components/Volunteer";
 import ServiceProvider from "./components/ServiceProvider";
-import ActivityPage from "./components/ActivityPage";
 import ActivitySummary from "./components/ActivitySummary";
 import VolunteerPage from "./components/VolunteerPage";
 import { usePermissionStore } from "./store/permissionStore";
@@ -103,14 +102,6 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               }
             />
 
-            <Route
-              path="/activity-draggable-modal"
-              element={
-                <Layout>
-                  <ActivityPage />
-                </Layout>
-              }
-            />
 
             <Route
               path="/activity-summary"

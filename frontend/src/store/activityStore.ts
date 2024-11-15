@@ -9,30 +9,41 @@ type SessionType = {
   serviceProviders: any[];
   trainers: any[];
   hallName: string;
-  dateValue: string; // Will be a dayjs object
+  dateValue: any; // Will be a dayjs object
   providerNames: any[];
   trainerName: any[];
-  startTime: string; // dayjs object
-  endTime: string; // dayjs object
+  startTime: any; // dayjs object
+  endTime: any; // dayjs object
 };
 
-type SessionStore = {
+type ActivityStore = {
+  title: string;
   sessions: SessionType[];
   numSessions: number;
   minSessions: number;
+  department: any;
+  activityType: any;
+  startDate: string;
+  setTitle: (value: string) => void;
+  setDepartment: (value: any) => void;
+  setActivityType: (value: any) => void;
   setMinSessions: (num: number) => void;
   addSession: () => void;
   removeSession: (key: number) => void;
   updateSession: (key: number, field: string, value: any) => void;
   syncSessionsWithNum: () => void;
   setNumSessions: (num: number) => void;
+  setStartDate: (value: string) => void
 };
 
-const useSessionStore = create<SessionStore>((set) => ({
+const useSessionStore = create<ActivityStore>((set) => ({
   sessions: [],
   numSessions: 1,
   minSessions: 1,
-
+  department: {},
+  activityType: {},
+  title: "",
+  startDate: "",
   // Add a new session with default values
   addSession: () =>
     set((state: any) => {
@@ -109,6 +120,23 @@ const useSessionStore = create<SessionStore>((set) => ({
     set({
       minSessions: num,
     }),
+    setDepartment: (value) =>
+    set({
+      department: value,
+    }),
+    setActivityType: (value) =>
+    set({
+      activityType: value,
+    }),
+    setTitle: (value) =>
+    set({
+      title: value,
+    }),
+    setStartDate: (value) =>
+    set({
+      startDate: value,
+    }),
+
 }));
 
 export default useSessionStore;

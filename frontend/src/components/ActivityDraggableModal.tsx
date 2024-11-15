@@ -15,6 +15,7 @@ import {
 import Draggable from "react-draggable";
 import axios from "../utils/axios";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
+import { useNavigate } from "react-router-dom";
 
 function PaperComponent(props: any) {
   return (
@@ -34,27 +35,37 @@ type ItemType = {
 type PropsType = {
   open: boolean;
   onClose: () => void;
-  onCreate: (formData: any) => void;
 };
 
-export default function ActivityDraggableModal({
-  open,
-  onClose,
-  onCreate,
-}: PropsType) {
+export default function ActivityDraggableModal({ open, onClose }: PropsType) {
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
   const [selectedActivityType, setSelectedActivityType] = React.useState("");
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
-  const [title, setTitle] = React.useState<string>("");
-  const { numSessions, setNumSessions, minSessions, setMinSessions } =
-    useSessionStore((state) => ({
-      numSessions: state.numSessions,
-      setNumSessions: state.setNumSessions,
-      minSessions: state.minSessions,
-      setMinSessions: state.setMinSessions,
-    }));
-  const [startDate, setStartDate] = React.useState("");
+  const navigate = useNavigate();
+  const {
+    title,
+    setTitle,
+    numSessions,
+    setNumSessions,
+    minSessions,
+    setMinSessions,
+    startDate,
+    setStartDate,
+    setDepartment,
+    setActivityType,
+  } = useSessionStore((state) => ({
+    title: state.title,
+    setTitle: state.setTitle,
+    numSessions: state.numSessions,
+    setNumSessions: state.setNumSessions,
+    minSessions: state.minSessions,
+    setMinSessions: state.setMinSessions,
+    startDate: state.startDate,
+    setStartDate: state.setStartDate,
+    setDepartment: state.setDepartment,
+    setActivityType: state.setActivityType,
+  }));
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -69,25 +80,19 @@ export default function ActivityDraggableModal({
     };
     fetchData();
   }, []);
-  console.log("selectedDepartment is", selectedDepartment);
-  const depObject = departments.find((dep) => {
-    return dep.id === parseInt(selectedDepartment);
-  });
-  const activitytypeObject = activityTypes.find((act) => {
-    return act.id === parseInt(selectedActivityType);
-  });
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const formData = {
-      activityType: activitytypeObject,
-      department: depObject,
-      title,
-      numSessions,
-      minSessions,
-      startDate,
-    };
-    onCreate(formData); // Pass form data to parent
+    console.log("selectedDepartment is", selectedDepartment);
+    const depObject = departments.find((dep) => {
+      return dep.id === parseInt(selectedDepartment);
+    });
+    const activitytypeObject = activityTypes.find((act) => {
+      return act.id === parseInt(selectedActivityType);
+    });
+    setDepartment(depObject);
+    setActivityType(activitytypeObject);
+    navigate("/activity-summary");
   };
 
   return (

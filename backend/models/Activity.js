@@ -16,6 +16,9 @@ module.exports = (sequelize, DataTypes) => {
     Activity.belongsTo(models.ActivityType, {
       foreignKey: "activityTypeId",
     });
+    Activity.belongsTo(models.Department, {
+      foreignKey: "departmentId",
+    });
 
     Activity.hasMany(models.Session, { foreignKey: "activityId" });
     Activity.belongsToMany(models.Volunteer, {

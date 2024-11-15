@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
 import SessionInfo from "./activityInfo/SessionInfo";
@@ -11,22 +11,53 @@ type ItemType = {
 };
 
 export default function ActivitySummary() {
-  const location = useLocation();
   const navigate = useNavigate();
-  const data = location.state;
-  console.log("the data is", data);
-  console.log("location is ", location);
-
-  const [title, setTitle] = useState(location.state?.title || "");
+  // Zustand store session state management
+  const {
+    numSessions,
+    minSessions,
+    sessions,
+    title,
+    startDate,
+    activityType,
+    department,
+    setActivityType,
+    setDepartment,
+    setStartDate,
+    setTitle,
+    setMinSessions,
+    setNumSessions,
+    addSession,
+    removeSession,
+    updateSession,
+    syncSessionsWithNum,
+  } = useSessionStore((state) => ({
+    numSessions: state.numSessions,
+    sessions: state.sessions,
+    minSessions: state.minSessions,
+    title: state.title,
+    startDate: state.startDate,
+    activityType: state.activityType,
+    department: state.department,
+    setTitle: state.setTitle,
+    setDepartment: state.setDepartment,
+    setActivityType: state.setActivityType,
+    setStartDate: state.setStartDate,
+    setMinSessions: state.setMinSessions,
+    setNumSessions: state.setNumSessions,
+    addSession: state.addSession,
+    removeSession: state.removeSession,
+    updateSession: state.updateSession,
+    syncSessionsWithNum: state.syncSessionsWithNum,
+  }));
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
 
-  const [startDate, setStartDate] = useState(location.state.startDate || null);
   const [selectedActivityType, setSelectedActivityType] = useState(
-    data.activityType?.id || ""
+    activityType?.id || ""
   );
   const [selectedDepartment, setSelectedDepartment] = useState(
-    data.department?.id || ""
+    department?.id || ""
   );
 
   const depObject = useMemo(
@@ -38,31 +69,14 @@ export default function ActivitySummary() {
       activityTypes.find((act) => act.id === parseInt(selectedActivityType)),
     [activityTypes, selectedActivityType]
   );
-  
-  console.log("selected departmen is" , selectedDepartment)
 
-  // Zustand store session state management
-  const {
-    numSessions,
-    minSessions,
-    sessions,
-    setMinSessions,
-    setNumSessions,
-    addSession,
-    removeSession,
-    updateSession,
-    syncSessionsWithNum,
-  } = useSessionStore((state) => ({
-    numSessions: state.numSessions,
-    sessions: state.sessions,
-    minSessions: state.minSessions,
-    setMinSessions: state.setMinSessions,
-    setNumSessions: state.setNumSessions,
-    addSession: state.addSession,
-    removeSession: state.removeSession,
-    updateSession: state.updateSession,
-    syncSessionsWithNum: state.syncSessionsWithNum,
-  }));
+  useEffect(() => {
+    setDepartment(depObject);
+  }, [depObject]);
+
+  useEffect(() => {
+    setActivityType(activitytypeObject);
+  }, [activitytypeObject]);
 
   useEffect(() => {
     syncSessionsWithNum();
@@ -90,7 +104,7 @@ export default function ActivitySummary() {
 
   const handleNext = useCallback(() => {
     // Helper function to validate if a single session is complete
-    const isSessionComplete = (session:any) => {
+    const isSessionComplete = (session: any) => {
       return (
         session.sessionName.trim() !== "" &&
         session.serviceProviders.length > 0 &&
@@ -104,32 +118,22 @@ export default function ActivitySummary() {
         session.endTime.isValid()
       );
     };
-  
+
     // Find incomplete sessions
-    const incompleteSessions = sessions.filter((session) => !isSessionComplete(session));
-  
+    const incompleteSessions = sessions.filter(
+      (session) => !isSessionComplete(session)
+    );
+
     if (incompleteSessions.length > 0) {
       // Display an alert with specific feedback if there are any incomplete sessions
       alert(
-        `Please complete all information for each session. You have ${
-          incompleteSessions.length
-        } session(s) with missing information.`
+        `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
       );
       return; // Prevent navigation if any session is incomplete
     }
-  
+
     // If all sessions are complete, navigate to the next page
-    navigate("/volunteer-page", {
-      state: {
-        title,
-        activityType: activitytypeObject,
-        department: depObject,
-        sessions,
-        numSessions,
-        minSessions,
-        startDate,
-      },
-    });
+    navigate("/volunteer-page");
   }, [
     navigate,
     title,
@@ -140,45 +144,6 @@ export default function ActivitySummary() {
     minSessions,
     startDate,
   ]);
-  
-
-  const handleSubmit = (event: any) => {
-    event.preventDefault();
-
-    const nonEmptySessions = sessions.filter((session) => {
-      return (
-        session.sessionName.trim() !== "" &&
-        session.serviceProviders.length > 0 &&
-        session.trainers.length > 0 &&
-        session.hallName.trim() !== "" &&
-        session.dateValue.isValid()
-      );
-    });
-
-    nonEmptySessions.forEach((session) => {
-      const sessionData = {
-        name: session.sessionName,
-        date: session.dateValue.format("YYYY-MM-DD"),
-        hall_name: session.hallName,
-        startTime: session.startTime.format("HH:mm:ss"),
-        endTime: session.endTime.format("HH:mm:ss"),
-        trainerIds: session.trainerName.map((trainer: any) => trainer.value),
-        serviceProviderIds: session.providerNames.map(
-          (provider: any) => provider.value
-        ),
-      };
-
-      axios
-        .post("/sessions", sessionData)
-        .then((response) => {
-          console.log("Session created:", response.data);
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.error("Error creating session:", error);
-        });
-    });
-  };
 
   return (
     <Box sx={{ p: 4 }}>
@@ -258,7 +223,7 @@ export default function ActivitySummary() {
             Session {session.key}
             <SessionInfo
               sessionName={session.sessionName}
-              selectedDepartment = {selectedDepartment}
+              selectedDepartment={selectedDepartment}
               setSessionName={(value: any) =>
                 updateSession(session.key, "sessionName", value)
               }

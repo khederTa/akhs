@@ -33,7 +33,7 @@ app.use("/api/v1/serviceprovider", require("./routes/serviceprovider"));
 app.use("/api/v1/volunteer", require("./routes/volunteer"));
 app.use("/api/v1/session", require("./routes/session"));
 app.use("/api/v1/activityType", require("./routes/activityType"));
-app.use("/api/v1/activities", require("./routes/activity"));
+app.use("/api/v1/activity", require("./routes/activity"));
 app.use("/api/v1/package", require("./routes/package"));
 app.use("/api/v1/department", require("./routes/department"));
 app.use("/api/v1/position", require("./routes/position"));

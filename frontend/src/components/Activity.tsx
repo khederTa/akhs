@@ -1,4 +1,3 @@
-import React from "react";
 import { Stack } from "@mui/material";
 import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -6,32 +5,102 @@ import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
 import axios from "../utils/axios";
-import { idID } from "@mui/material/locale";
 import { Loading } from "./Loading";
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import { useTranslation } from "react-i18next";
+import FilterHeader from "./FilterHeader";
+import FilterBooleanHeader from "./FilterBooleanHeader";
+import GridCustomToolbar from "./GridCustomToolbar";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState();
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
+  const { t } = useTranslation();
+  const {
+    filteredRows,
+    sortModel,
+    filterModel,
+    filterVisibility,
+    setFilteredRows,
+    setFilterVisibility,
+    handleTextFilterChange,
+    handleDateFilterChange,
+    clearFilter,
+    clearAllFilters,
+    handleSortClick,
+  } = useGridFilterSort({
+    initialFilterModel: {
+      title: "",
+      done: false,
+    },
+    initialFilterVisibility: {
+      title: false,
+      done: false,
+    },
+    rows, // your initial rows data
+  });
 
-
-  
   const paginationModel = { page: 0, pageSize: 5 };
   const columns: GridColDef[] = [
-    { field: "id", headerName: "ID", width: 200 },
-    { field: "done", headerName: "Done", width: 200 ,
-          // Mapping TINYINT(1) value (0 or 1) to a user-friendly display (Done/Not Done)
+    {
+      field: "id",
+      headerName: t("id"),
+      minWidth: 100,
+      sortable: true,
+      editable: false,
+    },
+    {
+      field: "title",
+      headerName: t("title"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      renderHeader: () => (
+        <FilterHeader
+          key={"title"}
+          field={"title"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
+    {
+      field: "done",
+      headerName: t("done"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      editable: true,
+      renderHeader: () => (
+        <FilterBooleanHeader
+          key={"done"}
+          field={"done"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
       renderCell: (params) => (params?.value === true ? "Done" : "Not Done"),
-     },
-     { field: "title", headerName: "Activity Title ", width: 200 },
+    },
   ];
 
   useEffect(() => {
     async function fetchActivityData() {
       const Activitys = axios
-        .get("activities")
+        .get("activity")
         .then((res) => {
+          console.log(res.data)
           const ActivityRows = res.data.map((activity: any) => {
             return {
               id: activity?.id,
@@ -41,6 +110,7 @@ const Activity = () => {
           });
           setLoading(false);
           setRows(ActivityRows);
+          setFilteredRows(ActivityRows);
         })
         .catch((err) => {
           console.error(err);
@@ -52,7 +122,7 @@ const Activity = () => {
     const Activitys = fetchActivityData();
     console.log(Activitys);
   }, []);
-  console.log("rows is " , rows)
+  console.log("rows is ", rows);
 
   // useEffect(() => {
   //     async function fetchUserData() {
@@ -91,31 +161,57 @@ const Activity = () => {
   //     const users = fetchUserData();
   //     console.log(users);
   //   }, []);
+  const [selectedRows, setSelectedRows] = useState([]);
 
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return filteredRows.find((row) => row.id === selected);
+    });
+    setSelectedRows(newSelectedRows);
+  };
+
+  useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
-
-    loading ? <Loading/> : 
-    <div>
-      <Stack direction="row" justifyContent={"flex-start"} sx={{ gap: 1 }}>
-        <Button
-          type="button"
-          variant="contained"
-          onClick={() => navigate("/activity-draggable-modal")}
-        >
-          Add New Activity
-        </Button>
-      </Stack>
-      <Paper sx={{ height: 500, width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={columns}
-          initialState={{ pagination: { paginationModel } }}
-          pageSizeOptions={[5, 10]}
-          checkboxSelection
-          sx={{ border: 0 }}
-        />
-      </Paper>
-    </div>
+    <>
+      
+      {loading ? (
+        <Loading />
+      ) : (
+        <Paper sx={{ height: 500, width: "100%" }}>
+          <DataGrid
+            rows={filteredRows}
+            columns={columns}
+            // processRowUpdate={handleProcessRowUpdate}
+            initialState={{ pagination: { paginationModel } }}
+            pageSizeOptions={[5, 10]}
+            sx={{ border: 0 }}
+            getRowId={(row) => row.id} // Ensure the correct row ID is used
+            disableColumnFilter
+            disableColumnMenu
+            slots={{
+              toolbar: () => (
+                <GridCustomToolbar
+                  clearAllFilters={clearAllFilters}
+                  rows={selectedRows}
+                  navigateTo={"/volunteer-information"}
+                  mode="addActivity"
+                />
+              ),
+            }}
+            editMode="row"
+            localeText={{
+              toolbarColumns: t("columns"),
+              toolbarDensity: t("density"),
+            }}
+            checkboxSelection // Enable checkboxes for row selection
+            onRowSelectionModelChange={(newSelection: any) =>
+              handleSelectionChange(newSelection)
+            }
+            disableRowSelectionOnClick
+          />
+        </Paper>
+      )}
+    </>
   );
 };
 

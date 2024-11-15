@@ -2,7 +2,10 @@
 import { useCallback, useEffect, useState } from "react";
 
 interface FilterModel {
-  [key: string]: string | { value: string; operator: string; endDate?: string };
+  [key: string]:
+    | string
+    | { value: string; operator: string; endDate?: string }
+    | boolean;
 }
 
 interface FilterVisibility {
@@ -61,9 +64,13 @@ export function useGridFilterSort({
           if (value) {
             const cellValue = row[field]?.toString().toLowerCase() || "";
             const filterValue = value.toLowerCase();
-            return field === "gender"
-              ? cellValue === filterValue
-              : cellValue.includes(filterValue);
+            if (field === "done") {
+              return (cellValue ? "done" : "not done") === filterValue;
+            } else if (field === "gender") {
+              return cellValue === filterValue;
+            } else {
+              return cellValue.includes(filterValue);
+            }
           }
           return true;
         } else if (value && typeof value === "object") {
