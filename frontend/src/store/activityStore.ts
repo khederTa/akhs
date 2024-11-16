@@ -24,6 +24,8 @@ type ActivityStore = {
   department: any;
   activityType: any;
   startDate: string;
+  invitedVolunteerIds: number[];
+  setInvitedVolunteerIds: (value: number[]) => void;
   setTitle: (value: string) => void;
   setDepartment: (value: any) => void;
   setActivityType: (value: any) => void;
@@ -44,6 +46,8 @@ const useSessionStore = create<ActivityStore>((set) => ({
   activityType: {},
   title: "",
   startDate: "",
+  invitedVolunteerIds: [],
+
   // Add a new session with default values
   addSession: () =>
     set((state: any) => {
@@ -135,6 +139,10 @@ const useSessionStore = create<ActivityStore>((set) => ({
     setStartDate: (value) =>
     set({
       startDate: value,
+    }),
+    setInvitedVolunteerIds: (value) =>
+    set({
+      invitedVolunteerIds: value,
     }),
 
 }));
