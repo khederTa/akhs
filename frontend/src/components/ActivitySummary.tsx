@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
 import SessionInfo from "./activityInfo/SessionInfo";
@@ -12,6 +12,8 @@ type ItemType = {
 
 export default function ActivitySummary() {
   const navigate = useNavigate();
+  const location = useLocation();
+
   // Zustand store session state management
   const {
     numSessions,
@@ -52,7 +54,7 @@ export default function ActivitySummary() {
   }));
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
-
+  const [mode, setMode] = useState("create");
   const [selectedActivityType, setSelectedActivityType] = useState(
     activityType?.id || ""
   );
@@ -87,12 +89,20 @@ export default function ActivitySummary() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [activityResponse, departmentResponse] = await Promise.all([
-          axios.get("/activityType"),
-          axios.get("/department"),
-        ]);
-        setActivityTypes(activityResponse.data);
+        const [activityTypeResponse, departmentResponse, activityResponse] =
+          await Promise.all([
+            axios.get("/activityType"),
+            axios.get("/department"),
+            location.state &&
+              location.state.id &&
+              axios.get(`/activity/${location.state.id}`),
+          ]);
+        setActivityTypes(activityTypeResponse.data);
         setDepartments(departmentResponse.data);
+        console.log(activityResponse);
+        if (activityResponse) {
+          setMode("edit");
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -275,7 +285,7 @@ export default function ActivitySummary() {
           <Button
             variant="contained"
             sx={{ marginTop: 2 }}
-            onClick={handleNext}
+            onClick={mode === "create" ? handleNext : handleNext}
           >
             Next
           </Button>

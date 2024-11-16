@@ -1,7 +1,6 @@
-import { Stack } from "@mui/material";
-import { Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import EditIcon from "@mui/icons-material/Edit";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
 import axios from "../utils/axios";
@@ -26,7 +25,6 @@ const Activity = () => {
     setFilteredRows,
     setFilterVisibility,
     handleTextFilterChange,
-    handleDateFilterChange,
     clearFilter,
     clearAllFilters,
     handleSortClick,
@@ -77,7 +75,6 @@ const Activity = () => {
       minWidth: 200,
       sortable: false,
       hideSortIcons: true,
-      editable: true,
       renderHeader: () => (
         <FilterBooleanHeader
           key={"done"}
@@ -93,6 +90,24 @@ const Activity = () => {
       ),
       renderCell: (params) => (params?.value === true ? "Done" : "Not Done"),
     },
+    {
+      field: "actions",
+      headerName: t("actions"),
+      type: "actions",
+      minWidth: 200,
+      getActions: ({ id }: any) => {
+        console.log(id);
+        return [
+          true && (
+            <GridActionsCellItem
+              icon={<EditIcon />}
+              label="Edit"
+              onClick={() => navigate("/activity-summary", { state: { id } })}
+            />
+          ),
+        ].filter(Boolean);
+      },
+    },
   ];
 
   useEffect(() => {
@@ -100,7 +115,7 @@ const Activity = () => {
       const Activitys = axios
         .get("activity")
         .then((res) => {
-          console.log(res.data)
+          console.log(res.data);
           const ActivityRows = res.data.map((activity: any) => {
             return {
               id: activity?.id,
@@ -173,7 +188,6 @@ const Activity = () => {
   useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
     <>
-      
       {loading ? (
         <Loading />
       ) : (

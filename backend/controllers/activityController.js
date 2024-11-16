@@ -6,7 +6,9 @@ const {
 } = require("../models");
 
 exports.getAllActivities = async (req, res) => {
-  const Activities = await Activity.findAll({ attributes: ["id", "title", "done"] });
+  const Activities = await Activity.findAll({
+    attributes: ["id", "title", "done"],
+  });
   res.json(Activities);
 };
 
@@ -70,8 +72,10 @@ exports.createActivity = async (req, res) => {
 };
 
 exports.getActivityById = async (req, res) => {
-  const Activity = await Activity.findByPk(req.params.id);
-  res.json(Activity);
+  const id = req.params.id;
+  if (!id) res.json([]);
+  const activity = await Activity.findByPk(id);
+  res.json(activity);
 };
 
 exports.updateActivity = async (req, res) => {

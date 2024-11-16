@@ -26,6 +26,9 @@ type ActivityStore = {
   startDate: string;
   invitedVolunteerIds: number[];
   setInvitedVolunteerIds: (value: number[]) => void;
+  sessionIds: number[];
+  setInvitedVolunteerIds: (value: number[]) => void;
+  setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
   setDepartment: (value: any) => void;
   setActivityType: (value: any) => void;
@@ -35,7 +38,7 @@ type ActivityStore = {
   updateSession: (key: number, field: string, value: any) => void;
   syncSessionsWithNum: () => void;
   setNumSessions: (num: number) => void;
-  setStartDate: (value: string) => void
+  setStartDate: (value: string) => void;
 };
 
 const useSessionStore = create<ActivityStore>((set) => ({
@@ -48,6 +51,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
   startDate: "",
   invitedVolunteerIds: [],
 
+  sessionIds: [],
   // Add a new session with default values
   addSession: () =>
     set((state: any) => {
@@ -124,19 +128,19 @@ const useSessionStore = create<ActivityStore>((set) => ({
     set({
       minSessions: num,
     }),
-    setDepartment: (value) =>
+  setDepartment: (value) =>
     set({
       department: value,
     }),
-    setActivityType: (value) =>
+  setActivityType: (value) =>
     set({
       activityType: value,
     }),
-    setTitle: (value) =>
+  setTitle: (value) =>
     set({
       title: value,
     }),
-    setStartDate: (value) =>
+  setStartDate: (value) =>
     set({
       startDate: value,
     }),
@@ -145,6 +149,14 @@ const useSessionStore = create<ActivityStore>((set) => ({
       invitedVolunteerIds: value,
     }),
 
+  setInvitedVolunteerIds: (value) =>
+    set({
+      invitedVolunteerIds: value,
+    }),
+  setSessionIds: (value) =>
+    set({
+      sessionIds: value,
+    }),
 }));
 
 export default useSessionStore;
