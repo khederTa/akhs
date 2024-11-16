@@ -5,6 +5,8 @@ module.exports = (sequelize, DataTypes) => {
       id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
       done: { type: DataTypes.BOOLEAN },
       title: DataTypes.STRING,
+      numSessions: DataTypes.INTEGER,
+      minSessions: DataTypes.INTEGER
     },
     {
       tableName: "Activities",

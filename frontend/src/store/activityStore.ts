@@ -6,8 +6,8 @@ import dayjs from "dayjs";
 type SessionType = {
   key: number;
   sessionName: string;
-  serviceProviders: any[];
-  trainers: any[];
+  serviceProviders?: any[];
+  trainers?: any[];
   hallName: string;
   dateValue: any; // Will be a dayjs object
   providerNames: any[];
@@ -18,19 +18,21 @@ type SessionType = {
 
 type ActivityStore = {
   title: string;
+  done: boolean;
   sessions: SessionType[];
   numSessions: number;
   minSessions: number;
   department: any;
   activityType: any;
   startDate: string;
-  invitedVolunteerIds: number[];
   sessionIds: number[];
+  invitedVolunteerIds: number[];
   setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
   setDepartment: (value: any) => void;
   setActivityType: (value: any) => void;
+  setDone: (value: boolean) => void;
   setMinSessions: (num: number) => void;
   addSession: () => void;
   removeSession: (key: number) => void;
@@ -38,6 +40,9 @@ type ActivityStore = {
   syncSessionsWithNum: () => void;
   setNumSessions: (num: number) => void;
   setStartDate: (value: string) => void;
+  addNewSession: (value: SessionType) => void;
+  addSessionIds: (value: number) => void;
+  addInvitedVolunteerIds: (value: number) => void;
 };
 
 const useSessionStore = create<ActivityStore>((set) => ({
@@ -49,6 +54,8 @@ const useSessionStore = create<ActivityStore>((set) => ({
   title: "",
   startDate: "",
   invitedVolunteerIds: [],
+  done: false,
+
   sessionIds: [],
   // Add a new session with default values
   addSession: () =>
@@ -74,6 +81,26 @@ const useSessionStore = create<ActivityStore>((set) => ({
           },
         ],
         numSessions: state.numSessions + 1,
+      };
+    }),
+  addNewSession: (newSession) =>
+    set((state: any) => {
+      return {
+        sessions: [...state.sessions, newSession],
+        numSessions: state.numSessions + 1,
+      };
+    }),
+
+  addSessionIds: (value) =>
+    set((state: any) => {
+      return {
+        sessionIds: [...state.sessionIds, value],
+      };
+    }),
+  addInvitedVolunteerIds: (value) =>
+    set((state: any) => {
+      return {
+        invitedVolunteerIds: [...state.invitedVolunteerIds, value],
       };
     }),
 
@@ -142,14 +169,18 @@ const useSessionStore = create<ActivityStore>((set) => ({
     set({
       startDate: value,
     }),
-
   setInvitedVolunteerIds: (value) =>
     set({
       invitedVolunteerIds: value,
     }),
+
   setSessionIds: (value) =>
     set({
       sessionIds: value,
+    }),
+  setDone: (value) =>
+    set({
+      done: value,
     }),
 }));
 

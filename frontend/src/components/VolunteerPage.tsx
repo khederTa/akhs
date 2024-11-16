@@ -20,7 +20,6 @@ import { Loading } from "./Loading";
 
 export default function VolunteerPage() {
   const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedRowsId, setSelectedRowsId] = useState([]);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
@@ -29,14 +28,27 @@ export default function VolunteerPage() {
   const [getEligible, setGetEligible] = useState(false);
 
   // Zustand store session state management
-  const { sessions, title, startDate, activityType, department } =
-    useSessionStore((state) => ({
-      sessions: state.sessions,
-      title: state.title,
-      startDate: state.startDate,
-      activityType: state.activityType,
-      department: state.department,
-    }));
+  const {
+    sessions,
+    title,
+    startDate,
+    activityType,
+    department,
+    invitedVolunteerIds,
+    setInvitedVolunteerIds,
+    numSessions,
+    minSessions,
+  } = useSessionStore((state) => ({
+    sessions: state.sessions,
+    title: state.title,
+    startDate: state.startDate,
+    activityType: state.activityType,
+    department: state.department,
+    invitedVolunteerIds: state.invitedVolunteerIds,
+    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
+    numSessions: state.numSessions,
+    minSessions: state.minSessions,
+  }));
 
   const handleBack = () => {
     navigate("/activity-management");
@@ -57,18 +69,21 @@ export default function VolunteerPage() {
         title,
         activityTypeId: activityType.id,
         departmentId: department.id,
+        numSessions,
+        minSessions,
       },
       sessionsData: {
         sessions: processedSessions,
       },
       invitedVolunteersData: {
-        volunteerIds: selectedRowsId,
+        volunteerIds: invitedVolunteerIds,
       },
     };
     console.log({ payload });
     const response = await axios.post("/activity", payload);
+    console.log(response);
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       navigate("/activity-management");
     }
 
@@ -195,7 +210,7 @@ export default function VolunteerPage() {
       }
     }
     fetchVolunteers();
-  }, [getEligible]);
+  }, [activityType, getEligible, setFilteredRows]);
   console.log("the rows is ", rows);
   console.log("selected rows is ", selectedRows);
 
@@ -583,7 +598,6 @@ export default function VolunteerPage() {
       handleDateFilterChange,
       handleSortClick,
       handleTextFilterChange,
-      rows,
       setFilterVisibility,
       sortModel,
       t,
@@ -593,7 +607,7 @@ export default function VolunteerPage() {
     const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
-    setSelectedRowsId(newSelection as any);
+    setInvitedVolunteerIds(newSelection as any);
     setSelectedRows(newSelectedRows);
   };
 
@@ -640,6 +654,7 @@ export default function VolunteerPage() {
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
+              rowSelectionModel={invitedVolunteerIds}
               disableRowSelectionOnClick
             />
           </Paper>
