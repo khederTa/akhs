@@ -36,6 +36,8 @@ export default function VolunteerPage() {
     department,
     invitedVolunteerIds,
     setInvitedVolunteerIds,
+    numSessions,
+    minSessions,
   } = useSessionStore((state) => ({
     sessions: state.sessions,
     title: state.title,
@@ -44,6 +46,8 @@ export default function VolunteerPage() {
     department: state.department,
     invitedVolunteerIds: state.invitedVolunteerIds,
     setInvitedVolunteerIds: state.setInvitedVolunteerIds,
+    numSessions: state.numSessions,
+    minSessions: state.minSessions,
   }));
 
   const handleBack = () => {
@@ -65,6 +69,8 @@ export default function VolunteerPage() {
         title,
         activityTypeId: activityType.id,
         departmentId: department.id,
+        numSessions,
+        minSessions,
       },
       sessionsData: {
         sessions: processedSessions,
@@ -75,8 +81,9 @@ export default function VolunteerPage() {
     };
     console.log({ payload });
     const response = await axios.post("/activity", payload);
+    console.log(response);
 
-    if (response.status === 201) {
+    if (response.status === 200) {
       navigate("/activity-management");
     }
 

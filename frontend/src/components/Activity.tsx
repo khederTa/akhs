@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
+import PlayArrowIcon from '@mui/icons-material/PlayArrow';
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
@@ -98,13 +101,16 @@ const Activity = () => {
       getActions: ({ id }: any) => {
         console.log(id);
         return [
-          true && (
-            <GridActionsCellItem
-              icon={<EditIcon />}
-              label="Edit"
-              onClick={() => navigate("/activity-summary", { state: { id } })}
-            />
-          ),
+          <GridActionsCellItem
+            icon={<PlayArrowIcon />}
+            label="Execute"
+            onClick={() => navigate("/execute-activity", { state: { id } })}
+          />,
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            onClick={() => navigate("/activity-summary", { state: { id } })}
+          />,
         ].filter(Boolean);
       },
     },
@@ -136,7 +142,7 @@ const Activity = () => {
 
     const Activitys = fetchActivityData();
     console.log(Activitys);
-  }, []);
+  }, [setFilteredRows]);
   console.log("rows is ", rows);
 
   // useEffect(() => {

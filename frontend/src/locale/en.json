@@ -170,5 +170,8 @@
   "creating new position": "Creating New Position...",
   "officer": "Officer",
   "responsible for management": "Responsible For Management",
-  "position name is required": "Position Name is required"
+  "position name is required": "Position Name is required",
+  "done": "Done",
+  "not done": "Not Done",
+  "title": "Title"
 }

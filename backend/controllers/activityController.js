@@ -3,6 +3,12 @@ const {
   Session,
   VolunteerAttendedSessions,
   VolunteerAttendedActivity,
+  ActivityType,
+  Department,
+  Volunteer,
+  Position,
+  Person,
+  ServiceProvider,
 } = require("../models");
 
 exports.getAllActivities = async (req, res) => {
@@ -72,10 +78,83 @@ exports.createActivity = async (req, res) => {
 };
 
 exports.getActivityById = async (req, res) => {
-  const id = req.params.id;
-  if (!id) res.json([]);
-  const activity = await Activity.findByPk(id);
-  res.json(activity);
+  try {
+    const { id } = req.params;
+    const activity = await Activity.findByPk(id, {
+      include: [
+        {
+          model: ActivityType,
+          attributes: ["id", "name"], // Adjust as necessary
+        },
+        {
+          model: Department,
+          attributes: ["id", "name"], // Adjust as necessary
+        },
+        {
+          model: Session,
+          attributes: [
+            "id",
+            "name",
+            "date",
+            "hall_name",
+            "city",
+            "street",
+            "startTime",
+            "endTime",
+          ],
+          include: [
+            {
+              model: Volunteer,
+              through: { attributes: [] }, // No extra fields needed from junction table here
+              attributes: ["volunteerId", "active_status"],
+              include: [
+                {
+                  model: Person,
+                  attributes: ["fname", "lname", "email", "phone"],
+                },
+              ],
+            },
+            {
+              model: ServiceProvider,
+              attributes: ["providerId"],
+              include: [
+                {
+                  model: Volunteer,
+                  attributes: ["volunteerId", "active_status"],
+                  include: [
+                    {
+                      model: Person,
+                      attributes: ["fname", "lname", "email", "phone"],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: Volunteer,
+          through: { attributes: ["status"] }, // Include status from the junction table
+          attributes: ["volunteerId", "active_status"],
+          include: [
+            {
+              model: Person,
+              attributes: ["fname", "lname", "email", "phone"],
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!activity) {
+      return { error: "Activity not found" };
+    }
+
+    return res.json(activity);
+  } catch (error) {
+    console.error("Error fetching activity details:", error);
+    throw error;
+  }
 };
 
 exports.updateActivity = async (req, res) => {
