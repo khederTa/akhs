@@ -27,7 +27,6 @@ type ActivityStore = {
   invitedVolunteerIds: number[];
   setInvitedVolunteerIds: (value: number[]) => void;
   sessionIds: number[];
-  setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
   setDepartment: (value: any) => void;
@@ -149,10 +148,6 @@ const useSessionStore = create<ActivityStore>((set) => ({
       invitedVolunteerIds: value,
     }),
 
-  setInvitedVolunteerIds: (value) =>
-    set({
-      invitedVolunteerIds: value,
-    }),
   setSessionIds: (value) =>
     set({
       sessionIds: value,
