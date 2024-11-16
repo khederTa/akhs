@@ -29,6 +29,7 @@ import VolunteerPage from "./components/VolunteerPage";
 import { usePermissionStore } from "./store/permissionStore";
 import PermissionInitializer from "./components/PermissionInitializer";
 import { useAuthStore } from "./store/auth";
+import InvitedVolunteer from "./components/InvitedVolunteer";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
@@ -108,6 +109,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <ActivitySummary />
+                </Layout>
+              }
+            />
+              <Route
+              path="/invited-volunteer"
+              element={
+                <Layout>
+                  <InvitedVolunteer />
                 </Layout>
               }
             />

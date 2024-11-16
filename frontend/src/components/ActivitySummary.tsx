@@ -102,6 +102,8 @@ export default function ActivitySummary() {
         console.log(activityResponse);
         if (activityResponse) {
           setMode("edit");
+          
+          
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -154,6 +156,24 @@ export default function ActivitySummary() {
     minSessions,
     startDate,
   ]);
+
+
+  const handleEditNext = useCallback(()=>{
+
+
+    // If all sessions are complete, navigate to the next page
+    navigate("/invited-volunteer");
+  }, [
+
+    navigate,
+    title,
+    activitytypeObject,
+    depObject,
+    sessions,
+    numSessions,
+    minSessions,
+    startDate,
+  ])
 
   return (
     <Box sx={{ p: 4 }}>
@@ -285,7 +305,7 @@ export default function ActivitySummary() {
           <Button
             variant="contained"
             sx={{ marginTop: 2 }}
-            onClick={mode === "create" ? handleNext : handleNext}
+            onClick={mode === "create" ? handleNext : handleEditNext}
           >
             Next
           </Button>
