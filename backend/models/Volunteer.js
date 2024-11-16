@@ -1,3 +1,4 @@
+// models/Volunteer.js
 module.exports = (sequelize, DataTypes) => {
   const Volunteer = sequelize.define(
     "Volunteer",
@@ -18,18 +19,20 @@ module.exports = (sequelize, DataTypes) => {
   Volunteer.associate = (models) => {
     Volunteer.belongsTo(models.Person, { foreignKey: "personId" });
     Volunteer.hasOne(models.ServiceProvider, { foreignKey: "volunteerId" });
+
+    // Many-to-Many relationship with Session through VolunteerAttendedSessions
     Volunteer.belongsToMany(models.Session, {
       through: models.VolunteerAttendedSessions,
       foreignKey: "volunteerId",
       otherKey: "sessionId",
+      as: "AttendedSessions",
     });
 
-    Volunteer.belongsToMany(models.Activity, {
-      through: models.VolunteerAttendedActivity,
+    // One-to-Many relationship with VolunteerAttendedSessions
+    Volunteer.hasMany(models.VolunteerAttendedSessions, {
       foreignKey: "volunteerId",
-      otherKey: "activityId",
+      as: "AttendedSessionsDetails",
     });
-    
   };
 
   return Volunteer;

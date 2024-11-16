@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { Button, FormControlLabel, FormGroup } from "@mui/material";
@@ -69,7 +70,7 @@ const GridCustomToolbar = forwardRef<
             />
           </FormGroup>
         )}
-        {props.mode !== "show" && props.mode !== "addActivity" && (
+        {props.mode !== "show" && props.mode !== "addActivity" && props.mode !== "exe" && (
           <>
             <Button type="button" onClick={() => navigate(navigateTo)}>
               <AddOutlinedIcon />

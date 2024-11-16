@@ -1,3 +1,4 @@
+// models/Session.js
 module.exports = (sequelize, DataTypes) => {
   const Session = sequelize.define(
     "Session",
@@ -19,14 +20,19 @@ module.exports = (sequelize, DataTypes) => {
 
   Session.associate = (models) => {
     Session.belongsTo(models.Activity, { foreignKey: "activityId" });
-    // Session.belongsTo(models.Address, {foreignKey: "addressId",} );
-    Session.belongsToMany(models.ServiceProvider, {
-      through: "ServiceProviderSessions",
-    });
+
+    // Many-to-Many relationship with Volunteer through VolunteerAttendedSessions
     Session.belongsToMany(models.Volunteer, {
       through: models.VolunteerAttendedSessions,
       foreignKey: "sessionId",
       otherKey: "volunteerId",
+      as: "Attendees",
+    });
+
+    // One-to-Many relationship with VolunteerAttendedSessions
+    Session.hasMany(models.VolunteerAttendedSessions, {
+      foreignKey: "sessionId",
+      as: "AttendanceDetails",
     });
   };
 

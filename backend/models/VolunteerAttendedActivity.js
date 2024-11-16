@@ -1,33 +1,32 @@
 // models/VolunteerAttendedActivity.js
 module.exports = (sequelize, DataTypes) => {
-    const VolunteerAttendedActivity = sequelize.define(
-      "VolunteerAttendedActivity",
-      {
-        volunteerId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          references: {
-            model: "Volunteers",
-            key: "volunteerId",
-          },
+  const VolunteerAttendedActivity = sequelize.define(
+    "VolunteerAttendedActivity",
+    {
+      volunteerId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        references: {
+          model: "Volunteers",
+          key: "volunteerId",
         },
-        activityId: {
-          type: DataTypes.INTEGER,
-          primaryKey: true,
-          references: {
-            model: "Activities",
-            key: "id",
-          },
-        },
-        status:  DataTypes.STRING, 
-        
       },
-      {
-        tableName: "VolunteerAttendedActivity",
-        timestamps: false,
-      }
-    );
-  
-    return VolunteerAttendedActivity;
-  };
-  
+      activityId: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        references: {
+          model: "Activities",
+          key: "id",
+        },
+      },
+      status: DataTypes.STRING,
+      notes: DataTypes.STRING,
+    },
+    {
+      tableName: "VolunteerAttendedActivity",
+      timestamps: false,
+    }
+  );
+
+  return VolunteerAttendedActivity;
+};
