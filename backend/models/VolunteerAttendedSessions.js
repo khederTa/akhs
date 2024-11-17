@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         references: { model: "Sessions", key: "id" },
       },
-      status:  DataTypes.STRING, 
+      status: DataTypes.STRING,
     },
     {
       tableName: "VolunteerAttendedSessions",

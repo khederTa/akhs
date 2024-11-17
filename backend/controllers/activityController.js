@@ -76,19 +76,19 @@ exports.createActivity = async (req, res) => {
 
   res.json({ message: "Activity Added" });
 };
-
 exports.getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
+
     const activity = await Activity.findByPk(id, {
       include: [
         {
           model: ActivityType,
-          attributes: ["id", "name"], // Adjust as necessary
+          attributes: ["id", "name"],
         },
         {
           model: Department,
-          attributes: ["id", "name"], // Adjust as necessary
+          attributes: ["id", "name"],
         },
         {
           model: Session,
@@ -104,8 +104,13 @@ exports.getActivityById = async (req, res) => {
           ],
           include: [
             {
+              model: VolunteerAttendedSessions,
+              as: "AttendanceDetails", // Match alias in Session model
+              attributes: ["volunteerId", "status"],
+            },
+            {
               model: Volunteer,
-              through: { attributes: [] }, // No extra fields needed from junction table here
+              as: "Attendees", // Match alias in Session model
               attributes: ["volunteerId", "active_status"],
               include: [
                 {
@@ -114,27 +119,12 @@ exports.getActivityById = async (req, res) => {
                 },
               ],
             },
-            {
-              model: ServiceProvider,
-              attributes: ["providerId"],
-              include: [
-                {
-                  model: Volunteer,
-                  attributes: ["volunteerId", "active_status"],
-                  include: [
-                    {
-                      model: Person,
-                      attributes: ["fname", "lname", "email", "phone"],
-                    },
-                  ],
-                },
-              ],
-            },
           ],
         },
         {
           model: Volunteer,
-          through: { attributes: ["status"] }, // Include status from the junction table
+          as: "Volunteers", // Match alias in Activity model
+          through: { attributes: ["status", "notes"] }, // Include additional attributes from the join table
           attributes: ["volunteerId", "active_status"],
           include: [
             {
@@ -147,15 +137,16 @@ exports.getActivityById = async (req, res) => {
     });
 
     if (!activity) {
-      return { error: "Activity not found" };
+      return res.status(404).json({ error: "Activity not found" });
     }
 
     return res.json(activity);
   } catch (error) {
     console.error("Error fetching activity details:", error);
-    throw error;
+    res.status(500).json({ error: "An error occurred while fetching activity details." });
   }
 };
+
 
 exports.updateActivity = async (req, res) => {
   await Activity.update(req.body, { where: { id: req.params.id } });

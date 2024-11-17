@@ -25,9 +25,14 @@ exports.getVolunteerAttendedSessionByIds = async (req, res) => {
 // Update a VolunteerAttendedSession record by volunteerId and sessionId
 exports.updateVolunteerAttendedSession = async (req, res) => {
   const { volunteerId, sessionId } = req.params;
-  await VolunteerAttendedSessions.update(req.body, {
-    where: { volunteerId, sessionId },
-  });
+  const { attended } = req.body;
+  const status = attended ? "attended" : "unattended";
+  await VolunteerAttendedSessions.update(
+    { status },
+    {
+      where: { volunteerId, sessionId },
+    }
+  );
   res.json({ message: "VolunteerAttendedSession updated" });
 };
 

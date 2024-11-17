@@ -43,6 +43,7 @@ type ActivityStore = {
   addNewSession: (value: SessionType) => void;
   addSessionIds: (value: number) => void;
   addInvitedVolunteerIds: (value: number) => void;
+  resetStore: () => void;
 };
 
 const useSessionStore = create<ActivityStore>((set) => ({
@@ -55,8 +56,20 @@ const useSessionStore = create<ActivityStore>((set) => ({
   startDate: "",
   invitedVolunteerIds: [],
   done: false,
-
   sessionIds: [],
+  resetStore: () =>
+    set({
+      sessions: [],
+      numSessions: 1,
+      minSessions: 1,
+      department: {},
+      activityType: {},
+      title: "",
+      startDate: "",
+      invitedVolunteerIds: [],
+      done: false,
+      sessionIds: [],
+    }),
   // Add a new session with default values
   addSession: () =>
     set((state: any) => {
@@ -85,6 +98,11 @@ const useSessionStore = create<ActivityStore>((set) => ({
     }),
   addNewSession: (newSession) =>
     set((state: any) => {
+      if (
+        state.sessions.some((session: any) => session.key === newSession.key)
+      ) {
+        return state; // Skip adding if the session already exists
+      }
       return {
         sessions: [...state.sessions, newSession],
         numSessions: state.numSessions + 1,
