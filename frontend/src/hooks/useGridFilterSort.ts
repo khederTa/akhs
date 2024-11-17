@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 interface FilterModel {
   [key: string]:
     | string
+    | number
     | { value: string; operator: string; endDate?: string }
     | boolean;
 }

@@ -4,16 +4,31 @@ import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
 import SessionInfo from "./activityInfo/SessionInfo";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
-
+import { Loading } from "./Loading";
+import dayjs from "dayjs";
 type ItemType = {
   id: number;
   name: string;
+};
+type ActivityData = {
+  id: number;
+  numSessions: number;
+  minSessions: number;
+  title: string;
+  done: boolean;
+  departmentId: number;
+  activityTypeId: number;
+  Volunteers: any;
+  Sessions: any;
+  Department: object;
+  ActivityType: object;
+  startDate : string;
 };
 
 export default function ActivitySummary() {
   const navigate = useNavigate();
   const location = useLocation();
-
+  const [loading, setLoading] = useState(true);
   // Zustand store session state management
   const {
     numSessions,
@@ -52,6 +67,21 @@ export default function ActivitySummary() {
     updateSession: state.updateSession,
     syncSessionsWithNum: state.syncSessionsWithNum,
   }));
+  const defaultActivityData: ActivityData = {
+    id: 0,
+    numSessions: 0,
+    minSessions: 0,
+    title: "",
+    done: false,
+    departmentId: 0,
+    activityTypeId: 0,
+    Volunteers: null,
+    Sessions: null,
+    Department: {},
+    ActivityType: {},
+    startDate :"",
+    
+  };
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
   const [mode, setMode] = useState("create");
@@ -61,6 +91,8 @@ export default function ActivitySummary() {
   const [selectedDepartment, setSelectedDepartment] = useState(
     department?.id || ""
   );
+  const [activityData, setActivityData] =
+    useState<ActivityData>(defaultActivityData);
 
   const depObject = useMemo(
     () => departments.find((dep) => dep.id === parseInt(selectedDepartment)),
@@ -71,6 +103,10 @@ export default function ActivitySummary() {
       activityTypes.find((act) => act.id === parseInt(selectedActivityType)),
     [activityTypes, selectedActivityType]
   );
+  console.log("activity data is ", activityData);
+  console.log("title is ", title);
+  console.log("startDate is" , startDate);
+  
 
   useEffect(() => {
     setDepartment(depObject);
@@ -87,6 +123,7 @@ export default function ActivitySummary() {
 
   // Fetch activity types and departments
   useEffect(() => {
+    
     const fetchData = async () => {
       try {
         const [activityTypeResponse, departmentResponse, activityResponse] =
@@ -99,14 +136,24 @@ export default function ActivitySummary() {
           ]);
         setActivityTypes(activityTypeResponse.data);
         setDepartments(departmentResponse.data);
-        console.log(activityResponse);
-        if (activityResponse) {
+        setActivityData(activityResponse.data);
+        console.log("activity respone is ", activityResponse);
+        if (activityResponse.status === 200) {
           setMode("edit");
-          
-          
+          setTitle(activityResponse.data?.title);
+          setNumSessions(activityResponse.data?.numSessions);
+          setMinSessions(activityResponse.data?.minSessions);
+          setStartDate(activityResponse.data?.startDate);
+          setSelectedDepartment(activityResponse.data?.departmentId);
+          setSelectedActivityType(activityResponse.data?.activityTypeId)
+
+
+
         }
       } catch (error) {
         console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
       }
     };
     fetchData();
@@ -157,14 +204,10 @@ export default function ActivitySummary() {
     startDate,
   ]);
 
-
-  const handleEditNext = useCallback(()=>{
-
-
+  const handleEditNext = useCallback(() => {
     // If all sessions are complete, navigate to the next page
     navigate("/invited-volunteer");
   }, [
-
     navigate,
     title,
     activitytypeObject,
@@ -173,9 +216,11 @@ export default function ActivitySummary() {
     numSessions,
     minSessions,
     startDate,
-  ])
+  ]);
 
-  return (
+  return loading ? (
+    <Loading />
+  ) : (
     <Box sx={{ p: 4 }}>
       <Typography variant="h4">Activity Summary</Typography>
 
@@ -239,7 +284,8 @@ export default function ActivitySummary() {
       <TextField
         label="Start Date"
         type="date"
-        value={startDate}
+       
+        defaultValue={dayjs(startDate).format("YYYY-MM-DD")}
         onChange={(e) => setStartDate(e.target.value)}
         InputLabelProps={{ shrink: true }}
         fullWidth

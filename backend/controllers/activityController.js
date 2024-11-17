@@ -13,7 +13,7 @@ const {
 
 exports.getAllActivities = async (req, res) => {
   const Activities = await Activity.findAll({
-    attributes: ["id", "title", "done"],
+    attributes: ["id", "title", "done" , "numSessions", "minSessions" , "startDate"],
   });
   res.json(Activities);
 };
