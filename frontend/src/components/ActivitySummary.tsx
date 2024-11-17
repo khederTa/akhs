@@ -146,7 +146,7 @@ export default function ActivitySummary() {
           setStartDate(activityResponse.data?.startDate);
           setSelectedDepartment(activityResponse.data?.departmentId);
           setSelectedActivityType(activityResponse.data?.activityTypeId)
-
+          
 
 
         }
