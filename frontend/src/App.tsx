@@ -6,7 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
-import { Stack } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
@@ -61,6 +61,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 permissions["read_home"] ? (
                   <Layout>
                     <h2>Welcome to the dashboard</h2>
+                    <TextField type="time" />
                   </Layout>
                 ) : (
                   <Navigate to="/sign-in" replace />
@@ -104,7 +105,6 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               }
             />
 
-
             <Route
               path="/activity-summary"
               element={
@@ -113,7 +113,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
-              <Route
+            <Route
               path="/invited-volunteer"
               element={
                 <Layout>

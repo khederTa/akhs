@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import FilterHeader from "./FilterHeader";
 import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
+import CustomDateRenderer from "./CustomDateRenderer";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -126,6 +127,7 @@ const Activity = () => {
       minWidth: 200,
       sortable: false,
       hideSortIcons: true,
+      renderCell: (params) => <CustomDateRenderer value={params.value} />,
       renderHeader: () => (
         <FilterHeader
           key={"startDate"}
@@ -177,7 +179,7 @@ const Activity = () => {
           <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
-            onClick={() => navigate("/activity-summary", { state: { id } })}
+            onClick={() => navigate("/activity-summary", { state: { id  } })}
           />,
         ].filter(Boolean);
       },

@@ -34,6 +34,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "sessionId",
       as: "AttendanceDetails",
     });
+
+    Session.belongsToMany(models.ServiceProvider, {
+      through: "ServiceProviderSessions",
+    });
   };
 
   return Session;

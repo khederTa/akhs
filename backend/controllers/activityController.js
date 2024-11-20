@@ -9,6 +9,8 @@ const {
   Position,
   Person,
   ServiceProvider,
+  File,
+  Address,
 } = require("../models");
 
 exports.getAllActivities = async (req, res) => {
@@ -32,7 +34,7 @@ exports.createActivity = async (req, res) => {
       hallName,
       startTime,
       endTime,
-      trainerName,
+      // trainerName,
       providerNames,
     } = sessionDate;
     const session = await Session.create({
@@ -44,12 +46,12 @@ exports.createActivity = async (req, res) => {
       activityId,
     });
 
-    const trainerIds = trainerName.map((trainer) => trainer.value);
+    // const trainerIds = trainerName.map((trainer) => trainer.value);
 
     // Set the associations
-    if (trainerIds && trainerIds.length > 0) {
-      await session.addServiceProviders(trainerIds); // Link trainers as service providers
-    }
+    // if (trainerIds && trainerIds.length > 0) {
+    //   await session.addServiceProviders(trainerIds); // Link trainers as service providers
+    // }
     const serviceProviderIds = providerNames.map((provider) => provider.value);
     if (serviceProviderIds && serviceProviderIds.length > 0) {
       await session.addServiceProviders(serviceProviderIds); // Link service providers
@@ -104,6 +106,50 @@ exports.getActivityById = async (req, res) => {
           ],
           include: [
             {
+              model: ServiceProvider,
+              include: [
+                {
+                  model: Volunteer,
+                  attributes: ["volunteerId", "active_status"],
+                  include: [
+                    {
+                      model: Person,
+                      attributes: [
+                        "id",
+                        "fname",
+                        "lname",
+                        "mname",
+                        "momname",
+                        "phone",
+                        "email",
+                        "bDate",
+                        "gender",
+                        "study",
+                        "work",
+                        "nationalNumber",
+                        "fixPhone",
+                        "smoking",
+                        "note",
+                        "prevVol",
+                        "compSkill",
+                        "koboSkill",
+                        "fileId",
+                      ],
+                   
+                    },
+                  ],
+                },
+                {
+                  model: Department,
+                  attributes: ["id", "name"],
+                },
+                {
+                  model: Position,
+                  attributes: ["id", "name"],
+                },
+              ]
+            },
+            {
               model: VolunteerAttendedSessions,
               as: "AttendanceDetails", // Match alias in Session model
               attributes: ["volunteerId", "status"],
@@ -129,7 +175,34 @@ exports.getActivityById = async (req, res) => {
           include: [
             {
               model: Person,
-              attributes: ["fname", "lname", "email", "phone"],
+              attributes: [
+                "id",
+                "fname",
+                "lname",
+                "mname",
+                "momName",
+                "phone",
+                "email",
+                "bDate",
+                "gender",
+                "study",
+                "work",
+                "nationalNumber",
+                "fixPhone",
+                "smoking",
+                "note",
+                "prevVol",
+                "compSkill",
+                "koboSkill",
+                "fileId",
+              ],
+              include: [
+                {
+                  model: Address,
+                  attributes: ["id", "state", "city", "district", "village"],
+                },
+                { model: File },
+              ],
             },
           ],
         },

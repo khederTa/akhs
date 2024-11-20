@@ -1,12 +1,8 @@
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
-import React, { useState, useEffect } from "react";
-import axios from "../../utils/axios";
+import { useState, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
-import dayjs, { Dayjs } from "dayjs";
-import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
-import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
-import { TimePicker } from "@mui/x-date-pickers/TimePicker";
+import axios from "../../utils/axios";
+import dayjs from "dayjs";
 
 const SessionInfo = ({
   id,
@@ -16,38 +12,28 @@ const SessionInfo = ({
   setSessionName,
   serviceProviders,
   setServiceProviders,
-  trainers,
-  setTrainers,
   hallName,
   setHallName,
   dateValue,
   setDateValue,
   providerNames,
   setProviderNames,
-  trainerName,
-  setTrainerName,
   startTime,
   setStartTime,
   endTime,
   setEndTime,
 }: any) => {
+  const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
+
   // Fetch data from API
   useEffect(() => {
     axios
       .get("serviceprovider") // Replace with your API endpoint
       .then((response) => {
         const serviceproviders = response.data;
-        setTrainers(
-          serviceproviders.map((provider: any) => ({
-            label: provider.Volunteer.Person.fname,
-            value: provider.providerId,
-            depId: provider.Department.id,
-          }))
-        );
-
         setServiceProviders(
           serviceproviders.map((provider: any) => ({
-            label: provider.Volunteer.Person.fname,
+            label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position.name}`,
             value: provider.providerId,
             depId: provider.Department.id,
           }))
@@ -57,120 +43,97 @@ const SessionInfo = ({
         console.error("Error fetching data:", error);
       });
   }, []);
-  const selectedServiceProvider =  serviceProviders.filter((serv :any)=>serv.depId ===parseInt(selectedDepartment))
-  console.log("selected departmen is" , selectedDepartment)
-  console.log("selectedServiceProvideris" , selectedServiceProvider)
-  console.log("serviceProviders is " , serviceProviders);
-  
 
-  
-  // Handle form submission
+  useEffect(() => {
+    const selectedProvider = serviceProviders.filter(
+      (serv: any) => serv.depId === parseInt(selectedDepartment)
+    );
+    setSelectedServiceProvider(selectedProvider);
+  }, [serviceProviders, selectedDepartment]);
 
   return (
-    <>
-      <Card
-        sx={{
-          display: "flex",
-          height: "auto",
-          width: 1200,
-          justifyContent: "space-between",
-        }}
-      >
-        <Stack>
-          <FormLabel>Session Name</FormLabel>
-          <TextField
-            sx={{ width: 100 }}
-            value={sessionName}
-            onChange={(e) => setSessionName(e.target.value)}
-            
-          />
-        </Stack>
+    <Card
+      sx={{
+        display: "flex",
+        height: "auto",
+        width: 1200,
+        justifyContent: "space-between",
+      }}
+    >
+      <Stack>
+        <FormLabel>Session Name</FormLabel>
+        <TextField
+          sx={{ width: 100 }}
+          value={sessionName}
+          onChange={(e) => setSessionName(e.target.value)}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>Date</FormLabel>
-          <TextField
-            sx={{ width: 120 }}
-            type="date"
-            defaultValue={dayjs(dateValue).format("YYYY-MM-DD")}
-            onChange={(e) => setDateValue(e.target.value)}
-          />
-        </Stack>
+      <Stack>
+        <FormLabel>Date</FormLabel>
+        <TextField
+          type="date"
+          value={
+            dayjs(dateValue).isValid()
+              ? dayjs(dateValue).format("YYYY-MM-DD")
+              : ""
+          }
+          onChange={(e) => setDateValue(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>Hall Name</FormLabel>
-          <TextField
-            sx={{ width: 100 }}
-            value={hallName}
-            onChange={(event) => setHallName(event.target.value)}
-          />
-        </Stack>
+      <Stack>
+        <FormLabel>Hall Name</FormLabel>
+        <TextField
+          sx={{ width: 100 }}
+          value={hallName}
+          onChange={(e) => setHallName(e.target.value)}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>Trainer</FormLabel>
-          <Autocomplete
-            id="tags-filled"
-            sx={{ width: 160 }}
-            multiple
-            options={trainers}
-            value={trainerName}
-            onChange={(event, newValue: any) => setTrainerName(newValue)}
-            getOptionLabel={(option) => option.label || ""}
-            defaultValue={[]}
-            renderInput={(params) => (
-              <TextField {...params} variant="standard" />
-            )}
-          />
-        </Stack>
+      <Stack>
+        <FormLabel>Service Provider</FormLabel>
+        <Autocomplete
+          id="tags-filled"
+          sx={{ width: 160 }}
+          multiple
+          options={selectedServiceProvider || []}
+          value={Array.isArray(providerNames) ? providerNames : []}
+          onChange={(event, newValue) => setProviderNames(newValue)}
+          getOptionLabel={(option) => option?.label || ""}
+          renderInput={(params) => <TextField {...params} variant="standard" />}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>Service Provider</FormLabel>
-          <Autocomplete
-            id="tags-filled"
-            sx={{ width: 160 }}
-            multiple
-            options={selectedServiceProvider}
-            value={providerNames}
-            onChange={(event, newValue: any) => setProviderNames(newValue)}
-            getOptionLabel={(option) => option.label || ""}
-            defaultValue={[]}
-            renderInput={(params) => (
-              <TextField {...params} variant="standard" />
-            )}
-          />
-        </Stack>
+      <Stack>
+        <FormLabel htmlFor="startTime">Start Time</FormLabel>
+        <TextField
+          id="startTime"
+          type="time"
+          sx={{ width: 125 }}
+          value={startTime || ""}
+          onChange={(e) => setStartTime(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>Start Time</FormLabel>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={["TimePicker"]}>
-              <TimePicker
-                sx={{ width: 100 }}
-                value={startTime}
-                onChange={(newValue) => setStartTime(newValue)}
-              />
-            </DemoContainer>
-          </LocalizationProvider>
-        </Stack>
+      <Stack>
+        <FormLabel htmlFor="endTime">End Time</FormLabel>
+        <TextField
+          id="endTime"
+          type="time"
+          sx={{ width: 125 }}
+          value={endTime || ""}
+          onChange={(e) => setEndTime(e.target.value)}
+          InputLabelProps={{ shrink: true }}
+        />
+      </Stack>
 
-        <Stack>
-          <FormLabel>End Time</FormLabel>
-          <LocalizationProvider dateAdapter={AdapterDayjs}>
-            <DemoContainer components={["TimePicker"]}>
-              <TimePicker
-                sx={{ width: 100 }}
-                value={endTime}
-                onChange={(newValue) => setEndTime(newValue)}
-              />
-            </DemoContainer>
-          </LocalizationProvider>
-        </Stack>
-
-        <Stack>
-          {/* Use the removeSession function passed from the parent */}
-          <ClearIcon onClick={removeSession} style={{ cursor: "pointer" }} />
-        </Stack>
-      </Card>
-    </>
+      <Stack>
+        <ClearIcon onClick={removeSession} style={{ cursor: "pointer" }} />
+      </Stack>
+    </Card>
   );
 };
 

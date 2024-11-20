@@ -71,6 +71,7 @@ export default function VolunteerPage() {
         departmentId: department.id,
         numSessions,
         minSessions,
+        startDate
       },
       sessionsData: {
         sessions: processedSessions,
@@ -666,7 +667,7 @@ export default function VolunteerPage() {
             Back to Activity Summary
           </Button>
           <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-            Create Activity
+            Update Activity
           </Button>
         </>
       )}
