@@ -4,6 +4,7 @@ import dayjs from "dayjs";
 
 // Session type
 type SessionType = {
+  id: number;
   key: number;
   sessionName: string;
   serviceProviders?: any[];
@@ -16,6 +17,7 @@ type SessionType = {
   endTime: any; // dayjs object
 };
 
+
 type ActivityStore = {
   title: string;
   done: boolean;
@@ -27,6 +29,8 @@ type ActivityStore = {
   startDate: string;
   sessionIds: number[];
   invitedVolunteerIds: number[];
+  mode : string,
+  activityData :any ,
   setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
@@ -44,6 +48,9 @@ type ActivityStore = {
   addSessionIds: (value: number) => void;
   addInvitedVolunteerIds: (value: number) => void;
   resetStore: () => void;
+  setSessionValues: (value : SessionType[] )=> void;
+  setMode : (value :string)=> void
+  setActivityData :(value :any)=>void
 };
 
 const useSessionStore = create<ActivityStore>((set) => ({
@@ -57,6 +64,8 @@ const useSessionStore = create<ActivityStore>((set) => ({
   invitedVolunteerIds: [],
   done: false,
   sessionIds: [],
+  mode: "",
+  activityData : {},
   resetStore: () =>
     set({
       sessions: [],
@@ -145,6 +154,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
         (_, index) => {
           const existingSession = state.sessions[index] || {};
           return {
+            id: existingSession.id || index + 1, // Ensure id is present
             key: index + 1,
             sessionName: existingSession.sessionName || "",
             serviceProviders: existingSession.serviceProviders || [],
@@ -161,6 +171,25 @@ const useSessionStore = create<ActivityStore>((set) => ({
 
       return { sessions: updatedSessions };
     }),
+
+
+// set the values of the sessions when editing to the sessions that i get from the database
+    setSessionValues: (newSessions: SessionType[]) =>
+      set((state) => {
+        const updatedSessions = newSessions.map((newSession, index) => {
+    
+          // Merge default values with the provided new values
+          return { ...newSession };
+        });
+        console.log("updatedSessions is" ,updatedSessions)
+        
+        return { sessions: updatedSessions};
+      
+        
+      }),
+    
+
+
 
   // Set the number of sessions
   setNumSessions: (num) =>
@@ -200,6 +229,14 @@ const useSessionStore = create<ActivityStore>((set) => ({
     set({
       done: value,
     }),
+    setMode : (value) =>
+      set({
+        mode: value,
+      }),
+      setActivityData : (value) =>
+        set({
+          activityData : value,
+        })
 }));
 
 export default useSessionStore;

@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// VolunteerPage.tsx
+import React from "react";
 import { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Paper } from "@mui/material";
@@ -18,7 +17,8 @@ import useSessionStore from "../store/activityStore";
 import dayjs from "dayjs";
 import { Loading } from "./Loading";
 
-export default function VolunteerPage() {
+
+const InvitedVolunteer = () => {
   const [selectedRows, setSelectedRows] = useState([]);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,6 +26,7 @@ export default function VolunteerPage() {
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
   const [getEligible, setGetEligible] = useState(false);
+  const [open, setOpen] = useState(false);
 
   // Zustand store session state management
   const {
@@ -38,6 +39,7 @@ export default function VolunteerPage() {
     setInvitedVolunteerIds,
     numSessions,
     minSessions,
+    activityData,
   } = useSessionStore((state) => ({
     sessions: state.sessions,
     title: state.title,
@@ -48,11 +50,17 @@ export default function VolunteerPage() {
     setInvitedVolunteerIds: state.setInvitedVolunteerIds,
     numSessions: state.numSessions,
     minSessions: state.minSessions,
+    activityData: state.activityData,
   }));
 
+  console.log("activityData in invited volunteer is", activityData);
+
   const handleBack = () => {
-    navigate("/activity-management");
+    navigate("/activity-summary");
   };
+const handleAddVolunteer = ()=>{
+  navigate("/add-volunteer");
+}
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -71,7 +79,7 @@ export default function VolunteerPage() {
         departmentId: department.id,
         numSessions,
         minSessions,
-        startDate
+        startDate,
       },
       sessionsData: {
         sessions: processedSessions,
@@ -87,31 +95,6 @@ export default function VolunteerPage() {
     if (response.status === 200) {
       navigate("/activity-management");
     }
-
-    // sessions.forEach((session: any) => {
-    //   const sessionData = {
-    //     name: session.sessionName,
-    //     date: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
-    //     hall_name: session.hallName,
-    //     startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
-    //     endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
-    //     trainerIds: session.trainerName.map((trainer: any) => trainer.value),
-    //     serviceProviderIds: session.providerNames.map(
-    //       (provider: any) => provider.value
-    //     ),
-    //   };
-    //   console.log("sessionData is", sessionData);
-
-    //   axios
-    //     .post("/session", sessionData)
-    //     .then((response) => {
-    //       console.log("Session created:", response.data);
-    //       navigate("/activity-management");
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error creating session:", error);
-    //     });
-    // });
   };
 
   const {
@@ -167,55 +150,27 @@ export default function VolunteerPage() {
     },
     rows, // your initial rows data
   });
-  // Fetch volunteers with associated Person data
+
   useEffect(() => {
-    console.log({ activityType });
-    async function fetchVolunteers() {
-      setIsLoading(true);
-      try {
-        let response;
-        if (getEligible) {
-          response = await axios.get(
-            `/volunteer/${activityType.id}/eligible-volunteer`
-          );
-        } else {
-          response = await axios.get("/volunteer");
-        }
-        console.log("response is", response);
-        if (response && response.status === 200) {
-          const enrichedData = response.data.map((volunteer: any) => ({
-            volunteerId: volunteer.volunteerId,
-            active_status: volunteer.active_status,
-            ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.city?.split("/")[1] || ""} - ${
-              volunteer?.Person?.Address?.district?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
+    const enrichedData = activityData.Volunteers.map((volunteer: any) => ({
+      volunteerId: volunteer.volunteerId,
+      active_status: volunteer.active_status,
+      ...(volunteer.Person || {}),
+      address: `${volunteer?.Person?.Address?.state?.split("/")[1] || ""} - ${
+        volunteer?.Person?.Address?.city?.split("/")[1] || ""
+      } - ${volunteer?.Person?.Address?.district?.split("/")[1] || ""} - ${
+        volunteer?.Person?.Address?.village?.split("/")[1] || ""
+      }`,
 
-            personId: volunteer?.Person?.id,
-            fileId: volunteer?.Person?.fileId,
-            file: volunteer?.Person?.File?.file?.data,
-            addressId: volunteer?.Person?.Address?.id,
-          }));
-          setRows(enrichedData);
-          setFilteredRows(enrichedData);
-          console.log("enricheddata is ", enrichedData);
-        } else {
-          console.error("Unexpected response:", response);
-        }
-      } catch (error) {
-        console.error("Error fetching volunteers:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    fetchVolunteers();
+      personId: volunteer?.Person?.id,
+      fileId: volunteer?.Person?.fileId,
+      file: volunteer?.Person?.File?.file?.data,
+      addressId: volunteer?.Person?.Address?.id,
+    }));
+
+    setRows(enrichedData);
   }, [activityType, getEligible, setFilteredRows]);
-  console.log("the rows is ", rows);
-  console.log("selected rows is ", selectedRows);
 
-  // Memoized columns definition to prevent re-rendering
   const columns: GridColDef[] = useMemo(
     () => [
       {
@@ -618,6 +573,7 @@ export default function VolunteerPage() {
         <Loading />
       ) : (
         <>
+       
           <Typography variant="h4">Volunteer Information</Typography>
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
@@ -626,6 +582,7 @@ export default function VolunteerPage() {
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
           <Typography variant="body1">Start Date: {startDate}</Typography>
+          <Button variant="contained" sx={{width :200}  } >Invite New Volunteers</Button>
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
@@ -667,10 +624,12 @@ export default function VolunteerPage() {
             Back to Activity Summary
           </Button>
           <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-            Update Activity
+            Create Activity
           </Button>
         </>
       )}
     </>
   );
-}
+};
+
+export default InvitedVolunteer;

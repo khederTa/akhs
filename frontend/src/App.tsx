@@ -6,7 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
-import { Stack } from "@mui/material";
+import { Stack, TextField } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import ActivityInfo from "./components/activityInfo/ActivityInfo";
@@ -29,6 +29,7 @@ import VolunteerPage from "./components/VolunteerPage";
 import { usePermissionStore } from "./store/permissionStore";
 import PermissionInitializer from "./components/PermissionInitializer";
 import { useAuthStore } from "./store/auth";
+import InvitedVolunteer from "./components/InvitedVolunteer";
 import ExecuteActivity from "./components/ExecuteActivity";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
@@ -70,6 +71,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 permissions["read_home"] ? (
                   <Layout>
                     <h2>Welcome to the dashboard</h2>
+                    <TextField type="time" />
                   </Layout>
                 ) : (
                   !permissionsLoading &&
@@ -122,6 +124,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <ActivitySummary />
+                </Layout>
+              }
+            />
+            <Route
+              path="/invited-volunteer"
+              element={
+                <Layout>
+                  <InvitedVolunteer />
                 </Layout>
               }
             />

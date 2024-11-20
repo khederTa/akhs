@@ -6,7 +6,9 @@ module.exports = (sequelize, DataTypes) => {
       done: { type: DataTypes.BOOLEAN },
       title: DataTypes.STRING,
       numSessions: DataTypes.INTEGER,
-      minSessions: DataTypes.INTEGER
+      minSessions: DataTypes.INTEGER,
+      startDate : DataTypes.DATE,
+
     },
     {
       tableName: "Activities",

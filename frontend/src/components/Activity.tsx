@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import FilterHeader from "./FilterHeader";
 import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
+import CustomDateRenderer from "./CustomDateRenderer";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,14 +35,22 @@ const Activity = () => {
   } = useGridFilterSort({
     initialFilterModel: {
       title: "",
+      numSessions : 0,
+      minSessions : 0,
+      startDate: "",
       done: false,
     },
     initialFilterVisibility: {
       title: false,
+      numSessions:false,
+      minSessions:false,
+      startDate :false ,
       done: false,
     },
     rows, // your initial rows data
   });
+  console.log("log activitys" , rows);
+  
 
   const paginationModel = { page: 0, pageSize: 5 };
   const columns: GridColDef[] = [
@@ -62,6 +71,67 @@ const Activity = () => {
         <FilterHeader
           key={"title"}
           field={"title"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
+    {
+      field: "numSessions",
+      headerName: t("numSessions"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      renderHeader: () => (
+        <FilterHeader
+          key={"numSessions"}
+          field={"numSessions"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
+    {
+      field: "minSessions",
+      headerName: t("minSessions"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      renderHeader: () => (
+        <FilterHeader
+          key={"minSessions"}
+          field={"minSessions"}
+          filterModel={filterModel}
+          sortModel={sortModel}
+          filterVisibility={filterVisibility}
+          handleSortClick={handleSortClick}
+          handleFilterChange={handleTextFilterChange}
+          setFilterVisibility={setFilterVisibility}
+          clearFilter={clearFilter}
+        />
+      ),
+    },
+    {
+      field: "startDate",
+      headerName: t("startDate"),
+      minWidth: 200,
+      sortable: false,
+      hideSortIcons: true,
+      renderCell: (params) => <CustomDateRenderer value={params.value} />,
+      renderHeader: () => (
+        <FilterHeader
+          key={"startDate"}
+          field={"startDate"}
           filterModel={filterModel}
           sortModel={sortModel}
           filterVisibility={filterVisibility}
@@ -104,12 +174,12 @@ const Activity = () => {
           <GridActionsCellItem
             icon={<PlayArrowIcon />}
             label="Execute"
-            onClick={() => navigate("/execute-activity", { state: { id } })}
+            onClick={() => navigate("/execute-activity", { state: { id} })}
           />,
           <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
-            onClick={() => navigate("/activity-summary", { state: { id } })}
+            onClick={() => navigate("/activity-summary", { state: { id  } })}
           />,
         ].filter(Boolean);
       },
@@ -127,6 +197,9 @@ const Activity = () => {
               id: activity?.id,
               done: activity?.done,
               title: activity?.title,
+              numSessions : activity?.numSessions,
+              minSessions : activity?.minSessions,
+              startDate : activity?.startDate,
             };
           });
           setLoading(false);
