@@ -10,6 +10,8 @@ const {
   Person,
   ServiceProvider,
 } = require("../models");
+const db = require("../models");
+const { QueryTypes } = require("sequelize");
 
 exports.getAllActivities = async (req, res) => {
   const Activities = await Activity.findAll({
@@ -143,10 +145,11 @@ exports.getActivityById = async (req, res) => {
     return res.json(activity);
   } catch (error) {
     console.error("Error fetching activity details:", error);
-    res.status(500).json({ error: "An error occurred while fetching activity details." });
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching activity details." });
   }
 };
-
 
 exports.updateActivity = async (req, res) => {
   await Activity.update(req.body, { where: { id: req.params.id } });
@@ -156,4 +159,30 @@ exports.updateActivity = async (req, res) => {
 exports.deleteActivity = async (req, res) => {
   await Activity.destroy({ where: { id: req.params.id } });
   res.json({ message: "Activity deleted" });
+};
+
+exports.getCompletedActivity = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const completedActivity = await db.sequelize.query(
+      `SELECT DISTINCT * FROM activities as a
+        JOIN activitytypes AS ats ON ats.id = a.activityTypeId
+        JOIN VolunteerAttendedActivity AS vaa ON a.id = vaa.activityId
+        WHERE vaa.volunteerId = ${id}
+          AND vaa.status = 'attended';`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
+    const activities = await Activity.findAll({
+      include: { model: ActivityType },
+    });
+    const activityData = activities.filter((item) =>
+      completedActivity.find((elem) => elem.id === item.id)
+    );
+    return res.json(activityData);
+  } catch (error) {
+    console.error("Error fetching completed packages:", error);
+    throw error;
+  }
 };

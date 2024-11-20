@@ -33,21 +33,31 @@ import ExecuteActivity from "./components/ExecuteActivity";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const loggedIn = isLoggedIn();
+  // const user = useAuthStore((state) => state.allUserData);
   const permissionsLoading = usePermissionStore(
     (state) => state.permissionsLoading
   );
   const { permissions } = usePermissionStore((state) => state);
+
   useEffect(() => {
     setUser();
   }, []);
+
+  // useEffect(() => {
+
+  // }, [user])
+
   useEffect(() => {
     console.log({ authLoading });
     console.log({ permissionsLoading });
   }, [authLoading, permissionsLoading]);
+
   return (
     <AppTheme {...props}>
       <CssBaseline enableColorScheme />
-      <PermissionInitializer />
+      {!authLoading && <PermissionInitializer />}
       {authLoading || permissionsLoading ? (
         <Loading />
       ) : (
@@ -62,7 +72,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <h2>Welcome to the dashboard</h2>
                   </Layout>
                 ) : (
-                  <Navigate to="/sign-in" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/sign-in" replace />
                 )
               }
             />
@@ -74,7 +85,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <UserManagement />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -86,7 +98,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <Activity />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -98,11 +111,11 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <ActivityInfo />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
-
 
             <Route
               path="/activity-summary"
@@ -121,7 +134,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <Volunteer />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -133,7 +147,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <VolunteerInfo />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -162,7 +177,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <ServiceProvider />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -175,7 +191,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <ServiceProviderInfo />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -188,7 +205,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <CreateNewUser />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -200,7 +218,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <ActivityTypes />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -212,7 +231,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <CreateActivityType />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -224,7 +244,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <Packages />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -236,7 +257,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <CreatePackage />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -248,7 +270,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <Department />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -260,7 +283,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <CreateNewDepartment />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -272,7 +296,8 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <Position />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
@@ -284,29 +309,36 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <CreateNewPosition />
                   </Layout>
                 ) : (
-                  permissionsLoading && <Navigate to="/" replace />
+                  !permissionsLoading &&
+                  !loggedIn && <Navigate to="/" replace />
                 )
               }
             />
             {/* Sign In page */}
+
             <Route
               path="/sign-in"
               element={
-                <Stack
-                  spacing={2}
-                  sx={{
-                    alignItems: "center",
-                    pb: 10,
-                    mx: 3,
-                    mt: { xs: 8, md: 0 },
-                  }}
-                  dir={direction}
-                >
-                  <Header />
-                  <SignIn />
-                </Stack>
+                !loggedIn ? (
+                  <Stack
+                    spacing={2}
+                    sx={{
+                      alignItems: "center",
+                      pb: 10,
+                      mx: 3,
+                      mt: { xs: 8, md: 0 },
+                    }}
+                    dir={direction}
+                  >
+                    <Header />
+                    <SignIn />
+                  </Stack>
+                ) : (
+                  <Navigate to="/" replace />
+                )
               }
             />
+
             {/* Register page (not protected) */}
             {/* <Route
             path="/register"

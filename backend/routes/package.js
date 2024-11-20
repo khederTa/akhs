@@ -8,5 +8,6 @@ router.post("/", authenticateToken, packageController.createPackage);
 router.get("/:id", authenticateToken, packageController.getPackageById);
 router.put("/:id", authenticateToken, packageController.updatePackage);
 router.delete("/:id", authenticateToken, packageController.deletePackage);
+router.get("/volunteer-packages/:id", authenticateToken, packageController.getCompletedPackages);
 
 module.exports = router;

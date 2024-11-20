@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper, Stack, styled, Switch,TextField } from "@mui/material";
+import { Paper, Stack, styled, Switch, TextField } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -14,6 +14,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
 import axios from "../utils/axios";
 import DraggableDialog from "./DraggableDialog";
 import DownloadButton from "./DownloadButton";
@@ -30,6 +31,7 @@ import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import VolunteerPromoteModal from "./VolunteerPromoteModal";
+import HistoryModal from "./HistoryModal";
 export const AntSwitch = styled(Switch)(({ theme }: any) => ({
   width: 28,
   height: 16,
@@ -87,6 +89,8 @@ const Volunteer = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [action, setAction] = useState("");
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [historyModalOpen, setHistoryModalOpen] = useState(false);
+  const [volunteerId, setVolunteerId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState<any>(null);
@@ -232,6 +236,11 @@ const Volunteer = () => {
     [apiRef, rows]
   );
 
+  const handleViewHistoryClick = useCallback((id: any) => {
+    setVolunteerId(id);
+    setHistoryModalOpen(true);
+  }, []);
+
   // Save row updates
   const handleSave = useCallback(async (id: any) => {
     setAction("save");
@@ -239,15 +248,18 @@ const Volunteer = () => {
   }, []);
 
   // Cancel row updates
-  const handleCancel = useCallback((id: any) => {
-    setAction("cancel");
-    setNewBdate(oldBdate);
-    setFileId(null);
-    setUpdatedFile(null);
-    setAddressId(null);
-    setAddress(null);
-    setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
-  }, []);
+  const handleCancel = useCallback(
+    (id: any) => {
+      setAction("cancel");
+      setNewBdate(oldBdate);
+      setFileId(null);
+      setUpdatedFile(null);
+      setAddressId(null);
+      setAddress(null);
+      setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
+    },
+    [oldBdate]
+  );
 
   // Open delete confirmation dialog
   const handleOpenDeleteDialog = useCallback((id: any) => {
@@ -687,6 +699,13 @@ const Volunteer = () => {
           return [
             !isInEditMode && (
               <GridActionsCellItem
+                icon={<WorkHistoryIcon />}
+                label="ViewHistory"
+                onClick={() => handleViewHistoryClick(id)}
+              />
+            ),
+            !isInEditMode && (
+              <GridActionsCellItem
                 icon={<EditIcon />}
                 label="Edit"
                 onClick={() => handleEditClick(id)}
@@ -744,24 +763,25 @@ const Volunteer = () => {
       },
     ],
     [
-      clearFilter,
+      t,
       filterModel,
+      sortModel,
       filterVisibility,
-      newBdate,
-      handleCancel,
-      handleDateFilterChange,
-      handleEditClick,
-      handleOpenDeleteDialog,
-      handleOpenPromoteDialog,
-      handleSave,
       handleSortClick,
       handleTextFilterChange,
-      handleToggleActive,
+      setFilterVisibility,
+      clearFilter,
+      newBdate,
+      handleDateFilterChange,
       rowModesModel,
       rows,
-      setFilterVisibility,
-      sortModel,
-      t,
+      handleViewHistoryClick,
+      handleEditClick,
+      handleOpenPromoteDialog,
+      handleOpenDeleteDialog,
+      handleToggleActive,
+      handleSave,
+      handleCancel,
     ]
   );
 
@@ -801,7 +821,7 @@ const Volunteer = () => {
       }
     }
     fetchVolunteers();
-  }, []);
+  }, [setFilteredRows]);
 
   // Close delete dialog
   const handleCloseDeleteDialog = useCallback(() => {
@@ -1030,7 +1050,7 @@ const Volunteer = () => {
         const oldRow: any = rows.find(
           (row: any) => row.volunteerId === updatedRow.volunteerId
         );
-        
+
         console.log({ oldRow });
         console.log({ updatedRow });
         if (updatedFile) {
@@ -1119,6 +1139,11 @@ const Volunteer = () => {
   useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
     <>
+      <HistoryModal
+        open={historyModalOpen}
+        onClose={() => setHistoryModalOpen(false)}
+        volunteerId={volunteerId as number}
+      />
       <AlertNotification
         open={alertOpen}
         message={alertMessage}

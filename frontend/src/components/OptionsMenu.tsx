@@ -1,24 +1,26 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import Divider, { dividerClasses } from '@mui/material/Divider';
-import Menu from '@mui/material/Menu';
-import MuiMenuItem from '@mui/material/MenuItem';
-import { paperClasses } from '@mui/material/Paper';
-import { listClasses } from '@mui/material/List';
-import ListItemText from '@mui/material/ListItemText';
-import ListItemIcon, { listItemIconClasses } from '@mui/material/ListItemIcon';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
-import MenuButton from './MenuButton';
-import { logout } from '../utils/auth';
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import Divider, { dividerClasses } from "@mui/material/Divider";
+import Menu from "@mui/material/Menu";
+import MuiMenuItem from "@mui/material/MenuItem";
+import { paperClasses } from "@mui/material/Paper";
+import { listClasses } from "@mui/material/List";
+import ListItemText from "@mui/material/ListItemText";
+import ListItemIcon, { listItemIconClasses } from "@mui/material/ListItemIcon";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
+import MenuButton from "./MenuButton";
+import { logout } from "../utils/auth";
+import { useNavigate } from "react-router-dom";
 
 const MenuItem = styled(MuiMenuItem)({
-  margin: '2px 0',
+  margin: "2px 0",
 });
 
 export default function OptionsMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const navigate = useNavigate();
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -30,7 +32,7 @@ export default function OptionsMenu() {
       <MenuButton
         aria-label="Open menu"
         onClick={handleClick}
-        sx={{ borderColor: 'transparent' }}
+        sx={{ borderColor: "transparent" }}
       >
         <MoreVertRoundedIcon />
       </MenuButton>
@@ -40,17 +42,17 @@ export default function OptionsMenu() {
         open={open}
         onClose={handleClose}
         onClick={handleClose}
-        transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+        transformOrigin={{ horizontal: "right", vertical: "top" }}
+        anchorOrigin={{ horizontal: "right", vertical: "bottom" }}
         sx={{
           [`& .${listClasses.root}`]: {
-            padding: '4px',
+            padding: "4px",
           },
           [`& .${paperClasses.root}`]: {
             padding: 0,
           },
           [`& .${dividerClasses.root}`]: {
-            margin: '4px -4px',
+            margin: "4px -4px",
           },
         }}
       >
@@ -61,10 +63,13 @@ export default function OptionsMenu() {
         <MenuItem onClick={handleClose}>Settings</MenuItem>
         <Divider />
         <MenuItem
-          onClick={logout}
+          onClick={async () => {
+            await logout();
+            navigate("/sign-in");
+          }}
           sx={{
             [`& .${listItemIconClasses.root}`]: {
-              ml: 'auto',
+              ml: "auto",
               minWidth: 0,
             },
           }}

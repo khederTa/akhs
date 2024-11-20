@@ -15,6 +15,7 @@ import { useAuthStore } from "../store/auth";
 import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
 import { Loading } from "./Loading";
+import { usePermissionStore } from "../store/permissionStore";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -60,20 +61,21 @@ export default function SignIn() {
   const [passwordError, setPasswordError] = React.useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
   // const [open, setOpen] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(false);
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
-  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  // const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [loading, setLoading] = React.useState(true);
+  const authLoading = useAuthStore((state) => state.loading);
+  const setLoading = useAuthStore((state) => state.setLoading);
+  const permissionsLoading = usePermissionStore(
+    (state) => state.permissionsLoading
+  );
   // Redirect if already logged in
-  React.useEffect(() => {
-    setLoading(true);
-    if (isLoggedIn()) {
-      navigate("/");
-    }
-    setLoading(false);
-  }, [isLoggedIn, navigate]);
+  // if (isLoggedIn()) {
+  //   navigate("/");
+  // }
+  // React.useEffect(() => {
+  // }, [isLoggedIn, navigate]);
 
   // const handleClickOpen = () => {
   //   setOpen(true);
@@ -86,7 +88,7 @@ export default function SignIn() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    setIsLoading(true);
+    setLoading(true);
 
     try {
       const email = data.get("email") as string;
@@ -100,7 +102,7 @@ export default function SignIn() {
     } catch (error) {
       alert(error);
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
@@ -135,7 +137,7 @@ export default function SignIn() {
 
   return (
     <>
-      {loading ? (
+      {authLoading || permissionsLoading ? (
         <Loading />
       ) : (
         <Card variant="outlined" dir={direction}>
@@ -203,7 +205,7 @@ export default function SignIn() {
               variant="contained"
               onClick={validateInputs}
             >
-              {isLoading ? t("Signing in") : t("Sign in")}
+              {authLoading ? t("Signing in") : t("Sign in")}
             </Button>
             {/* <Typography sx={{ textAlign: "center" }}>
               Don&apos;t have an account?{" "}

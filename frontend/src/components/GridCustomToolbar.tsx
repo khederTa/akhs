@@ -70,7 +70,7 @@ const GridCustomToolbar = forwardRef<
             />
           </FormGroup>
         )}
-        {props.mode !== "show" && props.mode !== "addActivity" && props.mode !== "exe" && (
+        {props.mode !== "show" && props.mode !== "addActivity" && props.mode !== "exe" && props.mode !== "history" && (
           <>
             <Button type="button" onClick={() => navigate(navigateTo)}>
               <AddOutlinedIcon />

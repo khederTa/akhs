@@ -78,6 +78,8 @@ export const signup = async (
 
 // Logout function
 export const logout = async () => {
+  const authStore = useAuthStore.getState();
+  authStore.setLoading(true);
   axios
     .post("auth/logout/")
     .then((res: any) => {
@@ -85,6 +87,7 @@ export const logout = async () => {
       Cookies.remove("access_token");
       Cookies.remove("refresh_token");
       useAuthStore.getState().setUser(null);
+      authStore.setLoading(false);
     })
     .catch((error) => console.error(error));
 };
@@ -119,14 +122,14 @@ export const setAuthUser = (
   Cookies.set("access_token", access_token, { expires: 1, secure: true });
   Cookies.set("refresh_token", refresh_token, { expires: 7, secure: true });
 
-  const user: { userId: string; username: string; roleId: number } = jwtDecode(access_token);
+  const user: { userId: string; username: string; roleId: number } =
+    jwtDecode(access_token);
 
   if (user) {
     useAuthStore.getState().setUser(user);
   }
   useAuthStore.getState().setLoading(false); // Set loading to false after setting user
 };
-
 
 // Get refresh token function
 export const getRefreshToken = async (refresh_token: string) => {

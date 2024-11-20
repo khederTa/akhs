@@ -1,4 +1,6 @@
 const { Package, ActivityType } = require("../models");
+const db = require("../models");
+const { QueryTypes } = require("sequelize");
 
 exports.getAllPackages = async (req, res) => {
   try {
@@ -88,4 +90,43 @@ exports.updatePackage = async (req, res) => {
 exports.deletePackage = async (req, res) => {
   await Package.destroy({ where: { id: req.params.id } });
   res.json({ message: "Package deleted" });
+};
+
+exports.getCompletedPackages = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const completedPackages = await db.sequelize.query(
+      `SELECT DISTINCT p.*
+        FROM akhs.packages AS p
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM akhs.activitytypespackages AS atp
+            WHERE atp.PackageId = p.id
+              AND atp.ActivityTypeId NOT IN (
+                  SELECT ats.id
+                  FROM akhs.activitytypes AS ats
+                  JOIN akhs.activities AS a ON ats.id = a.activityTypeId
+                  JOIN akhs.volunteerattendedactivity AS vaa ON a.id = vaa.activityId
+                  WHERE vaa.volunteerId = ${id}
+                    AND vaa.status = "attended"
+      )
+);
+`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
+    const packages = await Package.findAll({
+      include: {
+        model: ActivityType,
+        through: { attributes: [] }, // Exclude join table attributes
+      },
+    });
+
+    const packagesData = packages.filter(pack => completedPackages.find(comp => comp.id === pack.id))
+    return res.json(packagesData);
+  } catch (error) {
+    console.error("Error fetching completed packages:", error);
+    throw error;
+  }
 };
