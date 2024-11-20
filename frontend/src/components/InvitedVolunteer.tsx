@@ -1,5 +1,6 @@
-import React from "react";
-import { useEffect, useState, useMemo } from "react";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Paper } from "@mui/material";
 import axios from "../utils/axios";
@@ -17,16 +18,14 @@ import useSessionStore from "../store/activityStore";
 import dayjs from "dayjs";
 import { Loading } from "./Loading";
 
-
 const InvitedVolunteer = () => {
   const [selectedRows, setSelectedRows] = useState([]);
-  const [rows, setRows] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [rows, setRows] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
   const [getEligible, setGetEligible] = useState(false);
-  const [open, setOpen] = useState(false);
 
   // Zustand store session state management
   const {
@@ -54,13 +53,11 @@ const InvitedVolunteer = () => {
   }));
 
   console.log("activityData in invited volunteer is", activityData);
+  console.log({ invitedVolunteerIds });
 
   const handleBack = () => {
     navigate("/activity-summary");
   };
-const handleAddVolunteer = ()=>{
-  navigate("/add-volunteer");
-}
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
@@ -89,12 +86,12 @@ const handleAddVolunteer = ()=>{
       },
     };
     console.log({ payload });
-    const response = await axios.post("/activity", payload);
-    console.log(response);
+    // const response = await axios.post("/activity", payload);
+    // console.log(response);
 
-    if (response.status === 200) {
-      navigate("/activity-management");
-    }
+    // if (response.status === 200) {
+    //   navigate("/activity-management");
+    // }
   };
 
   const {
@@ -152,7 +149,7 @@ const handleAddVolunteer = ()=>{
   });
 
   useEffect(() => {
-    const enrichedData = activityData.Volunteers.map((volunteer: any) => ({
+    const enrichedData = activityData?.Volunteers?.map((volunteer: any) => ({
       volunteerId: volunteer.volunteerId,
       active_status: volunteer.active_status,
       ...(volunteer.Person || {}),
@@ -169,7 +166,16 @@ const handleAddVolunteer = ()=>{
     }));
 
     setRows(enrichedData);
-  }, [activityType, getEligible, setFilteredRows]);
+    setIsLoading(false);
+  }, [
+    activityData,
+    activityData.Volunteers,
+    activityType,
+    getEligible,
+    navigate,
+    setFilteredRows,
+    setInvitedVolunteerIds,
+  ]);
 
   const columns: GridColDef[] = useMemo(
     () => [
@@ -563,9 +569,20 @@ const handleAddVolunteer = ()=>{
     const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
-    setInvitedVolunteerIds(newSelection as any);
     setSelectedRows(newSelectedRows);
   };
+
+  useEffect(() => {
+    const volunteerIds = rows.map((item: any) => item.volunteerId);
+    setInvitedVolunteerIds(volunteerIds);
+  }, [rows, setInvitedVolunteerIds]);
+
+  const handleOnSave = useCallback(
+    (value: any) => {
+      setRows([...rows, ...value]);
+    },
+    [rows]
+  );
 
   return (
     <>
@@ -573,7 +590,6 @@ const handleAddVolunteer = ()=>{
         <Loading />
       ) : (
         <>
-       
           <Typography variant="h4">Volunteer Information</Typography>
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
@@ -582,7 +598,9 @@ const handleAddVolunteer = ()=>{
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
           <Typography variant="body1">Start Date: {startDate}</Typography>
-          <Button variant="contained" sx={{width :200}  } >Invite New Volunteers</Button>
+          {/* <Button variant="contained" sx={{ width: 200 }}>
+            Invite New Volunteers
+          </Button> */}
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
@@ -600,9 +618,10 @@ const handleAddVolunteer = ()=>{
                     clearAllFilters={clearAllFilters}
                     rows={selectedRows}
                     navigateTo={"/volunteer-information"}
-                    mode={"show"}
+                    mode={"inviteMore"}
                     setGetEligible={setGetEligible}
                     getEligible={getEligible}
+                    onSave={(value: any) => handleOnSave(value)}
                   />
                 ),
               }}
@@ -612,7 +631,7 @@ const handleAddVolunteer = ()=>{
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
-              rowSelectionModel={invitedVolunteerIds}
+              rowSelectionModel={selectedRows}
               disableRowSelectionOnClick
             />
           </Paper>
@@ -624,7 +643,7 @@ const handleAddVolunteer = ()=>{
             Back to Activity Summary
           </Button>
           <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-            Create Activity
+            Edit Activity
           </Button>
         </>
       )}

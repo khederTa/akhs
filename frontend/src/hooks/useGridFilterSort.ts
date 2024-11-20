@@ -59,7 +59,7 @@ export function useGridFilterSort({
   });
 
   const updateFilteredRows = useCallback(() => {
-    const filtered = rows.filter((row) => {
+    const filtered = rows?.filter((row) => {
       return Object.entries(filterModel).every(([field, value]) => {
         if (typeof value === "string") {
           if (value) {

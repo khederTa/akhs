@@ -19,6 +19,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ReportModal } from "./ReportModal";
 import ActivityDraggableModal from "./ActivityDraggableModal";
+import VolunteerModal from "./VolunteerModal";
 
 type ToolbarProps = {
   rows: any;
@@ -27,6 +28,7 @@ type ToolbarProps = {
   mode?: string;
   setGetEligible?: (value: boolean) => void;
   getEligible?: boolean;
+  onSave?: (value: any) => void;
 };
 const GridCustomToolbar = forwardRef<
   HTMLDivElement,
@@ -39,6 +41,7 @@ const GridCustomToolbar = forwardRef<
   const navigate = useNavigate();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
+  const [openVolunteerModal, setOpenVolunteerModal] = useState(false);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.checked);
     event.target.checked;
@@ -46,6 +49,11 @@ const GridCustomToolbar = forwardRef<
   };
   return (
     <>
+      <VolunteerModal
+        open={openVolunteerModal}
+        onClose={() => setOpenVolunteerModal(false)}
+        onSave={props.onSave}
+      />
       <ReportModal
         open={reportModalIsOpen}
         handleClose={() => setReportModalIsOpen(false)}
@@ -70,19 +78,31 @@ const GridCustomToolbar = forwardRef<
             />
           </FormGroup>
         )}
-        {props.mode !== "show" && props.mode !== "addActivity" && props.mode !== "exe" && props.mode !== "history" && (
-          <>
-            <Button type="button" onClick={() => navigate(navigateTo)}>
-              <AddOutlinedIcon />
-              {t("add")}
-            </Button>
-          </>
-        )}
+        {props.mode !== "show" &&
+          props.mode !== "addActivity" &&
+          props.mode !== "inviteMore" &&
+          props.mode !== "exe" &&
+          props.mode !== "history" && (
+            <>
+              <Button type="button" onClick={() => navigate(navigateTo)}>
+                <AddOutlinedIcon />
+                {t("add")}
+              </Button>
+            </>
+          )}
         {props.mode === "addActivity" && (
           <>
             <Button type="button" onClick={() => setOpen(true)}>
               <AddOutlinedIcon />
               {t("add")}
+            </Button>
+          </>
+        )}
+        {props.mode === "inviteMore" && (
+          <>
+            <Button type="button" onClick={() => setOpenVolunteerModal(true)}>
+              <AddOutlinedIcon />
+              {t("invite more volunteers")}
             </Button>
           </>
         )}

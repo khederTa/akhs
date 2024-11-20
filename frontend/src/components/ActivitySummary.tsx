@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
@@ -11,20 +12,20 @@ type ItemType = {
   id: number;
   name: string;
 };
-type ActivityData = {
-  id: number;
-  numSessions: number;
-  minSessions: number;
-  title: string;
-  done: boolean;
-  departmentId: number;
-  activityTypeId: number;
-  Volunteers: any;
-  Sessions: any;
-  Department: object;
-  ActivityType: object;
-  startDate: string;
-};
+// type ActivityData = {
+//   id: number;
+//   numSessions: number;
+//   minSessions: number;
+//   title: string;
+//   done: boolean;
+//   departmentId: number;
+//   activityTypeId: number;
+//   Volunteers: any;
+//   Sessions: any;
+//   Department: object;
+//   ActivityType: object;
+//   startDate: string;
+// };
 
 export default function ActivitySummary() {
   const navigate = useNavigate();
@@ -62,8 +63,8 @@ export default function ActivitySummary() {
     startDate: state.startDate,
     activityType: state.activityType,
     department: state.department,
-    mode : state.mode,
-    activityData : state.activityData,
+    mode: state.mode,
+    activityData: state.activityData,
     setTitle: state.setTitle,
     setDepartment: state.setDepartment,
     setActivityType: state.setActivityType,
@@ -75,8 +76,8 @@ export default function ActivitySummary() {
     updateSession: state.updateSession,
     syncSessionsWithNum: state.syncSessionsWithNum,
     setSessionValues: state.setSessionValues,
-    setMode : state.setMode,
-    setActivityData : state.setActivityData,
+    setMode: state.setMode,
+    setActivityData: state.setActivityData,
   }));
   // const defaultActivityData: ActivityData = {
   //   id: 0,
@@ -117,24 +118,24 @@ export default function ActivitySummary() {
   console.log("title is ", title);
   console.log("startDate is", startDate);
   console.log("sessions is", sessions);
-  console.log("mode is" , mode)
+  console.log("mode is", mode);
 
   useEffect(() => {
     setDepartment(depObject);
-  }, [depObject]);
+  }, [depObject, setDepartment]);
 
   useEffect(() => {
     setActivityType(activitytypeObject);
-  }, [activitytypeObject]);
+  }, [activitytypeObject, setActivityType]);
 
   useEffect(() => {
     syncSessionsWithNum();
     setMinSessions(Math.ceil(numSessions / 2));
-  }, [numSessions]);
+  }, [numSessions, setMinSessions, syncSessionsWithNum]);
 
   // let providerNames: any = [];
   // const [providers, setProviders] = useState([]);
-  let providers: any = [];
+  // const providers = useRef([]);
   // let trainerName: any = [];
   // Fetch activity types and departments
   useEffect(() => {
@@ -194,15 +195,15 @@ export default function ActivitySummary() {
           // setServiceProviders(filteredProviders)
           // providerNames = sessionsValue.ServiceProviders
           console.log(sessionsValue);
-          const providerNames = sessionsValue.map((sessionval: any) => {
-            return sessionval.ServiceProviders.map((provider: any) => ({
-              label: provider.Volunteer.Person.fname,
-              value: provider.providerId,
-              depId: provider.Department.id,
-            }));
-          });
+          // const providerNames = sessionsValue.map((sessionval: any) => {
+          //   return sessionval.ServiceProviders.map((provider: any) => ({
+          //     label: provider.Volunteer.Person.fname,
+          //     value: provider.providerId,
+          //     depId: provider.Department.id,
+          //   }));
+          // });
           // setProviders(providerNames);
-          providers = providerNames;
+          // providers.current = providerNames;
         }
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -211,11 +212,22 @@ export default function ActivitySummary() {
       }
     };
     fetchData();
-  }, []);
+  }, [
+    activityData,
+    location.state,
+    navigate,
+    setActivityData,
+    setMinSessions,
+    setMode,
+    setNumSessions,
+    setSessionValues,
+    setStartDate,
+    setTitle,
+  ]);
 
   console.log("session number is", numSessions);
 
-  console.log("providers in activity summary is ", providers);
+  // console.log("providers in activity summary is ", providers.current);
 
   const handleNext = useCallback(() => {
     // Helper function to validate if a single session is complete
@@ -246,30 +258,12 @@ export default function ActivitySummary() {
 
     // If all sessions are complete, navigate to the next page
     navigate("/volunteer-page");
-  }, [
-    navigate,
-    title,
-    activitytypeObject,
-    depObject,
-    sessions,
-    numSessions,
-    minSessions,
-    startDate,
-  ]);
+  }, [navigate, sessions]);
 
   const handleEditNext = useCallback(() => {
     // If all sessions are complete, navigate to the next page
     navigate("/invited-volunteer");
-  }, [
-    navigate,
-    title,
-    activitytypeObject,
-    depObject,
-    sessions,
-    numSessions,
-    minSessions,
-    startDate,
-  ]);
+  }, [navigate]);
 
   return loading ? (
     <Loading />
@@ -411,7 +405,7 @@ export default function ActivitySummary() {
           <Button
             variant="contained"
             sx={{ marginTop: 2 }}
-            onClick={mode === "edit" ? handleEditNext :  handleNext}
+            onClick={mode === "edit" ? handleEditNext : handleNext}
           >
             Next
           </Button>

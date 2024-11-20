@@ -33,6 +33,12 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "volunteerId",
       as: "AttendedSessionsDetails",
     });
+
+    Volunteer.belongsToMany(models.Activity, {
+      through: models.VolunteerAttendedActivity,
+      foreignKey: "volunteerId",
+      otherKey: "activityId",
+    });
   };
 
   return Volunteer;

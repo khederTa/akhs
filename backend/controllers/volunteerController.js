@@ -196,12 +196,12 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
     });
 
     // Get the list of prerequisite activity type IDs
-    const prerequisiteTypeIds = activityType.Prerequisites.map(
+    const prerequisiteTypeIds = activityType?.Prerequisites.map(
       (prerequisite) => prerequisite.id
     );
 
     // return all volunteers where there are no conditions to attend the activity
-    if (prerequisiteTypeIds.length === 0) {
+    if (!prerequisiteTypeIds || prerequisiteTypeIds?.length === 0) {
       const volunteers = await Volunteer.findAll({
         attributes: ["volunteerId", "active_status"],
         include: [

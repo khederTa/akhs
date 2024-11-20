@@ -23,6 +23,7 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { Paper } from "@mui/material";
 import axios from "../utils/axios";
 import { Loading } from "./Loading";
+import useSessionStore from "../store/activityStore";
 
 const Transition = React.forwardRef(function Transition(
   props: TransitionProps & {
@@ -35,22 +36,30 @@ const Transition = React.forwardRef(function Transition(
 interface VolunteerModalProps {
   open: boolean;
   onClose: () => void;
-  onSave: () => void;
-  selectedRows: any;
-  handleSelectionChange: (value: any) => void;
+  onSave?: (value: any) => void;
 }
 export default function VolunteerModal({
   open,
   onClose,
   onSave,
-  selectedRows,
-  handleSelectionChange,
 }: VolunteerModalProps) {
   const [rows, setRows] = React.useState<any[]>([]);
   const apiRef = useGridApiRef();
+  const [selectedRows, setSelectedRows] = React.useState([]);
+  const [selectedNewRows, setSelectedNewRows] = React.useState<number[]>([]);
+  const [getEligible, setGetEligible] = React.useState(true);
+
   const paginationModel = { page: 0, pageSize: 5 };
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
+  // Zustand store session state management
+  const { invitedVolunteerIds, setInvitedVolunteerIds, activityType } =
+    useSessionStore((state) => ({
+      invitedVolunteerIds: state.invitedVolunteerIds,
+      setInvitedVolunteerIds: state.setInvitedVolunteerIds,
+      activityType: state.activityType,
+    }));
+
   const {
     filteredRows,
     sortModel,
@@ -504,8 +513,16 @@ export default function VolunteerModal({
     async function fetchVolunteers() {
       setIsLoading(true);
       try {
-        const response = await axios.get("/volunteer");
-        console.log("response is", response.data);
+        let response;
+        if (getEligible) {
+          console.log({ getEligible });
+          response = await axios.get(
+            `/volunteer/${activityType?.id}/eligible-volunteer`
+          );
+        } else {
+          response = await axios.get("/volunteer");
+        }
+        console.log("response is", response);
         if (response && response.status === 200) {
           const enrichedData = response.data.map((volunteer: any) => ({
             volunteerId: volunteer.volunteerId,
@@ -522,8 +539,11 @@ export default function VolunteerModal({
             file: volunteer?.Person?.File?.file?.data,
             addressId: volunteer?.Person?.Address?.id,
           }));
-          setRows(enrichedData);
-          setFilteredRows(enrichedData);
+          const processedData = enrichedData.filter(
+            (item: any) => !invitedVolunteerIds.includes(item.id)
+          );
+          setRows(processedData);
+          setFilteredRows(processedData);
           console.log("enricheddata is ", enrichedData);
         } else {
           console.error("Unexpected response:", response);
@@ -535,13 +555,20 @@ export default function VolunteerModal({
       }
     }
     fetchVolunteers();
-  }, [setFilteredRows]);
+  }, [activityType, getEligible, invitedVolunteerIds, setFilteredRows]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return filteredRows.find((row) => row.id === selected);
+    });
 
+    setSelectedRows(newSelectedRows);
+    setSelectedNewRows(newSelection);
+  };
   return (
     <Dialog
       fullScreen
       open={open}
-      onClose={onClose}
+      // onClose={onClose}
       TransitionComponent={Transition}
     >
       <AppBar
@@ -567,7 +594,10 @@ export default function VolunteerModal({
             autoFocus
             variant="contained"
             color="inherit"
-            onClick={onSave}
+            onClick={() => {
+              console.log(selectedNewRows);
+              if (onSave) onSave(selectedNewRows);
+            }}
           >
             {t("save")}
           </Button>
@@ -580,7 +610,6 @@ export default function VolunteerModal({
           <DataGrid
             rows={filteredRows}
             columns={columns}
-            // processRowUpdate={handleProcessRowUpdate}
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
@@ -594,6 +623,8 @@ export default function VolunteerModal({
                   rows={selectedRows}
                   navigateTo={"/volunteer-information"}
                   mode={"show"}
+                  setGetEligible={setGetEligible}
+                  getEligible={getEligible}
                 />
               ),
             }}
@@ -604,9 +635,10 @@ export default function VolunteerModal({
             }}
             apiRef={apiRef}
             checkboxSelection // Enable checkboxes for row selection
-            onRowSelectionModelChange={(newSelection: any) =>
-              handleSelectionChange(newSelection)
-            }
+            onRowSelectionModelChange={(newSelection: any) => {
+              handleSelectionChange(newSelection);
+            }}
+            rowSelectionModel={selectedNewRows}
             disableRowSelectionOnClick
           />
         </Paper>
