@@ -53,14 +53,16 @@ const InvitedVolunteer = () => {
   }));
 
   console.log("activityData in invited volunteer is", activityData);
-  console.log({ invitedVolunteerIds });
-
+  console.log("invitedVolunteerIds is " , invitedVolunteerIds);
+  const activivtyId = activityData.id ; 
+  console.log("activivtyId is" , activivtyId)
   const handleBack = () => {
     navigate("/activity-summary");
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+    
 
     const processedSessions = sessions.map((session) => ({
       ...session,
@@ -86,12 +88,12 @@ const InvitedVolunteer = () => {
       },
     };
     console.log({ payload });
-    // const response = await axios.post("/activity", payload);
-    // console.log(response);
+    const response = await axios.put(`/activity/${activivtyId}`, payload);
+    console.log(response);
 
-    // if (response.status === 200) {
-    //   navigate("/activity-management");
-    // }
+    if (response.status === 200) {
+      navigate("/activity-management");
+    }
   };
 
   const {
@@ -573,16 +575,22 @@ const InvitedVolunteer = () => {
   };
 
   useEffect(() => {
-    const volunteerIds = rows.map((item: any) => item.volunteerId);
+    const volunteerIds = rows?.map((item: any) => item.volunteerId);
     setInvitedVolunteerIds(volunteerIds);
   }, [rows, setInvitedVolunteerIds]);
 
   const handleOnSave = useCallback(
     (value: any) => {
+      console.log({value});
+      console.log({newRows: [...rows, ...value]});
+      
       setRows([...rows, ...value]);
     },
     [rows]
   );
+  console.log("sessions in invited volunteer is" ,sessions);
+  console.log("department is")
+  
 
   return (
     <>

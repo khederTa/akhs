@@ -540,7 +540,7 @@ export default function VolunteerModal({
             addressId: volunteer?.Person?.Address?.id,
           }));
           const processedData = enrichedData.filter(
-            (item: any) => !invitedVolunteerIds.includes(item.id)
+            (item: any) => !invitedVolunteerIds?.includes(item.id)
           );
           setRows(processedData);
           setFilteredRows(processedData);
@@ -557,7 +557,7 @@ export default function VolunteerModal({
     fetchVolunteers();
   }, [activityType, getEligible, invitedVolunteerIds, setFilteredRows]);
   const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {
+    const newSelectedRows: any = newSelection.map((selected) => {      
       return filteredRows.find((row) => row.id === selected);
     });
 
@@ -595,8 +595,7 @@ export default function VolunteerModal({
             variant="contained"
             color="inherit"
             onClick={() => {
-              console.log(selectedNewRows);
-              if (onSave) onSave(selectedNewRows);
+              if (onSave) onSave(selectedRows);
             }}
           >
             {t("save")}

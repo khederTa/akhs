@@ -119,6 +119,8 @@ export default function ActivitySummary() {
   console.log("startDate is", startDate);
   console.log("sessions is", sessions);
   console.log("mode is", mode);
+  console.log("depObject is in activitysummary" , depObject);
+  
 
   useEffect(() => {
     setDepartment(depObject);
@@ -213,7 +215,7 @@ export default function ActivitySummary() {
     };
     fetchData();
   }, [
-    activityData,
+    // activityData,
     location.state,
     navigate,
     setActivityData,

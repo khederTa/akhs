@@ -17,7 +17,14 @@ const { QueryTypes } = require("sequelize");
 
 exports.getAllActivities = async (req, res) => {
   const Activities = await Activity.findAll({
-    attributes: ["id", "title", "done" , "numSessions", "minSessions" , "startDate"],
+    attributes: [
+      "id",
+      "title",
+      "done",
+      "numSessions",
+      "minSessions",
+      "startDate",
+    ],
   });
   res.json(Activities);
 };
@@ -48,12 +55,6 @@ exports.createActivity = async (req, res) => {
       activityId,
     });
 
-    // const trainerIds = trainerName.map((trainer) => trainer.value);
-
-    // Set the associations
-    // if (trainerIds && trainerIds.length > 0) {
-    //   await session.addServiceProviders(trainerIds); // Link trainers as service providers
-    // }
     const serviceProviderIds = providerNames.map((provider) => provider.value);
     if (serviceProviderIds && serviceProviderIds.length > 0) {
       await session.addServiceProviders(serviceProviderIds); // Link service providers
@@ -137,7 +138,6 @@ exports.getActivityById = async (req, res) => {
                         "koboSkill",
                         "fileId",
                       ],
-                   
                     },
                   ],
                 },
@@ -149,7 +149,7 @@ exports.getActivityById = async (req, res) => {
                   model: Position,
                   attributes: ["id", "name"],
                 },
-              ]
+              ],
             },
             {
               model: VolunteerAttendedSessions,
@@ -225,8 +225,97 @@ exports.getActivityById = async (req, res) => {
 };
 
 exports.updateActivity = async (req, res) => {
-  await Activity.update(req.body, { where: { id: req.params.id } });
-  res.json({ message: "Activity updated" });
+  // await Activity.update(req.body, { where: { id: req.params.id } });
+  // res.json({ message: "Activity updated" });
+  try {
+    const activivtyId = req.params.id;
+    const { activityData, sessionsData, invitedVolunteersData } = req.body;
+
+    // Check if the activity exists
+    const activity = await Activity.findByPk(activivtyId);
+    if (!activity) {
+      return res.status(404).json({ error: "Activity not found" });
+    }
+
+    // Update the activity
+    await activity.update(activityData);
+
+    await VolunteerAttendedActivity.destroy({
+      where: { activityId: activivtyId }, // Specify the activityId
+    });
+
+    sessionsData.sessions.map(async (sessionDate) => {
+      const {
+        sessionName,
+        dateValue,
+        hallName,
+        startTime,
+        endTime,
+        // trainerName,
+        id,
+        providerNames,
+      } = sessionDate;
+      const sessionExist = await Session.findAll({ where: { id } });
+      console.log(sessionExist)
+      let session;
+      if (sessionExist.length > 0) {
+        session = await Session.update(
+          {
+            name: sessionName,
+            hall_name: hallName,
+            date: dateValue,
+            startTime: startTime,
+            endTime: endTime,
+            activityId: activivtyId,
+          },
+          { where: { id: id } }
+        );
+      } else {
+        session = await Session.create({
+          name: sessionName,
+          hall_name: hallName,
+          date: dateValue,
+          startTime: startTime,
+          endTime: endTime,
+          activityId: activivtyId,
+        });
+      }
+
+      const serviceProviderIds = providerNames.map(
+        (provider) => provider.value
+      );
+      if (serviceProviderIds && serviceProviderIds.length > 0) {
+        await session.setServiceProviders(serviceProviderIds); // Update service providers
+      }
+
+      const sessionId = id;
+
+      await VolunteerAttendedSessions.destroy({
+        where: { sessionId: sessionId },
+      });
+
+      invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
+        await VolunteerAttendedSessions.create({
+          volunteerId: volunteerData,
+          sessionId,
+          status: "invited",
+        });
+      });
+    });
+    invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
+      await VolunteerAttendedActivity.create({
+        volunteerId: volunteerData,
+        activityId: activivtyId,
+        status: "invited",
+      });
+    });
+    res.json({ message: "Activity updated", activity });
+  } catch (error) {
+    console.error("Error updating activity:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while updating the activity" });
+  }
 };
 
 exports.deleteActivity = async (req, res) => {
