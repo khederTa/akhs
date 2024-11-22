@@ -242,6 +242,33 @@ exports.updateActivity = async (req, res) => {
     // Update the activity
     await activity.update(activityData);
 
+    // Get all existing sessions for this activity
+    const existingSessions = await Session.findAll({
+      where: { activityId: activivtyId },
+    });
+
+    // Extract session IDs from the request payload
+    const incomingSessionIds = sessionsData.sessions
+      .map((session) => session.id)
+      .filter((sessionid) => sessionid > 0);
+
+    // Identify sessions to delete
+    const sessionsToDelete = existingSessions.filter(
+      (session) => !incomingSessionIds.includes(session.id)
+    );
+
+    // Delete the sessions that are not in the incoming payload
+    for (const session of sessionsToDelete) {
+      // Delete associated service providers
+      await session.setServiceProviders([]);
+
+      await VolunteerAttendedSessions.destroy({
+        where: { sessionId: session.id },
+      });
+
+      await session.destroy();
+    }
+
     await VolunteerAttendedActivity.destroy({
       where: { activityId: activivtyId }, // Specify the activityId
     });
