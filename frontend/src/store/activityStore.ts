@@ -159,8 +159,12 @@ const useSessionStore = create<ActivityStore>((set) => ({
         { length: state.numSessions },
         (_, index) => {
           const existingSession = state.sessions[index] || {};
+          const id =
+            existingSession.id && existingSession.id > 0
+              ? existingSession.id
+              : -1 * (state.numSessions - index);
           return {
-            id: existingSession.id || generateRandomNumber(), // Ensure id is present
+            id,
             key: index + 1,
             sessionName: existingSession.sessionName || "",
             serviceProviders: existingSession.serviceProviders || [],
@@ -180,8 +184,8 @@ const useSessionStore = create<ActivityStore>((set) => ({
 
   // set the values of the sessions when editing to the sessions that i get from the database
   setSessionValues: (newSessions: SessionType[]) =>
-    set((state) => {
-      const updatedSessions = newSessions.map((newSession, index) => {
+    set((_state) => {
+      const updatedSessions = newSessions.map((newSession, _index) => {
         // Merge default values with the provided new values
         return { ...newSession };
       });

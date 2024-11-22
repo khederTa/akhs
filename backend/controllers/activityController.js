@@ -38,6 +38,7 @@ exports.createActivity = async (req, res) => {
 
   sessionsData.sessions.map(async (sessionDate) => {
     const {
+      // id,
       sessionName,
       dateValue,
       hallName,
@@ -47,6 +48,7 @@ exports.createActivity = async (req, res) => {
       providerNames,
     } = sessionDate;
     const session = await Session.create({
+      // id:id,
       name: sessionName,
       hall_name: hallName,
       date: dateValue,
@@ -255,40 +257,51 @@ exports.updateActivity = async (req, res) => {
         id,
         providerNames,
       } = sessionDate;
+      const serviceProviderIds = providerNames.map(
+        (provider) => provider.value
+      );
       const sessionExist = await Session.findAll({ where: { id } });
-      console.log(sessionExist)
+      console.log(sessionExist);
       let session;
-      if (sessionExist.length > 0) {
-        session = await Session.update(
+      if (sessionExist && sessionExist.length > 0) {
+        // Update existing session
+        await Session.update(
           {
             name: sessionName,
             hall_name: hallName,
             date: dateValue,
-            startTime: startTime,
-            endTime: endTime,
+            startTime,
+            endTime,
             activityId: activivtyId,
           },
-          { where: { id: id } }
+          { where: { id } }
         );
+        // Retrieve the instance
+        session = await Session.findByPk(id);
+        await session.setServiceProviders(serviceProviderIds); // Replace service providers
       } else {
+        // Create a new session
         session = await Session.create({
+          // id:id,
           name: sessionName,
           hall_name: hallName,
           date: dateValue,
-          startTime: startTime,
-          endTime: endTime,
+          startTime,
+          endTime,
           activityId: activivtyId,
         });
+        session = await Session.findByPk(session.id);
+        await session.addServiceProviders(serviceProviderIds); // Replace service providers
       }
+      // // Retrieve the instance
+      // session = await Session.findByPk(id);
 
-      const serviceProviderIds = providerNames.map(
-        (provider) => provider.value
-      );
-      if (serviceProviderIds && serviceProviderIds.length > 0) {
-        await session.setServiceProviders(serviceProviderIds); // Update service providers
-      }
+      //       // Manage service providers
+      //       if (session) {
+      //         await session.setServiceProviders(serviceProviderIds); // Replace service providers
+      //       }
 
-      const sessionId = id;
+      const sessionId = session.id;
 
       await VolunteerAttendedSessions.destroy({
         where: { sessionId: sessionId },

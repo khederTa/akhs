@@ -51,7 +51,7 @@ export default function VolunteerPage() {
   }));
 
   const handleBack = () => {
-    navigate("/activity-management");
+    navigate("/activity-summary");
   };
 
   const handleSubmit = async (event: any) => {
