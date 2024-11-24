@@ -170,11 +170,23 @@ const useSessionStore = create<ActivityStore>((set) => ({
             serviceProviders: existingSession.serviceProviders || [],
             trainers: existingSession.trainers || [],
             hallName: existingSession.hallName || "",
-            dateValue: existingSession.dateValue || dayjs().add(index, "day"),
+            dateValue:
+              (dayjs(state.startDate).isValid()
+                ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")
+                : "") ||
+              existingSession.dateValue ||
+              dayjs(existingSession.dateValue).format("YYYY-MM-DD"),
+
             providerNames: existingSession.providerNames || [],
             trainerName: existingSession.trainerName || [],
-            startTime: existingSession.startTime || dayjs(),
-            endTime: existingSession.endTime || dayjs(),
+            startTime:
+              existingSession.startTime ||
+              dayjs(existingSession.startTime).format("HH:mm") ||
+              dayjs(),
+            endTime:
+              existingSession.endTime ||
+              dayjs(existingSession.endTime).format("HH:mm") ||
+              dayjs(),
           };
         }
       );

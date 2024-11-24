@@ -554,10 +554,10 @@ export default function VolunteerModal({
         setIsLoading(false);
       }
     }
-    fetchVolunteers();
-  }, [activityType, getEligible, invitedVolunteerIds, setFilteredRows]);
+    if (open) fetchVolunteers();
+  }, [activityType, getEligible, invitedVolunteerIds, open, setFilteredRows]);
   const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {      
+    const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
 

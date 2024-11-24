@@ -47,7 +47,7 @@ export default function SideMenu() {
           p: 1.5,
         }}
       >
-        <img src={"/vite.svg"} />
+        <img src={"/vite.svg"} width={"150px"} />
       </Box>
       <Divider />
       <MenuContent />
@@ -63,7 +63,7 @@ export default function SideMenu() {
       >
         <Avatar
           sizes="small"
-          alt={username}
+          alt={username as string}
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />

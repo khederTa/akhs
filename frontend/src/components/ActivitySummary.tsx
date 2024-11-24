@@ -119,8 +119,7 @@ export default function ActivitySummary() {
   console.log("startDate is", startDate);
   console.log("sessions is", sessions);
   console.log("mode is", mode);
-  console.log("depObject is in activitysummary" , depObject);
-  
+  console.log("depObject is in activitysummary", depObject);
 
   useEffect(() => {
     setDepartment(depObject);
@@ -373,6 +372,12 @@ export default function ActivitySummary() {
                 dateValue={session.dateValue}
                 setDateValue={(value: any) =>
                   updateSession(session.key, "dateValue", value)
+                }
+                min={index > 0 ? sessions[index - 1].dateValue : null}
+                max={
+                  index < numSessions - 1
+                    ? sessions[index + 1].dateValue
+                    : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>

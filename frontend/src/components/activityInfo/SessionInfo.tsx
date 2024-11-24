@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import axios from "../../utils/axios";
 import dayjs from "dayjs";
+import isDateInFormat from "../../utils/isDateInFormat";
 
 const SessionInfo = ({
   id,
@@ -15,6 +18,8 @@ const SessionInfo = ({
   hallName,
   setHallName,
   dateValue,
+  min,
+  max,
   setDateValue,
   providerNames,
   setProviderNames,
@@ -24,7 +29,22 @@ const SessionInfo = ({
   setEndTime,
 }: any) => {
   const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
-
+  console.log(
+    `isDateInFormat(dateValue, "YYYY-MM-DD") => ${isDateInFormat(
+      dateValue,
+      "YYYY-MM-DD"
+    )}`
+  );
+  console.log(
+    `isDateInFormat(min, "YYYY-MM-DD") => ${isDateInFormat(min, "YYYY-MM-DD")}`
+  );
+  console.log(
+    `isDateInFormat(max, "YYYY-MM-DD") => ${isDateInFormat(
+      dateValue,
+      "YYYY-MM-DD"
+    )}`
+  );
+  console.log({ dateValue, min, max });
   // Fetch data from API
   useEffect(() => {
     axios
@@ -74,10 +94,20 @@ const SessionInfo = ({
         <TextField
           type="date"
           value={
-            dayjs(dateValue).isValid()
-              ? dayjs(dateValue).format("YYYY-MM-DD")
-              : ""
+            isDateInFormat(dateValue, "YYYY-MM-DD")
+              ? dateValue
+              : dayjs(dateValue).format("YYYY-MM-DD")
           }
+          InputProps={{
+            inputProps: {
+              min: isDateInFormat(min, "YYYY-MM-DD")
+                ? min
+                : dayjs(min).format("YYYY-MM-DD"),
+              max: isDateInFormat(max, "YYYY-MM-DD")
+                ? max
+                : dayjs(max).format("YYYY-MM-DD"),
+            },
+          }}
           onChange={(e) => setDateValue(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
@@ -112,7 +142,7 @@ const SessionInfo = ({
           id="startTime"
           type="time"
           sx={{ width: 125 }}
-          value={startTime || ""}
+          value={startTime || dayjs(startTime).format("HH:mm") || ""}
           onChange={(e) => setStartTime(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
@@ -124,7 +154,7 @@ const SessionInfo = ({
           id="endTime"
           type="time"
           sx={{ width: 125 }}
-          value={endTime || ""}
+          value={endTime || dayjs(endTime).format("HH:mm") || ""}
           onChange={(e) => setEndTime(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />

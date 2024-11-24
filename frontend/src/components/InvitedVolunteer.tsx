@@ -53,22 +53,21 @@ const InvitedVolunteer = () => {
   }));
 
   console.log("activityData in invited volunteer is", activityData);
-  console.log("invitedVolunteerIds is " , invitedVolunteerIds);
-  const activivtyId = activityData.id ; 
-  console.log("activivtyId is" , activivtyId)
+  console.log("invitedVolunteerIds is ", invitedVolunteerIds);
+  const activivtyId = activityData.id;
+  console.log("activivtyId is", activivtyId);
   const handleBack = () => {
     navigate("/activity-summary");
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-    
 
     const processedSessions = sessions.map((session) => ({
       ...session,
-      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
-      startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
-      endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
+      dateValue: session.dateValue,
+      startTime: session.startTime,
+      endTime: session.endTime,
     }));
 
     const payload: any = {
@@ -581,16 +580,15 @@ const InvitedVolunteer = () => {
 
   const handleOnSave = useCallback(
     (value: any) => {
-      console.log({value});
-      console.log({newRows: [...rows, ...value]});
-      
+      console.log({ value });
+      console.log({ newRows: [...rows, ...value] });
+
       setRows([...rows, ...value]);
     },
     [rows]
   );
-  console.log("sessions in invited volunteer is" ,sessions);
-  console.log("department is")
-  
+  console.log("sessions in invited volunteer is", sessions);
+  console.log("department is");
 
   return (
     <>

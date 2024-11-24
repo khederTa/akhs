@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 // ActivityDraggableModal.tsx
 import * as React from "react";
 import {
