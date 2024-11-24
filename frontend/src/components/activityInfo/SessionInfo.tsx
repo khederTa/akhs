@@ -29,22 +29,22 @@ const SessionInfo = ({
   setEndTime,
 }: any) => {
   const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
-  console.log(
-    `isDateInFormat(dateValue, "YYYY-MM-DD") => ${isDateInFormat(
-      dateValue,
-      "YYYY-MM-DD"
-    )}`
-  );
-  console.log(
-    `isDateInFormat(min, "YYYY-MM-DD") => ${isDateInFormat(min, "YYYY-MM-DD")}`
-  );
-  console.log(
-    `isDateInFormat(max, "YYYY-MM-DD") => ${isDateInFormat(
-      dateValue,
-      "YYYY-MM-DD"
-    )}`
-  );
-  console.log({ dateValue, min, max });
+  // console.log(
+  //   `isDateInFormat(dateValue, "YYYY-MM-DD") => ${isDateInFormat(
+  //     dateValue,
+  //     "YYYY-MM-DD"
+  //   )}`
+  // );
+  // console.log(
+  //   `isDateInFormat(min, "YYYY-MM-DD") => ${isDateInFormat(min, "YYYY-MM-DD")}`
+  // );
+  // console.log(
+  //   `isDateInFormat(max, "YYYY-MM-DD") => ${isDateInFormat(
+  //     dateValue,
+  //     "YYYY-MM-DD"
+  //   )}`
+  // );
+  // console.log({ dateValue, min, max });
   // Fetch data from API
   useEffect(() => {
     axios
@@ -98,8 +98,8 @@ const SessionInfo = ({
               ? dateValue
               : dayjs(dateValue).format("YYYY-MM-DD")
           }
-          InputProps={{
-            inputProps: {
+          slotProps={{
+            htmlInput: {
               min: isDateInFormat(min, "YYYY-MM-DD")
                 ? min
                 : dayjs(min).format("YYYY-MM-DD"),
@@ -107,9 +107,20 @@ const SessionInfo = ({
                 ? max
                 : dayjs(max).format("YYYY-MM-DD"),
             },
+            inputLabel: { shrink: true },
           }}
+          // InputProps={{
+          //   inputProps: {
+          //     min: isDateInFormat(min, "YYYY-MM-DD")
+          //       ? min
+          //       : dayjs(min).format("YYYY-MM-DD"),
+          //     max: isDateInFormat(max, "YYYY-MM-DD")
+          //       ? max
+          //       : dayjs(max).format("YYYY-MM-DD"),
+          //   },
+          // }}
           onChange={(e) => setDateValue(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          // InputLabelProps={{ shrink: true }}
         />
       </Stack>
 
@@ -143,8 +154,20 @@ const SessionInfo = ({
           type="time"
           sx={{ width: 125 }}
           value={startTime || dayjs(startTime).format("HH:mm") || ""}
-          onChange={(e) => setStartTime(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (
+              val.split(":")[0] > endTime.split(":")[0] ||
+              (val.split(":")[0] === endTime.split(":")[0] &&
+                val.split(":")[1] > endTime.split(":")[1])
+            )
+              return;
+            setStartTime(val);
+          }}
+          slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          // InputLabelProps={{ shrink: true }}
         />
       </Stack>
 
@@ -155,8 +178,20 @@ const SessionInfo = ({
           type="time"
           sx={{ width: 125 }}
           value={endTime || dayjs(endTime).format("HH:mm") || ""}
-          onChange={(e) => setEndTime(e.target.value)}
-          InputLabelProps={{ shrink: true }}
+          onChange={(e) => {
+            const val = e.target.value;
+            if (
+              val.split(":")[0] < startTime.split(":")[0] ||
+              (val.split(":")[0] === startTime.split(":")[0] &&
+                val.split(":")[1] < startTime.split(":")[1])
+            )
+              return;
+            setEndTime(val);
+          }}
+          slotProps={{
+            inputLabel: { shrink: true },
+          }}
+          // InputLabelProps={{ shrink: true }}
         />
       </Stack>
 

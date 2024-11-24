@@ -37,6 +37,7 @@ export default function ActivitySummary() {
     minSessions,
     sessions,
     title,
+    hallName,
     startDate,
     activityType,
     department,
@@ -60,6 +61,7 @@ export default function ActivitySummary() {
     sessions: state.sessions,
     minSessions: state.minSessions,
     title: state.title,
+    hallName: state.hallName,
     startDate: state.startDate,
     activityType: state.activityType,
     department: state.department,
@@ -266,6 +268,15 @@ export default function ActivitySummary() {
     navigate("/invited-volunteer");
   }, [navigate]);
 
+  const handleChangeDepartment = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      sessions.map((session) => {
+        updateSession(session.key, "providerNames", []);
+        setSelectedDepartment(e.target.value);
+      });
+    },
+    [sessions, updateSession]
+  );
   return loading ? (
     <Loading />
   ) : (
@@ -298,7 +309,7 @@ export default function ActivitySummary() {
         select
         label="Department"
         value={selectedDepartment}
-        onChange={(e) => setSelectedDepartment(e.target.value)}
+        onChange={handleChangeDepartment}
         required
       >
         {departments.map((dept: any) => (
@@ -365,7 +376,7 @@ export default function ActivitySummary() {
                 // setTrainers={(value: any) =>
                 //   updateSession(session.key, "trainers", value)
                 // }
-                hallName={session.hallName}
+                hallName={session.hallName || hallName}
                 setHallName={(value: any) =>
                   updateSession(session.key, "hallName", value)
                 }
@@ -375,9 +386,7 @@ export default function ActivitySummary() {
                 }
                 min={index > 0 ? sessions[index - 1].dateValue : null}
                 max={
-                  index < numSessions - 1
-                    ? sessions[index + 1].dateValue
-                    : null
+                  index < numSessions - 1 ? sessions[index + 1].dateValue : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>

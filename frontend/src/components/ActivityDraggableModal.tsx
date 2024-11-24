@@ -45,6 +45,8 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
   const navigate = useNavigate();
   const {
+    hallName,
+    setHallName,
     title,
     setTitle,
     numSessions,
@@ -56,6 +58,8 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     setDepartment,
     setActivityType,
   } = useSessionStore((state) => ({
+    hallName: state.hallName,
+    setHallName: state.setHallName,
     title: state.title,
     setTitle: state.setTitle,
     numSessions: state.numSessions,
@@ -119,6 +123,13 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            fullWidth
+            required
+          />
+          <TextField
+            label="Hall Name"
+            value={hallName}
+            onChange={(e) => setHallName(e.target.value)}
             fullWidth
             required
           />

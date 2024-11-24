@@ -20,6 +20,7 @@ type SessionType = {
 
 type ActivityStore = {
   title: string;
+  hallName: string;
   done: boolean;
   sessions: SessionType[];
   numSessions: number;
@@ -34,6 +35,7 @@ type ActivityStore = {
   setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
+  setHallName: (value: string) => void;
   setDepartment: (value: any) => void;
   setActivityType: (value: any) => void;
   setDone: (value: boolean) => void;
@@ -66,6 +68,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
   department: {},
   activityType: {},
   title: "",
+  hallName: "",
   startDate: "",
   invitedVolunteerIds: [],
   done: false,
@@ -226,6 +229,10 @@ const useSessionStore = create<ActivityStore>((set) => ({
   setTitle: (value) =>
     set({
       title: value,
+    }),
+  setHallName: (value) =>
+    set({
+      hallName: value,
     }),
   setStartDate: (value) =>
     set({
