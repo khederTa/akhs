@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
@@ -17,8 +16,6 @@ import CustomDateRenderer from "./CustomDateRenderer";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
-  const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const {
@@ -35,22 +32,21 @@ const Activity = () => {
   } = useGridFilterSort({
     initialFilterModel: {
       title: "",
-      numSessions : 0,
-      minSessions : 0,
+      numSessions: 0,
+      minSessions: 0,
       startDate: "",
       done: false,
     },
     initialFilterVisibility: {
       title: false,
-      numSessions:false,
-      minSessions:false,
-      startDate :false ,
+      numSessions: false,
+      minSessions: false,
+      startDate: false,
       done: false,
     },
     rows, // your initial rows data
   });
-  console.log("log activitys" , rows);
-  
+  // console.log("log activitys" , rows);
 
   const paginationModel = { page: 0, pageSize: 5 };
   const columns: GridColDef[] = [
@@ -169,17 +165,17 @@ const Activity = () => {
       type: "actions",
       minWidth: 200,
       getActions: ({ id }: any) => {
-        console.log(id);
+        // console.log(id);
         return [
           <GridActionsCellItem
             icon={<PlayArrowIcon />}
             label="Execute"
-            onClick={() => navigate("/execute-activity", { state: { id} })}
+            onClick={() => navigate("/execute-activity", { state: { id } })}
           />,
           <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
-            onClick={() => navigate("/activity-summary", { state: { id  } })}
+            onClick={() => navigate("/activity-summary", { state: { id } })}
           />,
         ].filter(Boolean);
       },
@@ -191,15 +187,15 @@ const Activity = () => {
       const Activitys = axios
         .get("activity")
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           const ActivityRows = res.data.map((activity: any) => {
             return {
               id: activity?.id,
               done: activity?.done,
               title: activity?.title,
-              numSessions : activity?.numSessions,
-              minSessions : activity?.minSessions,
-              startDate : activity?.startDate,
+              numSessions: activity?.numSessions,
+              minSessions: activity?.minSessions,
+              startDate: activity?.startDate,
             };
           });
           setLoading(false);
@@ -208,15 +204,13 @@ const Activity = () => {
         })
         .catch((err) => {
           console.error(err);
-          setError(err);
         });
       return Activitys;
     }
 
-    const Activitys = fetchActivityData();
-    console.log(Activitys);
+    fetchActivityData();
   }, [setFilteredRows]);
-  console.log("rows is ", rows);
+  // console.log("rows is ", rows);
 
   // useEffect(() => {
   //     async function fetchUserData() {
@@ -264,7 +258,7 @@ const Activity = () => {
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
     <>
       {loading ? (

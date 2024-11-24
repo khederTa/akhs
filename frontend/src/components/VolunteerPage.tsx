@@ -15,8 +15,8 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
 import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
-import dayjs from "dayjs";
 import { Loading } from "./Loading";
+import dayjs from "dayjs";
 
 export default function VolunteerPage() {
   const [selectedRows, setSelectedRows] = useState([]);
@@ -51,11 +51,14 @@ export default function VolunteerPage() {
   }));
 
   const handleBack = () => {
+    console.log({ sessions });
+
     navigate("/activity-summary");
   };
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
+    console.log({ sessions });
 
     const processedSessions = sessions.map((session) => ({
       ...session,
@@ -71,7 +74,7 @@ export default function VolunteerPage() {
         departmentId: department.id,
         numSessions,
         minSessions,
-        startDate
+        startDate,
       },
       sessionsData: {
         sessions: processedSessions,
@@ -87,31 +90,6 @@ export default function VolunteerPage() {
     if (response.status === 200) {
       navigate("/activity-management");
     }
-
-    // sessions.forEach((session: any) => {
-    //   const sessionData = {
-    //     name: session.sessionName,
-    //     date: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
-    //     hall_name: session.hallName,
-    //     startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
-    //     endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
-    //     trainerIds: session.trainerName.map((trainer: any) => trainer.value),
-    //     serviceProviderIds: session.providerNames.map(
-    //       (provider: any) => provider.value
-    //     ),
-    //   };
-    //   console.log("sessionData is", sessionData);
-
-    //   axios
-    //     .post("/session", sessionData)
-    //     .then((response) => {
-    //       console.log("Session created:", response.data);
-    //       navigate("/activity-management");
-    //     })
-    //     .catch((error) => {
-    //       console.error("Error creating session:", error);
-    //     });
-    // });
   };
 
   const {
@@ -167,9 +145,9 @@ export default function VolunteerPage() {
     },
     rows, // your initial rows data
   });
+
   // Fetch volunteers with associated Person data
   useEffect(() => {
-    console.log({ activityType });
     async function fetchVolunteers() {
       setIsLoading(true);
       try {

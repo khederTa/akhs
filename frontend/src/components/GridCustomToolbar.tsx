@@ -110,7 +110,10 @@ const GridCustomToolbar = forwardRef<
         <GridToolbarDensitySelector />
         {props.mode !== "show" && (
           <>
-            <Button onClick={() => setReportModalIsOpen(true)}>
+            <Button
+              onClick={() => setReportModalIsOpen(true)}
+              disabled={rows.length === 0}
+            >
               <FileDownloadOutlinedIcon />
               {t("export")}
             </Button>
