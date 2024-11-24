@@ -59,9 +59,9 @@ export default function VolunteerPage() {
 
     const processedSessions = sessions.map((session) => ({
       ...session,
-      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD"),
-      startTime: dayjs(session.startTime.$d).format("HH:mm:ss"),
-      endTime: dayjs(session.endTime.$d).format("HH:mm:ss"),
+      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
+      startTime: dayjs(session.startTime.$d).format("hh:mm:ss"),
+      endTime: dayjs(session.endTime.$d).format("hh:mm:ss"),
     }));
 
     const payload: any = {

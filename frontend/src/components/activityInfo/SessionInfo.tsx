@@ -24,7 +24,7 @@ const SessionInfo = ({
   setEndTime,
 }: any) => {
   const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
-
+  console.table({dateValue})
   // Fetch data from API
   useEffect(() => {
     axios
@@ -112,7 +112,7 @@ const SessionInfo = ({
           id="startTime"
           type="time"
           sx={{ width: 125 }}
-          value={startTime || ""}
+          value={dayjs(startTime).format("hh:mm:ss") || ""}
           onChange={(e) => setStartTime(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
@@ -124,7 +124,7 @@ const SessionInfo = ({
           id="endTime"
           type="time"
           sx={{ width: 125 }}
-          value={endTime || ""}
+          value={dayjs(endTime).format("hh:mm:ss")  || ""}
           onChange={(e) => setEndTime(e.target.value)}
           InputLabelProps={{ shrink: true }}
         />
