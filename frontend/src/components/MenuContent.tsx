@@ -52,7 +52,7 @@ const mainListItems = [
   {
     text: "activity type management",
     icon: <EditCalendarRoundedIcon />,
-    to: "/activity-types",
+    to: "/activity-modules",
     access: "read_activityType",
   },
   {

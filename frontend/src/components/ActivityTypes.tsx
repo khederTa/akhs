@@ -602,7 +602,7 @@ export function ActivityTypes() {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
-                  navigateTo={"/new-activity-type"}
+                  navigateTo={"/new-activity-module"}
                 />
               ),
             }}
