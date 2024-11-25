@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
@@ -51,6 +50,7 @@ const Activity = () => {
     rows, // your initial rows data
   });
   console.log("log activitys", rows);
+  // console.log("log activitys" , rows);
 
   const paginationModel = { page: 0, pageSize: 5 };
   const columns: GridColDef[] = [
@@ -159,7 +159,7 @@ const Activity = () => {
       type: "actions",
       minWidth: 200,
       getActions: ({ id }: any) => {
-        console.log(id);
+        // console.log(id);
         return [
           <GridActionsCellItem
             icon={<PlayArrowIcon />}
@@ -181,7 +181,7 @@ const Activity = () => {
       const Activitys = axios
         .get("activity")
         .then((res) => {
-          console.log(res.data);
+          // console.log(res.data);
           const ActivityRows = res.data.map((activity: any) => {
             return {
               id: activity?.id,
@@ -203,10 +203,9 @@ const Activity = () => {
       return Activitys;
     }
 
-    const Activitys = fetchActivityData();
-    console.log(Activitys);
+    fetchActivityData();
   }, [setFilteredRows]);
-  console.log("rows is ", rows);
+  // console.log("rows is ", rows);
 
   // useEffect(() => {
   //     async function fetchUserData() {
@@ -253,7 +252,7 @@ const Activity = () => {
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
     <>
       {loading ? (

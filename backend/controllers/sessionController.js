@@ -10,7 +10,7 @@ exports.getAllSessions = async (req, res) => {
 exports.createSession = async (req, res) => {
   try {
     // Create the session
-    const { name, date, hall_name, startTime, endTime, trainerIds, serviceProviderIds } = req.body;
+    const { name, date, hall_name, startTime, endTime, serviceProviderIds } = req.body;
 
     const session = await Session.create({
       name,
@@ -20,10 +20,10 @@ exports.createSession = async (req, res) => {
       endTime,
     });
 
-    // Set the associations
-    if (trainerIds && trainerIds.length > 0) {
-      await session.addServiceProviders(trainerIds); // Link trainers as service providers
-    }
+    // // Set the associations
+    // if (trainerIds && trainerIds.length > 0) {
+    //   await session.addServiceProviders(trainerIds); // Link trainers as service providers
+    // }
 
     if (serviceProviderIds && serviceProviderIds.length > 0) {
       await session.addServiceProviders(serviceProviderIds); // Link service providers

@@ -20,6 +20,7 @@ type SessionType = {
 
 type ActivityStore = {
   title: string;
+  hallName: string;
   done: boolean;
   sessions: SessionType[];
   numSessions: number;
@@ -34,6 +35,7 @@ type ActivityStore = {
   setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
+  setHallName: (value: string) => void;
   setDepartment: (value: any) => void;
   setActivityType: (value: any) => void;
   setDone: (value: boolean) => void;
@@ -53,6 +55,12 @@ type ActivityStore = {
   setActivityData: (value: any) => void;
 };
 
+function generateRandomNumber(): number {
+  const min = 100000000;
+  const max = 999999999;
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 const useSessionStore = create<ActivityStore>((set) => ({
   sessions: [],
   numSessions: 1,
@@ -60,6 +68,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
   department: {},
   activityType: {},
   title: "",
+  hallName: "",
   startDate: "",
   invitedVolunteerIds: [],
   done: false,
@@ -153,18 +162,34 @@ const useSessionStore = create<ActivityStore>((set) => ({
         { length: state.numSessions },
         (_, index) => {
           const existingSession = state.sessions[index] || {};
+          const id =
+            existingSession.id && existingSession.id > 0
+              ? existingSession.id
+              : -1 * (state.numSessions - index);
           return {
-            id: existingSession.id || index + 1, // Ensure id is present
+            id,
             key: index + 1,
             sessionName: existingSession.sessionName || "",
             serviceProviders: existingSession.serviceProviders || [],
             trainers: existingSession.trainers || [],
             hallName: existingSession.hallName || "",
-            dateValue: existingSession.dateValue || dayjs().add(index, "day"),
+            dateValue:
+              (dayjs(state.startDate).isValid()
+                ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")
+                : "") ||
+              existingSession.dateValue ||
+              dayjs(existingSession.dateValue).format("YYYY-MM-DD"),
+
             providerNames: existingSession.providerNames || [],
             trainerName: existingSession.trainerName || [],
-            startTime: existingSession.startTime || dayjs(),
-            endTime: existingSession.endTime || dayjs(),
+            startTime:
+              existingSession.startTime ||
+              dayjs(existingSession.startTime).format("HH:mm") ||
+              dayjs(),
+            endTime:
+              existingSession.endTime ||
+              dayjs(existingSession.endTime).format("HH:mm") ||
+              dayjs(),
           };
         }
       );
@@ -204,6 +229,10 @@ const useSessionStore = create<ActivityStore>((set) => ({
   setTitle: (value) =>
     set({
       title: value,
+    }),
+  setHallName: (value) =>
+    set({
+      hallName: value,
     }),
   setStartDate: (value) =>
     set({

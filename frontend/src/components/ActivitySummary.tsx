@@ -37,6 +37,7 @@ export default function ActivitySummary() {
     minSessions,
     sessions,
     title,
+    hallName,
     startDate,
     activityType,
     department,
@@ -60,6 +61,7 @@ export default function ActivitySummary() {
     sessions: state.sessions,
     minSessions: state.minSessions,
     title: state.title,
+    hallName: state.hallName,
     startDate: state.startDate,
     activityType: state.activityType,
     department: state.department,
@@ -119,6 +121,7 @@ export default function ActivitySummary() {
   console.log("startDate is", startDate);
   console.log("sessions is", sessions);
   console.log("mode is", mode);
+  console.log("depObject is in activitysummary", depObject);
 
   useEffect(() => {
     setDepartment(depObject);
@@ -265,6 +268,15 @@ export default function ActivitySummary() {
     navigate("/invited-volunteer");
   }, [navigate]);
 
+  const handleChangeDepartment = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      sessions.map((session) => {
+        updateSession(session.key, "providerNames", []);
+        setSelectedDepartment(e.target.value);
+      });
+    },
+    [sessions, updateSession]
+  );
   return loading ? (
     <Loading />
   ) : (
@@ -297,7 +309,7 @@ export default function ActivitySummary() {
         select
         label="Department"
         value={selectedDepartment}
-        onChange={(e) => setSelectedDepartment(e.target.value)}
+        onChange={handleChangeDepartment}
         required
       >
         {departments.map((dept: any) => (
@@ -364,13 +376,17 @@ export default function ActivitySummary() {
                 // setTrainers={(value: any) =>
                 //   updateSession(session.key, "trainers", value)
                 // }
-                hallName={session.hallName}
+                hallName={session.hallName || hallName}
                 setHallName={(value: any) =>
                   updateSession(session.key, "hallName", value)
                 }
                 dateValue={session.dateValue}
                 setDateValue={(value: any) =>
                   updateSession(session.key, "dateValue", value)
+                }
+                min={index > 0 ? sessions[index - 1].dateValue : null}
+                max={
+                  index < numSessions - 1 ? sessions[index + 1].dateValue : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>
