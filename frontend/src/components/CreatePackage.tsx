@@ -193,7 +193,7 @@ export function CreatePackage() {
             multiple
             options={activityTypes}
             value={selectedActivityTypes}
-            onChange={(event, newValue: any) =>
+            onChange={(_event, newValue: any) =>
               setSelectedActivityTypes(newValue)
             }
             getOptionLabel={(option) => option.name || ""}

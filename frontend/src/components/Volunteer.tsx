@@ -9,7 +9,7 @@ import {
   useGridApiRef,
 } from "@mui/x-data-grid";
 import { Loading } from "./Loading";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -79,11 +79,11 @@ export const AntSwitch = styled(Switch)(({ theme }: any) => ({
   },
 }));
 
-type DateFilterValue = {
-  value: string;
-  operator: "equals" | "before" | "after" | "between";
-  endDate?: string;
-};
+// type DateFilterValue = {
+//   value: string;
+//   operator: "equals" | "before" | "after" | "between";
+//   endDate?: string;
+// };
 
 const Volunteer = () => {
   const [rows, setRows] = useState<any[]>([]);
@@ -877,7 +877,7 @@ const Volunteer = () => {
 
   const handleFileUpload = useCallback(
     async (base64FileData: string) => {
-      const response = await axios.put(`file/${fileId}`, {
+      await axios.put(`file/${fileId}`, {
         fileData: base64FileData,
       });
     },

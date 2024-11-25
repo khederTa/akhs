@@ -28,7 +28,7 @@ export const DIRECTION_ACTIONS = {
 
 export const DirectionContext = React.createContext({
   direction: "ltr", // Default to LTR
-  dispatchDirection: (action: { type: string; payload: string }) => {}, // Placeholder function
+  dispatchDirection: (_action: { type: string; payload: string }) => {}, // Placeholder function
 });
 
 function directionReducer(
@@ -51,7 +51,7 @@ export default function AppTheme({
   disableCustomTheme,
   themeComponents,
 }: AppThemeProps) {
-  const [dir, setDir] = React.useState(
+  const [dir, ] = React.useState(
     () => localStorage.getItem("dir") || "ltr"
   );
   // State for direction based on current language
@@ -111,6 +111,17 @@ export default function AppTheme({
         shadows,
         shape,
         components: {
+          MuiCssBaseline: {
+            styleOverrides: {
+              "*::-webkit-scrollbar": { width: "8px" },
+              "*::-webkit-scrollbar-track": { background: "#e1e1e1" },
+              "*::-webkit-scrollbar-thumb": {
+                background: "#666",
+                borderRadius: "1px",
+              },
+              "*::-webkit-scrollbar-thumb:hover": { background: "#444" },
+            },
+          },
           ...inputsCustomizations,
           ...dataDisplayCustomizations,
           ...feedbackCustomizations,

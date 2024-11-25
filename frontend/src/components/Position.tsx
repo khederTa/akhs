@@ -27,8 +27,8 @@ const Position = () => {
   const [action, setAction] = useState("");
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [rowToDelete, setRowToDelete] = useState<any>(null);
+  const [, setIsDeleteDialogOpen] = useState(false);
+  const [, setRowToDelete] = useState<any>(null);
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);

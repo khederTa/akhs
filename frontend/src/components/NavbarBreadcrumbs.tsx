@@ -36,6 +36,7 @@ const URL_MAP = {
   "/new-department": "create new department",
   "/serviceprovider-information": "create new service provider",
   "/volunteer-information": "create new volunteer",
+  "/execute-activity": "execute activity",
 };
 export default function NavbarBreadcrumbs() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction

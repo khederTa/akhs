@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { useState, useEffect } from "react";
 import SessionInfo from "./SessionInfo";
 import { Button } from "@mui/material";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import axios from "../../utils/axios";
 
 const ActivityInfo = () => {
@@ -22,11 +23,8 @@ const ActivityInfo = () => {
     },
   ]);
 
-  
-
   const [rows, setRows] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState();
+  const [, setLoading] = useState(true);
   useEffect(() => {
     async function fetchVolunteerData() {
       const volunteerData = await axios
@@ -54,7 +52,6 @@ const ActivityInfo = () => {
         })
         .catch((err) => {
           console.error(err);
-          setError(err);
         });
       return volunteerData;
     }
@@ -71,7 +68,7 @@ const ActivityInfo = () => {
     );
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = (event: any) => {
     event.preventDefault();
 
     // Filter out sessions where all fields are filled
@@ -134,7 +131,7 @@ const ActivityInfo = () => {
     setSessions(sessions.filter((session) => session.key !== keyToRemove));
   };
 
-  const columns: GridColDef[] = [
+  const columns: any[] = [
     { field: "id", headerName: "ID", width: 70 },
     { field: "firstName", headerName: "First name", width: 130 },
     { field: "middleName", headerName: "Middle name", width: 130 },
@@ -145,11 +142,10 @@ const ActivityInfo = () => {
       field: "fullName",
       headerName: "Full name",
       description: "This column has a value getter and is not sortable.",
-      valueGetter: (value, row) =>
+      valueGetter: (_value: any, row: { firstName: any; lastName: any }) =>
         `${row.firstName || ""} ${row.lastName || ""}`,
       minWidth: 150,
     },
-    ,
     { field: "phone", headerName: "Phone", width: 130 },
     { field: "email", headerName: "Email", width: 130 },
     { field: "birthDate", headerName: "Bdate", width: 130 },

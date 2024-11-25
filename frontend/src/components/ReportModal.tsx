@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
@@ -7,6 +8,7 @@ import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { exportToExcel } from "../utils/exportToExcel";
+import { useTranslation } from "react-i18next";
 
 interface ReportModalProps {
   open: boolean;
@@ -14,6 +16,7 @@ interface ReportModalProps {
   setReportName: (name: string) => void;
   reportName: string;
   rows: any;
+  columnVisibilityModel: any;
 }
 
 export function ReportModal({
@@ -22,7 +25,9 @@ export function ReportModal({
   setReportName,
   reportName,
   rows,
+  columnVisibilityModel
 }: ReportModalProps) {
+  const { t } = useTranslation();
   return (
     <Dialog
       open={open}
@@ -31,16 +36,25 @@ export function ReportModal({
         component: "form",
         onSubmit: (event: React.FormEvent<HTMLFormElement>) => {
           event.preventDefault();
-          exportToExcel(rows, reportName);
+          exportToExcel(
+            rows,
+            columnVisibilityModel,
+            reportName
+          )
           handleClose();
         },
       }}
     >
-      <DialogTitle>Export Report</DialogTitle>
+      <DialogTitle>{t("export report")}</DialogTitle>
       <DialogContent
-        sx={{ display: "flex", flexDirection: "column", gap: 2, minWidth: "350px" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 2,
+          minWidth: "350px",
+        }}
       >
-        <DialogContentText>Enter your report name</DialogContentText>
+        <DialogContentText>{t("Enter your report name")}</DialogContentText>
         <OutlinedInput
           autoFocus
           required
@@ -48,7 +62,7 @@ export function ReportModal({
           id="reportName"
           name="reportName"
           label="Report Name"
-          placeholder="e.g CoronaVirus Report"
+          placeholder={t("e.g CoronaVirus Report")}
           type="text"
           value={reportName}
           onChange={(e: any) => setReportName(e.target.value)}
@@ -56,9 +70,9 @@ export function ReportModal({
         />
       </DialogContent>
       <DialogActions sx={{ pb: 3, px: 3 }}>
-        <Button onClick={handleClose}>Cancel</Button>
+        <Button onClick={handleClose}>{t("cancel")}</Button>
         <Button variant="contained" type="submit">
-          Export
+          {t("export")}
         </Button>
       </DialogActions>
     </Dialog>

@@ -4,7 +4,6 @@
 import { Button, FormControlLabel, FormGroup } from "@mui/material";
 import {
   GridToolbarContainerProps,
-  useGridRootProps,
   GridToolbarContainer,
   GridToolbarColumnsButton,
   GridToolbarDensitySelector,
@@ -23,6 +22,7 @@ import VolunteerModal from "./VolunteerModal";
 
 type ToolbarProps = {
   rows: any;
+  columnVisibilityModel: any;
   navigateTo: string;
   clearAllFilters: () => void;
   mode?: string;
@@ -33,9 +33,8 @@ type ToolbarProps = {
 const GridCustomToolbar = forwardRef<
   HTMLDivElement,
   GridToolbarContainerProps & ToolbarProps
->(function GridToolbar(props, ref) {
-  const { className, clearAllFilters, rows, navigateTo, ...other } = props;
-  const rootProps = useGridRootProps();
+>(function GridToolbar(props, _ref) {
+  const { clearAllFilters, rows, columnVisibilityModel, navigateTo } = props;
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const navigate = useNavigate();
@@ -47,6 +46,22 @@ const GridCustomToolbar = forwardRef<
     event.target.checked;
     if (props.setGetEligible) props.setGetEligible(event.target.checked);
   };
+  // Create a new array with translated keys
+  const translatedRows = rows.map((row: any) => {
+    if (!row) return;
+    const translatedRow: any = {};
+    Object.keys(row)
+      .sort()
+      .forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+    return translatedRow;
+  });
   return (
     <>
       <VolunteerModal
@@ -57,9 +72,10 @@ const GridCustomToolbar = forwardRef<
       <ReportModal
         open={reportModalIsOpen}
         handleClose={() => setReportModalIsOpen(false)}
+        columnVisibilityModel={columnVisibilityModel}
         setReportName={setReportName}
         reportName={reportName}
-        rows={rows}
+        rows={translatedRows}
       />
       <ActivityDraggableModal open={open} onClose={() => setOpen(false)} />
 
@@ -106,6 +122,7 @@ const GridCustomToolbar = forwardRef<
             </Button>
           </>
         )}
+
         <GridToolbarColumnsButton />
         <GridToolbarDensitySelector />
         {props.mode !== "show" && (
