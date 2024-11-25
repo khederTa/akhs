@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Button, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -18,8 +18,6 @@ import axios from "../utils/axios";
 import DraggableDialog from "./DraggableDialog"; // Import the dialog component
 import FilterHeader from "./FilterHeader";
 import { useTranslation } from "react-i18next";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import { ReportModal } from "./ReportModal";
 import AlertNotification from "./AlertNotification";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
@@ -287,16 +285,19 @@ const Department = () => {
     }
   };
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
   useEffect(() => console.log(selectedRows), [selectedRows]);
+  useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
       <ReportModal
@@ -305,6 +306,7 @@ const Department = () => {
         setReportName={setReportName}
         reportName={reportName}
         rows={rows}
+        columnVisibilityModel={columnVisibilityModel}
       />
       <AlertNotification
         open={alertOpen}
@@ -337,6 +339,7 @@ const Department = () => {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
+                  columnVisibilityModel={columnVisibilityModel}
                   navigateTo={"/new-department"}
                 />
               ),
@@ -349,10 +352,16 @@ const Department = () => {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

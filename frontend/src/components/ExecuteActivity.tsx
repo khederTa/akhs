@@ -1,16 +1,23 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useEffect, useMemo, useState } from "react";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from "react";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRowModel,
+} from "@mui/x-data-grid";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import useSessionStore from "../store/activityStore";
 import { useTranslation } from "react-i18next";
 import FilterHeader from "./FilterHeader";
-import { Paper } from "@mui/material";
+import { Box, Button, Paper } from "@mui/material";
 import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from "@mui/icons-material/Close";
+import AlertNotification from "./AlertNotification";
 type VolunteerRow = {
   id: number;
   fullName: string;
@@ -24,16 +31,22 @@ export default function ExecuteActivity() {
   const [selectedRows, setSelectedRows] = useState([]);
   const [activityId, setActivityId] = useState();
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
   const {
     filteredRows,
     sortModel,
     filterModel,
     filterVisibility,
-    setFilteredRows,
     setFilterVisibility,
     handleTextFilterChange,
-    handleDateFilterChange,
     clearFilter,
     clearAllFilters,
     handleSortClick,
@@ -49,15 +62,11 @@ export default function ExecuteActivity() {
   const {
     title,
     setTitle,
-    done,
     setDone,
-    numSessions,
-    setNumSessions,
     minSessions,
+    setNumSessions,
     setMinSessions,
-    department,
     setDepartment,
-    activityType,
     setActivityType,
     sessions,
     addNewSession,
@@ -68,15 +77,11 @@ export default function ExecuteActivity() {
   } = useSessionStore((state) => ({
     title: state.title,
     setTitle: state.setTitle,
-    done: state.done,
     setDone: state.setDone,
-    numSessions: state.numSessions,
-    setNumSessions: state.setNumSessions,
     minSessions: state.minSessions,
+    setNumSessions: state.setNumSessions,
     setMinSessions: state.setMinSessions,
-    department: state.department,
     setDepartment: state.setDepartment,
-    activityType: state.activityType,
     setActivityType: state.setActivityType,
     sessions: state.sessions,
     addNewSession: state.addNewSession,
@@ -90,6 +95,8 @@ export default function ExecuteActivity() {
     resetStore();
     async function fetchActivityData() {
       const response = await axios.get(`/activity/${location.state.id}`);
+      console.log(response);
+
       if (response.status === 200) {
         const activityData = response.data;
         setActivityId(response.data.id);
@@ -144,13 +151,7 @@ export default function ExecuteActivity() {
             notes: volunteer.VolunteerAttendedActivity.notes || "",
             volunteerAttendedActivity:
               volunteer.VolunteerAttendedActivity.status === "attended",
-            // activityData.Sessions.filter((session: any) =>
-            //   session.Attendees.some(
-            //     (attendee: any) =>
-            //       attendee.volunteerId === volunteer.volunteerId &&
-            //       attendee.VolunteerAttendedSessions?.status === "attended"
-            //   )
-            // ).length >= activityData.minSessions,
+
             ...attendance,
           };
         });
@@ -183,18 +184,30 @@ export default function ExecuteActivity() {
           type="checkbox"
           checked={params.value || false}
           onChange={async (e) => {
+            let flag = false;
+            if (e.target.checked) {
+              let numberOfAttendedSession = 1;
+              for (const key in params.row) {
+                if (key.startsWith("session_") && params.row[key] === true)
+                  numberOfAttendedSession++;
+              }
+              if (numberOfAttendedSession >= minSessions) {
+                flag = true;
+              } else {
+                flag = false;
+              }
+            }
+            console.log({ flag });
             const updatedRows = rows.map((row) =>
               row.id === params.row.id
-                ? { ...row, [params.field]: e.target.checked }
+                ? {
+                    ...row,
+                    [params.field]: e.target.checked,
+                    volunteerAttendedActivity: flag,
+                  }
                 : row
             );
             setRows(updatedRows);
-            await axios.put(
-              `/volunteerAttendedSession/${params.row.id}/${session.key}`,
-              {
-                attended: e.target.checked,
-              }
-            );
           }}
         />
       ),
@@ -234,6 +247,16 @@ export default function ExecuteActivity() {
             type="checkbox"
             checked={params.value || false}
             onChange={async (e) => {
+              if (e.target.checked) {
+                let numberOfAttendedSession = 0;
+                for (const key in params.row) {
+                  if (key.startsWith("session_") && params.row[key] === true)
+                    numberOfAttendedSession++;
+                }
+                if (numberOfAttendedSession < minSessions) {
+                  return;
+                }
+              }
               console.log(params);
               const updatedRows = rows.map((row) =>
                 row.id === params.row.id
@@ -241,12 +264,6 @@ export default function ExecuteActivity() {
                   : row
               );
               setRows(updatedRows);
-              await axios.put(
-                `/volunteerAttendedActivity/${params.row.id}/${activityId}`,
-                {
-                  attended: e.target.checked,
-                }
-              );
             }}
           />
         ),
@@ -257,15 +274,16 @@ export default function ExecuteActivity() {
         width: 300,
         sortable: false,
         hideSortIcons: true,
+        editable: true,
       },
     ];
   }, [
-    activityId,
     clearFilter,
     filterModel,
     filterVisibility,
     handleSortClick,
     handleTextFilterChange,
+    minSessions,
     rows,
     sessions,
     setFilterVisibility,
@@ -279,14 +297,80 @@ export default function ExecuteActivity() {
     setInvitedVolunteerIds(newSelection as any);
     setSelectedRows(newSelectedRows);
   };
+  const handleSave = async () => {
+    try {
+      for (const row of rows) {
+        console.log({ row });
+        const rowSessions = Object.fromEntries(
+          Object.entries(row).filter(([key]) => key.startsWith("session_"))
+        );
+        console.log({
+          sessions: Object.fromEntries(
+            Object.entries(row).filter(([key]) => key.startsWith("session_"))
+          ),
+        });
+
+        await axios.put(`/volunteerAttendedActivity/${row.id}/${activityId}`, {
+          notes: row.notes, // Save notes
+          attended: row.volunteerAttendedActivity, // Save activity attendance
+        });
+        Object.keys(rowSessions).forEach(async (key) => {
+          await axios.put(
+            `/volunteerAttendedSession/${row.id}/${key.split("_")[1]}`,
+            { attended: rowSessions[key] }
+          );
+        });
+      }
+      setAlertMessage("Changes saved successfully!");
+      setAlertSeverity("success");
+    } catch (error) {
+      console.error("Failed to save changes:", error);
+      alert("An error occurred while saving changes.");
+    } finally {
+      setAlertOpen(true);
+    }
+  };
+
+  const handleSaveAndComplete = async () => {
+    await handleSave();
+    try {
+      await axios.put(`/activity/${activityId}`, { done: true });
+      setDone(true);
+      setAlertMessage("Activity saved and marked as complete!");
+      setAlertSeverity("success");
+    } catch (error) {
+      console.error("Failed to markactivity  as complete:", error);
+      alert("An error occurred while completing the activity.");
+    } finally {
+      setAlertOpen(true);
+    }
+  };
+
+  const handleExit = () => {
+    navigate("/activity-management");
+  };
+  const handleProcessRowUpdate = (newRow: GridRowModel) => {
+    setRows((prev: any) =>
+      prev.map((row: any) => (row.id === newRow.id ? newRow : row))
+    );
+    return newRow;
+  };
+
   return (
     <>
-      <h1>{title}</h1>
-      <Paper sx={{ height: 500, width: "100%" }}>
+      <AlertNotification
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={handleAlertClose}
+      />
+      <h2>{title}</h2>
+      <Paper sx={{ height: 400, width: "100%" }}>
         <DataGrid
           rows={filteredRows}
           getRowId={(row) => row.id} // Ensure the correct row ID is used
           columns={columns}
+          processRowUpdate={handleProcessRowUpdate}
           disableColumnFilter
           disableColumnMenu
           localeText={{
@@ -303,22 +387,6 @@ export default function ExecuteActivity() {
               />
             ),
           }}
-          onCellEditStop={async (params, event: any) => {
-            if (params.field === "notes") {
-              const updatedRows = rows.map((row) =>
-                row.id === params.id
-                  ? { ...row, notes: (event.target as HTMLInputElement).value }
-                  : row
-              );
-              setRows(updatedRows);
-              await axios.put(
-                `/volunteerAttendedActivity/${params.id}/${activityId}`,
-                {
-                  notes: (event.target as HTMLInputElement).value,
-                }
-              );
-            }
-          }}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
           checkboxSelection // Enable checkboxes for row selection
@@ -329,6 +397,32 @@ export default function ExecuteActivity() {
           disableRowSelectionOnClick
         />
       </Paper>
+      <Box justifyContent={"flex-start"} mt={2}>
+        <Button
+          onClick={handleSaveAndComplete}
+          sx={{ minWidth: "250px", margin: "0 15px", gap: "10px" }}
+          variant="contained"
+        >
+          <AssignmentTurnedInIcon fontSize="small" />
+          {t("save and complete")}
+        </Button>
+        <Button
+          onClick={handleSave}
+          sx={{ minWidth: "150px", margin: "0 15px", gap: "10px" }}
+          variant="outlined"
+        >
+          <SaveIcon fontSize="small" />
+          {t("save")}
+        </Button>
+        <Button
+          onClick={handleExit}
+          sx={{ minWidth: "150px", margin: "0 15px", gap: "10px" }}
+          variant="outlined"
+        >
+          <CloseIcon fontSize="small" />
+          {t("exit")}
+        </Button>
+      </Box>
     </>
   );
 }

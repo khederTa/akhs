@@ -213,7 +213,7 @@ export default function ActivitySummary() {
     };
     fetchData();
   }, [
-    activityData,
+    // activityData,
     location.state,
     navigate,
     setActivityData,

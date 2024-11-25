@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar";
@@ -63,7 +64,7 @@ export default function SideMenu() {
       >
         <Avatar
           sizes="small"
-          alt={username}
+          alt={username as any}
           src="/static/images/avatar/7.jpg"
           sx={{ width: 36, height: 36 }}
         />

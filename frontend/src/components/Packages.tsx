@@ -30,13 +30,13 @@ export function Packages() {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<any>(null);
-  const [packages, setPackages] = useState<any[]>([]);
+  const [, setPackages] = useState<any[]>([]);
   const [activityTypes, setActivityTypes] = useState<any[]>([]);
   const apiRef = useGridApiRef();
   const { t } = useTranslation();
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+  const [alertMessage, ] = useState("");
+  const [alertSeverity, ] = useState<"success" | "error">(
     "success"
   );
   const handleAlertClose = () => {

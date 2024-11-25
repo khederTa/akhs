@@ -13,10 +13,7 @@ import Paper from "@mui/material/Paper";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
-import FileDownloadOutlinedIcon from "@mui/icons-material/FileDownloadOutlined";
-import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
 import {
-  Button,
   Stack,
   Chip,
   Box,
@@ -26,7 +23,6 @@ import {
 } from "@mui/material";
 import axios from "../utils/axios";
 import { Loading } from "./Loading";
-import { ReportModal } from "./ReportModal";
 import styled from "@emotion/styled";
 import FilterHeader from "./FilterHeader";
 import { useTranslation } from "react-i18next";
@@ -85,8 +81,6 @@ const AntSwitch = styled(Switch)(({ theme }: any) => ({
 export function ActivityTypes() {
   const [rows, setRows] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
-  const [reportName, setReportName] = useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(

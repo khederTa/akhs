@@ -71,7 +71,7 @@ export default function VolunteerPage() {
         departmentId: department.id,
         numSessions,
         minSessions,
-        startDate
+        startDate,
       },
       sessionsData: {
         sessions: processedSessions,
@@ -611,6 +611,10 @@ export default function VolunteerPage() {
     setInvitedVolunteerIds(newSelection as any);
     setSelectedRows(newSelectedRows);
   };
+
+  useEffect(() => {
+    console.log({ invitedVolunteerIds });
+  }, [invitedVolunteerIds]);
 
   return (
     <>

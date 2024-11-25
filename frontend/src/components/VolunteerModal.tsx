@@ -53,7 +53,7 @@ export default function VolunteerModal({
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = React.useState(true);
   // Zustand store session state management
-  const { invitedVolunteerIds, setInvitedVolunteerIds, activityType } =
+  const { invitedVolunteerIds, activityType } =
     useSessionStore((state) => ({
       invitedVolunteerIds: state.invitedVolunteerIds,
       setInvitedVolunteerIds: state.setInvitedVolunteerIds,
@@ -554,8 +554,8 @@ export default function VolunteerModal({
         setIsLoading(false);
       }
     }
-    fetchVolunteers();
-  }, [activityType, getEligible, invitedVolunteerIds, setFilteredRows]);
+    if (open) fetchVolunteers();
+  }, [activityType, getEligible, invitedVolunteerIds, open, setFilteredRows]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
       return filteredRows.find((row) => row.id === selected);

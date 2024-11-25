@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
@@ -5,7 +6,6 @@ import axios from "../../utils/axios";
 import dayjs from "dayjs";
 
 const SessionInfo = ({
-  id,
   selectedDepartment,
   removeSession,
   sessionName,
@@ -42,7 +42,7 @@ const SessionInfo = ({
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  }, [setServiceProviders]);
 
   useEffect(() => {
     const selectedProvider = serviceProviders.filter(
@@ -100,7 +100,7 @@ const SessionInfo = ({
           multiple
           options={selectedServiceProvider || []}
           value={Array.isArray(providerNames) ? providerNames : []}
-          onChange={(event, newValue) => setProviderNames(newValue)}
+          onChange={(_event, newValue) => setProviderNames(newValue)}
           getOptionLabel={(option) => option?.label || ""}
           renderInput={(params) => <TextField {...params} variant="standard" />}
         />

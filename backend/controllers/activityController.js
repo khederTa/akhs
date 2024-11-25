@@ -17,7 +17,15 @@ const { QueryTypes } = require("sequelize");
 
 exports.getAllActivities = async (req, res) => {
   const Activities = await Activity.findAll({
-    attributes: ["id", "title", "done" , "numSessions", "minSessions" , "startDate"],
+    attributes: [
+      "id",
+      "title",
+      "done",
+      "numSessions",
+      "minSessions",
+      "startDate",
+    ],
+    include: [{ model: ActivityType }],
   });
   res.json(Activities);
 };
@@ -137,7 +145,6 @@ exports.getActivityById = async (req, res) => {
                         "koboSkill",
                         "fileId",
                       ],
-                   
                     },
                   ],
                 },
@@ -149,7 +156,7 @@ exports.getActivityById = async (req, res) => {
                   model: Position,
                   attributes: ["id", "name"],
                 },
-              ]
+              ],
             },
             {
               model: VolunteerAttendedSessions,
