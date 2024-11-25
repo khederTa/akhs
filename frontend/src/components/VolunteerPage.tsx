@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
 import { Loading } from "./Loading";
+import dayjs from "dayjs";
 
 export default function VolunteerPage() {
   const [rows, setRows] = useState([]);
@@ -58,9 +59,9 @@ export default function VolunteerPage() {
 
     const processedSessions = sessions.map((session) => ({
       ...session,
-      dateValue: session.dateValue,
-      startTime: session.startTime,
-      endTime: session.endTime,
+      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
+      startTime: dayjs(session.startTime.$d).format("hh:mm:ss"),
+      endTime: dayjs(session.endTime.$d).format("hh:mm:ss"),
     }));
 
     const payload: any = {

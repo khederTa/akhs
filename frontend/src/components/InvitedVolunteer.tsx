@@ -625,7 +625,7 @@ const InvitedVolunteer = () => {
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
           <Typography variant="body1">
-            Activity Type: {activityType.name}
+            Activity Module: {activityType.name}
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
           <Typography variant="body1">Start Date: {startDate}</Typography>

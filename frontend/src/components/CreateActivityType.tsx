@@ -97,7 +97,7 @@ export function CreateActivityType() {
         .post("/activityType", payload)
         .then((res) => {
           if (res.status) {
-            navigate("/activity-Modules"); // Redirect upon success
+            navigate("/activity-modules"); // Redirect upon success
           }
         })
         .catch((error) => console.error(error));
