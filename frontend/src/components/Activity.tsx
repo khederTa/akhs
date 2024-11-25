@@ -13,9 +13,11 @@ import FilterHeader from "./FilterHeader";
 import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
+import DateFilterHeader from "./DateFilterHeader";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
   const { t } = useTranslation();
   const {
@@ -26,6 +28,7 @@ const Activity = () => {
     setFilteredRows,
     setFilterVisibility,
     handleTextFilterChange,
+    handleDateFilterChange,
     clearFilter,
     clearAllFilters,
     handleSortClick,
@@ -46,6 +49,7 @@ const Activity = () => {
     },
     rows, // your initial rows data
   });
+  console.log("log activitys", rows);
   // console.log("log activitys" , rows);
 
   const paginationModel = { page: 0, pageSize: 5 };
@@ -78,15 +82,15 @@ const Activity = () => {
       ),
     },
     {
-      field: "numSessions",
-      headerName: t("numSessions"),
+      field: "activityType",
+      headerName: t("activity type"),
       minWidth: 200,
       sortable: false,
       hideSortIcons: true,
       renderHeader: () => (
         <FilterHeader
-          key={"numSessions"}
-          field={"numSessions"}
+          key={"activity type"}
+          field={"activity type"}
           filterModel={filterModel}
           sortModel={sortModel}
           filterVisibility={filterVisibility}
@@ -98,24 +102,14 @@ const Activity = () => {
       ),
     },
     {
+      field: "numSessions",
+      headerName: t("numSessions"),
+      minWidth: 150,      
+    },
+    {
       field: "minSessions",
       headerName: t("minSessions"),
-      minWidth: 200,
-      sortable: false,
-      hideSortIcons: true,
-      renderHeader: () => (
-        <FilterHeader
-          key={"minSessions"}
-          field={"minSessions"}
-          filterModel={filterModel}
-          sortModel={sortModel}
-          filterVisibility={filterVisibility}
-          handleSortClick={handleSortClick}
-          handleFilterChange={handleTextFilterChange}
-          setFilterVisibility={setFilterVisibility}
-          clearFilter={clearFilter}
-        />
-      ),
+      minWidth: 150,
     },
     {
       field: "startDate",
@@ -125,14 +119,14 @@ const Activity = () => {
       hideSortIcons: true,
       renderCell: (params) => <CustomDateRenderer value={params.value} />,
       renderHeader: () => (
-        <FilterHeader
+        <DateFilterHeader
           key={"startDate"}
           field={"startDate"}
           filterModel={filterModel}
           sortModel={sortModel}
           filterVisibility={filterVisibility}
           handleSortClick={handleSortClick}
-          handleFilterChange={handleTextFilterChange}
+          handleFilterChange={handleDateFilterChange}
           setFilterVisibility={setFilterVisibility}
           clearFilter={clearFilter}
         />
@@ -157,7 +151,7 @@ const Activity = () => {
           clearFilter={clearFilter}
         />
       ),
-      renderCell: (params) => (params?.value === true ? "Done" : "Not Done"),
+      renderCell: (params) => (params?.value === true ? t("done") : t("not done")),
     },
     {
       field: "actions",
@@ -193,6 +187,7 @@ const Activity = () => {
               id: activity?.id,
               done: activity?.done,
               title: activity?.title,
+              activityType: activity?.ActivityType?.name,
               numSessions: activity?.numSessions,
               minSessions: activity?.minSessions,
               startDate: activity?.startDate,
@@ -241,7 +236,6 @@ const Activity = () => {
   //         })
   //         .catch((err) => {
   //           console.error(err);
-  //           setError(err);
   //         });
   //       return userData;
   //     }

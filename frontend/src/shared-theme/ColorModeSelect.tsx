@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { useColorScheme } from '@mui/material/styles';
-import MenuItem from '@mui/material/MenuItem';
-import Select, { SelectProps } from '@mui/material/Select';
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+import { useColorScheme } from "@mui/material/styles";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectProps } from "@mui/material/Select";
 
 export default function ColorModeSelect(props: SelectProps) {
   const { mode, setMode } = useColorScheme();
@@ -11,10 +11,10 @@ export default function ColorModeSelect(props: SelectProps) {
   return (
     <Select
       value={mode}
-      onChange={(e) => setMode(e.target.value as 'system' | 'light' | 'dark')}
+      onChange={(e) => setMode(e.target.value as "system" | "light" | "dark")}
       SelectDisplayProps={{
         // @ts-ignore
-        'data-screenshot': 'toggle-mode',
+        "data-screenshot": "toggle-mode",
       }}
       {...props}
     >

@@ -590,6 +590,10 @@ export default function VolunteerPage() {
     setSelectedRows(newSelectedRows);
   };
 
+  useEffect(() => {
+    console.log({ invitedVolunteerIds });
+  }, [invitedVolunteerIds]);
+
   return (
     <>
       {isLoading ? (

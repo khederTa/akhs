@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
@@ -8,7 +7,6 @@ import dayjs from "dayjs";
 import isDateInFormat from "../../utils/isDateInFormat";
 
 const SessionInfo = ({
-  id,
   selectedDepartment,
   removeSession,
   sessionName,
@@ -62,7 +60,7 @@ const SessionInfo = ({
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, []);
+  }, [setServiceProviders]);
 
   useEffect(() => {
     const selectedProvider = serviceProviders.filter(
@@ -141,7 +139,7 @@ const SessionInfo = ({
           multiple
           options={selectedServiceProvider || []}
           value={Array.isArray(providerNames) ? providerNames : []}
-          onChange={(event, newValue) => setProviderNames(newValue)}
+          onChange={(_event, newValue) => setProviderNames(newValue)}
           getOptionLabel={(option) => option?.label || ""}
           renderInput={(params) => <TextField {...params} variant="standard" />}
         />

@@ -53,7 +53,7 @@ export default function VolunteerModal({
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = React.useState(true);
   // Zustand store session state management
-  const { invitedVolunteerIds, setInvitedVolunteerIds, activityType } =
+  const { invitedVolunteerIds, activityType } =
     useSessionStore((state) => ({
       invitedVolunteerIds: state.invitedVolunteerIds,
       setInvitedVolunteerIds: state.setInvitedVolunteerIds,

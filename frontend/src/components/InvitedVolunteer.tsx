@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Paper } from "@mui/material";
-import axios from "../utils/axios";
+// import axios from "../utils/axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
@@ -600,7 +600,7 @@ const InvitedVolunteer = () => {
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
           <Typography variant="body1">
-            Activity Type: {activityType.name}
+            Activity Module: {activityType.name}
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
           <Typography variant="body1">Start Date: {startDate}</Typography>

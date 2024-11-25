@@ -25,6 +25,7 @@ exports.getAllActivities = async (req, res) => {
       "minSessions",
       "startDate",
     ],
+    include: [{ model: ActivityType }],
   });
   res.json(Activities);
 };

@@ -221,7 +221,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               }
             />
             <Route
-              path="/activity-types"
+              path="/activity-modules"
               element={
                 permissions["read_activityType"] ? (
                   <Layout>
@@ -234,7 +234,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               }
             />
             <Route
-              path="/new-activity-type"
+              path="/new-activity-module"
               element={
                 permissions["create_activityType"] ? (
                   <Layout>

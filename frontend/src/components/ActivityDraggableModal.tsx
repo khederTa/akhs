@@ -17,6 +17,7 @@ import Draggable from "react-draggable";
 import axios from "../utils/axios";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 function PaperComponent(props: any) {
   return (
@@ -44,6 +45,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
   const [selectedActivityType, setSelectedActivityType] = React.useState("");
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const {
     hallName,
     setHallName,
@@ -108,11 +110,11 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
       aria-labelledby="draggable-dialog-title"
     >
       <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
-        Create Activity
+        {t("create activity")}
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{minWidth: "300px"}}>
         <DialogContentText>
-          Please fill out the form below to create a new activity.
+          {t("please fill out the form below to create a new activity.")}
         </DialogContentText>
         <Box
           component="form"
@@ -120,7 +122,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
           sx={{ display: "flex", flexDirection: "column", gap: 2, mt: 2 }}
         >
           <TextField
-            label="Title"
+            label={t("title")}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             fullWidth
@@ -135,7 +137,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
           />
           <TextField
             select
-            label="Activity Type"
+            label={t("activity type")}
             value={selectedActivityType}
             onChange={(e) => setSelectedActivityType(e.target.value)}
             required
@@ -148,7 +150,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
           </TextField>
           <TextField
             select
-            label="Department"
+            label={t("department")}
             value={selectedDepartment}
             onChange={(e) => setSelectedDepartment(e.target.value)}
             required
@@ -160,7 +162,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             ))}
           </TextField>
           <TextField
-            label="Number of Sessions"
+            label={t("numSessions")}
             type="number"
             value={numSessions}
             onChange={(e) => {
@@ -171,7 +173,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             required
           />
           <TextField
-            label="Minimum Required Sessions"
+            label={t("minSessions")}
             type="number"
             value={minSessions}
             onChange={(e) => {
@@ -182,7 +184,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             required
           />
           <TextField
-            label="Start Date"
+            label={t("start date")}
             type="date"
             value={startDate}
             onChange={(e) => setStartDate(e.target.value)}
@@ -190,9 +192,9 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             required
           />
           <DialogActions>
-            <Button onClick={onClose}>Cancel</Button>
+            <Button onClick={onClose}>{t("cancel")}</Button>
             <Button type="submit" variant="contained" color="primary">
-              Create
+              {t("create")}
             </Button>
           </DialogActions>
         </Box>
