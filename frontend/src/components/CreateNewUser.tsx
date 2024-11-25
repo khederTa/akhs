@@ -64,7 +64,7 @@ const CreateNewUser = () => {
       newErrors.compSkill = t("microsoft office Skills is required");
     if (!smoking) newErrors.smoking = t("smoking status is required");
     if (!koboSkill) newErrors.koboSkill = t("Kobo tool experience is required");
-    if (!fileId) newErrors.fileId = t("file upload is required");
+    // if (!fileId) newErrors.fileId = t("file upload is required");
     if (!addressId) newErrors.addressId = t("address is required");
     if (!department) newErrors.departmentId = t("department is required");
     if (!position) newErrors.positionId = t("position is required");

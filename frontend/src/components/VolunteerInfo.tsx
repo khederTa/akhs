@@ -56,7 +56,7 @@ const VolunteerInfo = () => {
       newErrors.compSkill = t("microsoft office skills is required");
     if (!smoking) newErrors.smoking = t("smoking status is required");
     if (!koboSkill) newErrors.koboSkill = t("kobo tool experience is required");
-    if (!fileId) newErrors.fileId = t("file upload is required");
+    // if (!fileId) newErrors.fileId = t("file upload is required");
     if (!addressId) newErrors.addressId = t("address is required");
 
     // Validate required text fields
