@@ -45,20 +45,17 @@ export default function VolunteerModal({
 }: VolunteerModalProps) {
   const [rows, setRows] = React.useState<any[]>([]);
   const apiRef = useGridApiRef();
-  const [selectedRows, setSelectedRows] = React.useState([]);
-  const [selectedNewRows, setSelectedNewRows] = React.useState<number[]>([]);
   const [getEligible, setGetEligible] = React.useState(true);
 
   const paginationModel = { page: 0, pageSize: 5 };
   const { t } = useTranslation();
   const [isLoading, setIsLoading] = React.useState(true);
   // Zustand store session state management
-  const { invitedVolunteerIds, activityType } =
-    useSessionStore((state) => ({
-      invitedVolunteerIds: state.invitedVolunteerIds,
-      setInvitedVolunteerIds: state.setInvitedVolunteerIds,
-      activityType: state.activityType,
-    }));
+  const { invitedVolunteerIds, activityType } = useSessionStore((state) => ({
+    invitedVolunteerIds: state.invitedVolunteerIds,
+    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
+    activityType: state.activityType,
+  }));
 
   const {
     filteredRows,
@@ -556,14 +553,21 @@ export default function VolunteerModal({
     }
     if (open) fetchVolunteers();
   }, [activityType, getEligible, invitedVolunteerIds, open, setFilteredRows]);
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = React.useState({});
+  const [selectedRows, setSelectedRows] = React.useState([]);
+  const [selectedRowsIds, setSelectedRowsIds] = React.useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row) => row.id === selected);
     });
-
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
-    setSelectedNewRows(newSelection);
   };
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+
   return (
     <Dialog
       fullScreen
@@ -620,6 +624,7 @@ export default function VolunteerModal({
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
+                  columnVisibilityModel={columnVisibilityModel}
                   navigateTo={"/volunteer-information"}
                   mode={"show"}
                   setGetEligible={setGetEligible}
@@ -633,11 +638,16 @@ export default function VolunteerModal({
               toolbarDensity: t("density"),
             }}
             apiRef={apiRef}
+            onRowSelectionModelChange={(newSelection: any) =>
+              handleSelectionChange(newSelection)
+            }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
             checkboxSelection // Enable checkboxes for row selection
-            onRowSelectionModelChange={(newSelection: any) => {
-              handleSelectionChange(newSelection);
-            }}
-            rowSelectionModel={selectedNewRows}
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

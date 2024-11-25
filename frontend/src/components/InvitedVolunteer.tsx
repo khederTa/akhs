@@ -3,8 +3,8 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Paper } from "@mui/material";
-// import axios from "../utils/axios";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import axios from "../utils/axios";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
 import CustomDateRenderer from "./CustomDateRenderer";
@@ -15,11 +15,10 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
 import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
-import dayjs from "dayjs";
 import { Loading } from "./Loading";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const InvitedVolunteer = () => {
-  const [selectedRows, setSelectedRows] = useState([]);
   const [rows, setRows] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
@@ -553,6 +552,24 @@ const InvitedVolunteer = () => {
           );
         },
       },
+      {
+        field: "actions",
+        headerName: t("actions"),
+        type: "actions",
+        minWidth: 200,
+        getActions: ({ id }: any) => {
+          // console.log(id);
+          return [
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Execute"
+              onClick={() =>
+                setRows((prev: any[]) => prev.filter((row) => row.id !== id))
+              }
+            />,
+          ].filter(Boolean);
+        },
+      },
     ],
     [
       clearFilter,
@@ -566,12 +583,6 @@ const InvitedVolunteer = () => {
       t,
     ]
   );
-  const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
-    });
-    setSelectedRows(newSelectedRows);
-  };
 
   useEffect(() => {
     const volunteerIds = rows?.map((item: any) => item.volunteerId);
@@ -589,6 +600,20 @@ const InvitedVolunteer = () => {
   );
   console.log("sessions in invited volunteer is", sessions);
   console.log("department is");
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row: any) => row.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -623,6 +648,7 @@ const InvitedVolunteer = () => {
                   <GridCustomToolbar
                     clearAllFilters={clearAllFilters}
                     rows={selectedRows}
+                    columnVisibilityModel={columnVisibilityModel}
                     navigateTo={"/volunteer-information"}
                     mode={"inviteMore"}
                     setGetEligible={setGetEligible}
@@ -633,11 +659,16 @@ const InvitedVolunteer = () => {
               }}
               initialState={{ pagination: { paginationModel } }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection // Enable checkboxes for row selection
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
-              rowSelectionModel={selectedRows}
+              rowSelectionModel={selectedRowsIds}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(model) =>
+                setColumnVisibilityModel(model)
+              }
+              checkboxSelection // Enable checkboxes for row selection
+              keepNonExistentRowsSelected
               disableRowSelectionOnClick
             />
           </Paper>

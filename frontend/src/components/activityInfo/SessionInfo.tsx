@@ -60,7 +60,7 @@ const SessionInfo = ({
       .catch((error) => {
         console.error("Error fetching data:", error);
       });
-  }, [setServiceProviders]);
+  }, []);
 
   useEffect(() => {
     const selectedProvider = serviceProviders.filter(

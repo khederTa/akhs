@@ -42,7 +42,7 @@ type PropsType = {
 export default function ActivityDraggableModal({ open, onClose }: PropsType) {
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
-  const [selectedActivityType, setSelectedActivityType] = React.useState("");
+  const [selectedActivityModule, setSelectedActivityModule] = React.useState("");
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -94,11 +94,11 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     const depObject = departments.find((dep) => {
       return dep.id === parseInt(selectedDepartment);
     });
-    const activitytypeObject = activityTypes.find((act) => {
-      return act.id === parseInt(selectedActivityType);
+    const activityModuleObject = activityTypes.find((act) => {
+      return act.id === parseInt(selectedActivityModule);
     });
     setDepartment(depObject);
-    setActivityType(activitytypeObject);
+    setActivityType(activityModuleObject);
     navigate("/activity-summary");
   };
 
@@ -137,9 +137,9 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
           />
           <TextField
             select
-            label={t("activity type")}
-            value={selectedActivityType}
-            onChange={(e) => setSelectedActivityType(e.target.value)}
+            label={t("activity module")}
+            value={selectedActivityModule}
+            onChange={(e) => setSelectedActivityModule(e.target.value)}
             required
           >
             {activityTypes.map((type) => (

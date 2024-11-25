@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Paper } from "@mui/material";
 import {
@@ -18,7 +17,6 @@ import axios from "../utils/axios";
 import DraggableDialog from "./DraggableDialog"; // Import the dialog component
 import FilterHeader from "./FilterHeader";
 import { useTranslation } from "react-i18next";
-import { ReportModal } from "./ReportModal";
 import AlertNotification from "./AlertNotification";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import GridCustomToolbar from "./GridCustomToolbar";
@@ -30,8 +28,6 @@ const Department = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [rowToDelete, setRowToDelete] = useState<any>(null);
-  const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
-  const [reportName, setReportName] = useState("");
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -290,24 +286,16 @@ const Department = () => {
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row) => row.id === selected);
     });
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
-  useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
-      <ReportModal
-        open={reportModalIsOpen}
-        handleClose={() => setReportModalIsOpen(false)}
-        setReportName={setReportName}
-        reportName={reportName}
-        rows={rows}
-        columnVisibilityModel={columnVisibilityModel}
-      />
       <AlertNotification
         open={alertOpen}
         message={alertMessage}

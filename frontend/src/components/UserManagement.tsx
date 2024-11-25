@@ -866,7 +866,28 @@ export function UserManagement() {
         },
       },
     ],
-    [t, roleOptions, positionOptions, departmentOptions, filterModel, sortModel, filterVisibility, handleSortClick, handleTextFilterChange, setFilterVisibility, clearFilter, newBdate, handleDateFilterChange, rowModesModel, rows, handleEditClick, handleOpenDeleteDialog, handleToggleActive, handleSave, handleCancel]
+    [
+      t,
+      roleOptions,
+      positionOptions,
+      departmentOptions,
+      filterModel,
+      sortModel,
+      filterVisibility,
+      handleSortClick,
+      handleTextFilterChange,
+      setFilterVisibility,
+      clearFilter,
+      newBdate,
+      handleDateFilterChange,
+      rowModesModel,
+      rows,
+      handleEditClick,
+      handleOpenDeleteDialog,
+      handleToggleActive,
+      handleSave,
+      handleCancel,
+    ]
   );
 
   useEffect(() => {
@@ -1226,19 +1247,19 @@ export function UserManagement() {
     ]
   );
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row) => row.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
 
-  const handleSelectionChange = useCallback(
-    (newSelection: any[]) => {
-      const newSelectedRows: any = newSelection.map((selected) => {
-        return filteredRows.find((row: { id: any }) => row.id === selected);
-      });
-      setSelectedRows(newSelectedRows);
-    },
-    [filteredRows]
-  );
-
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -1273,6 +1294,7 @@ export function UserManagement() {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
+                  columnVisibilityModel={columnVisibilityModel}
                   navigateTo={"/create-new-user"}
                 />
               ),
@@ -1285,10 +1307,16 @@ export function UserManagement() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

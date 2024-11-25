@@ -35,10 +35,8 @@ export function Packages() {
   const apiRef = useGridApiRef();
   const { t } = useTranslation();
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, ] = useState("");
-  const [alertSeverity, ] = useState<"success" | "error">(
-    "success"
-  );
+  const [alertMessage] = useState("");
+  const [alertSeverity] = useState<"success" | "error">("success");
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
@@ -350,16 +348,19 @@ export function Packages() {
     }
   };
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -394,6 +395,7 @@ export function Packages() {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
+                  columnVisibilityModel={columnVisibilityModel}
                   navigateTo={"/new-package"}
                 />
               ),
@@ -406,10 +408,16 @@ export function Packages() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

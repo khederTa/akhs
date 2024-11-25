@@ -18,13 +18,12 @@ import useSessionStore from "../store/activityStore";
 import { Loading } from "./Loading";
 
 export default function VolunteerPage() {
-  const [selectedRows, setSelectedRows] = useState([]);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
-  const [getEligible, setGetEligible] = useState(false);
+  const [getEligible, setGetEligible] = useState(true);
 
   // Zustand store session state management
   const {
@@ -34,7 +33,6 @@ export default function VolunteerPage() {
     activityType,
     department,
     invitedVolunteerIds,
-    setInvitedVolunteerIds,
     numSessions,
     minSessions,
   } = useSessionStore((state) => ({
@@ -44,7 +42,6 @@ export default function VolunteerPage() {
     activityType: state.activityType,
     department: state.department,
     invitedVolunteerIds: state.invitedVolunteerIds,
-    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
     numSessions: state.numSessions,
     minSessions: state.minSessions,
   }));
@@ -190,7 +187,6 @@ export default function VolunteerPage() {
     fetchVolunteers();
   }, [activityType, getEligible, setFilteredRows]);
   console.log("the rows is ", rows);
-  console.log("selected rows is ", selectedRows);
 
   // Memoized columns definition to prevent re-rendering
   const columns: GridColDef[] = useMemo(
@@ -581,17 +577,20 @@ export default function VolunteerPage() {
       t,
     ]
   );
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
-    setInvitedVolunteerIds(newSelection as any);
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => {
-    console.log({ invitedVolunteerIds });
-  }, [invitedVolunteerIds]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -623,6 +622,7 @@ export default function VolunteerPage() {
                   <GridCustomToolbar
                     clearAllFilters={clearAllFilters}
                     rows={selectedRows}
+                    columnVisibilityModel={columnVisibilityModel}
                     navigateTo={"/volunteer-information"}
                     mode={"show"}
                     setGetEligible={setGetEligible}
@@ -632,11 +632,16 @@ export default function VolunteerPage() {
               }}
               initialState={{ pagination: { paginationModel } }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection // Enable checkboxes for row selection
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
-              rowSelectionModel={invitedVolunteerIds}
+              rowSelectionModel={selectedRowsIds}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(model) =>
+                setColumnVisibilityModel(model)
+              }
+              checkboxSelection // Enable checkboxes for row selection
+              keepNonExistentRowsSelected
               disableRowSelectionOnClick
             />
           </Paper>

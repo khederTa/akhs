@@ -1127,16 +1127,20 @@ const Volunteer = () => {
     [selectedRow, t]
   );
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+
   return (
     <>
       <HistoryModal
@@ -1179,6 +1183,7 @@ const Volunteer = () => {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
+                  columnVisibilityModel={columnVisibilityModel}
                   navigateTo={"/volunteer-information"}
                 />
               ),
@@ -1191,10 +1196,16 @@ const Volunteer = () => {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

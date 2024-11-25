@@ -104,7 +104,7 @@ const Activity = () => {
     {
       field: "numSessions",
       headerName: t("numSessions"),
-      minWidth: 150,      
+      minWidth: 150,
     },
     {
       field: "minSessions",
@@ -151,7 +151,8 @@ const Activity = () => {
           clearFilter={clearFilter}
         />
       ),
-      renderCell: (params) => (params?.value === true ? t("done") : t("not done")),
+      renderCell: (params) =>
+        params?.value === true ? t("done") : t("not done"),
     },
     {
       field: "actions",
@@ -178,7 +179,7 @@ const Activity = () => {
 
   useEffect(() => {
     async function fetchActivityData() {
-      const Activitys = axios
+      const Activity = axios
         .get("activity")
         .then((res) => {
           // console.log(res.data);
@@ -200,7 +201,7 @@ const Activity = () => {
         .catch((err) => {
           console.error(err);
         });
-      return Activitys;
+      return Activity;
     }
 
     fetchActivityData();
@@ -243,16 +244,22 @@ const Activity = () => {
   //     const users = fetchUserData();
   //     console.log(users);
   //   }, []);
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(
+  //   () => console.log(selectedRows, selectedRowsIds),
+  //   [selectedRows, selectedRowsIds]
+  // );
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
       {loading ? (
@@ -274,7 +281,8 @@ const Activity = () => {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
-                  navigateTo={"/volunteer-information"}
+                  columnVisibilityModel={columnVisibilityModel}
+                  navigateTo={""}
                   mode="addActivity"
                 />
               ),
@@ -284,10 +292,16 @@ const Activity = () => {
               toolbarColumns: t("columns"),
               toolbarDensity: t("density"),
             }}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

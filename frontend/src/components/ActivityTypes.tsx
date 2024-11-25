@@ -558,17 +558,20 @@ export function ActivityTypes() {
     [action, departments, rows]
   );
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
-
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+  
   return (
     <>
       <AlertNotification
@@ -596,7 +599,8 @@ export function ActivityTypes() {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRows}
-                  navigateTo={"/new-activity-type"}
+                  columnVisibilityModel={columnVisibilityModel}
+                  navigateTo={"/new-activity-module"}
                 />
               ),
             }}
@@ -608,10 +612,16 @@ export function ActivityTypes() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

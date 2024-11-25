@@ -216,7 +216,6 @@ export default function ActivitySummary() {
     };
     fetchData();
   }, [
-    // activityData,
     location.state,
     navigate,
     setActivityData,
