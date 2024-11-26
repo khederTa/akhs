@@ -503,28 +503,6 @@ const Volunteer = () => {
           />
         ),
       },
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
-      },
 
       {
         field: "nationalNumber",
@@ -567,6 +545,28 @@ const Volunteer = () => {
             clearFilter={clearFilter}
           />
         ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
       {
         field: "smoking",
@@ -797,11 +797,11 @@ const Volunteer = () => {
             volunteerId: volunteer.volunteerId,
             active_status: volunteer.active_status,
             ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.city?.split("/")[1] || ""} - ${
-              volunteer?.Person?.Address?.district?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
+            address: `${volunteer?.Person?.Address?.state || ""} - ${
+              volunteer?.Person?.Address?.city || ""
+            } - ${volunteer?.Person?.Address?.district || ""} - ${
+              volunteer?.Person?.Address?.village || ""
+            }`,
 
             personId: volunteer?.Person?.id,
             fileId: volunteer?.Person?.fileId,
@@ -904,11 +904,9 @@ const Volunteer = () => {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
-          const updatedAddress = `${newAddress?.state?.split("/")[1] || ""} - ${
-            newAddress?.city?.split("/")[1] || ""
-          } - ${newAddress?.district?.split("/")[1] || ""} - ${
-            newAddress?.village?.split("/")[1] || ""
-          }`;
+          const updatedAddress = `${newAddress?.state || ""} - ${
+            newAddress?.city || ""
+          } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
           const updatedBdate = newBdate || oldBdate;
           updatedRow.bDate = updatedBdate;
 

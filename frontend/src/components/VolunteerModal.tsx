@@ -326,26 +326,7 @@ export default function VolunteerModal({
           />
         ),
       },
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
+      
 
       {
         field: "nationalNumber",
@@ -377,6 +358,26 @@ export default function VolunteerModal({
           <FilterHeader
             key={"fixPhone"}
             field={"fixPhone"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
             filterModel={filterModel}
             sortModel={sortModel}
             filterVisibility={filterVisibility}
@@ -526,10 +527,10 @@ export default function VolunteerModal({
             active_status: volunteer.active_status,
             ...(volunteer.Person || {}),
             address: `${
-              volunteer?.Person?.Address?.state?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.city?.split("/")[1] || ""} - ${
-              volunteer?.Person?.Address?.district?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
+              volunteer?.Person?.Address?.state || ""
+            } - ${volunteer?.Person?.Address?.city || ""} - ${
+              volunteer?.Person?.Address?.district || ""
+            } - ${volunteer?.Person?.Address?.village || ""}`,
 
             personId: volunteer?.Person?.id,
             fileId: volunteer?.Person?.fileId,

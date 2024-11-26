@@ -547,28 +547,7 @@ export function UserManagement() {
         ),
       },
 
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
-      },
+      
       {
         field: "nationalNumber",
         headerName: t("nationalNumber"),
@@ -685,6 +664,28 @@ export function UserManagement() {
             clearFilter={clearFilter}
           />
         ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
       {
         field: "smoking",
@@ -1072,10 +1073,10 @@ export function UserManagement() {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
-          const updatedAddress = `${newAddress?.state?.split("/")[1] || ""} - ${
-            newAddress?.city?.split("/")[1] || ""
-          } - ${newAddress?.district?.split("/")[1] || ""} - ${
-            newAddress?.village?.split("/")[1] || ""
+          const updatedAddress = `${newAddress?.state || ""} - ${
+            newAddress?.city || ""
+          } - ${newAddress?.district || ""} - ${
+            newAddress?.village || ""
           }`;
           // Detect changes and update departmentId and positionId accordingly
           const selectedDepartment = departmentOptions.find(

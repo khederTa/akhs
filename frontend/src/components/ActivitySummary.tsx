@@ -383,9 +383,9 @@ export default function ActivitySummary() {
                 setDateValue={(value: any) =>
                   updateSession(session.key, "dateValue", value)
                 }
-                min={index > 0 ? sessions[index - 1].dateValue : null}
+                min={index > 0 ? sessions[index - 1]?.dateValue : null}
                 max={
-                  index < numSessions - 1 ? sessions[index + 1].dateValue : null
+                  index < numSessions - 1 ? sessions[index + 1]?.dateValue : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>
