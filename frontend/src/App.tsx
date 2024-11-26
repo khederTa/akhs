@@ -9,7 +9,6 @@ import Header from "./components/Header";
 import { Stack, TextField } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
-import ActivityInfo from "./components/activityInfo/ActivityInfo";
 import CreateNewUser from "./components/CreateNewUser";
 import Activity from "./components/Activity";
 import VolunteerInfo from "./components/VolunteerInfo";
@@ -99,19 +98,6 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 permissions["read_activity"] ? (
                   <Layout>
                     <Activity />
-                  </Layout>
-                ) : (
-                  !permissionsLoading &&
-                  !loggedIn && <Navigate to="/" replace />
-                )
-              }
-            />
-            <Route
-              path="/activity-information"
-              element={
-                permissions["create_activity"] ? (
-                  <Layout>
-                    <ActivityInfo />
                   </Layout>
                 ) : (
                   !permissionsLoading &&

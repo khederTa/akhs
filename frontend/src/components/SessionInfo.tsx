@@ -2,9 +2,9 @@
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
 import { useState, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
-import axios from "../../utils/axios";
+import axios from "../utils/axios";
 import dayjs from "dayjs";
-import isDateInFormat from "../../utils/isDateInFormat";
+import isDateInFormat from "../utils/isDateInFormat";
 
 const SessionInfo = ({
   selectedDepartment,
