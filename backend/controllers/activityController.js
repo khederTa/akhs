@@ -359,6 +359,19 @@ exports.updateActivity = async (req, res) => {
   }
 };
 
+exports.completeActivity = async (req, res) => {
+  const activivtyId = req.params.id;
+
+  // Check if the activity exists
+  const activity = await Activity.findByPk(activivtyId);
+  if (!activity) {
+    return res.status(404).json({ error: "Activity not found" });
+  }
+
+  // Update the activity
+  await activity.update(req.body);
+  res.json({ message: "Activity Marked as Completed" });
+};
 exports.deleteActivity = async (req, res) => {
   await Activity.destroy({ where: { id: req.params.id } });
   res.json({ message: "Activity deleted" });

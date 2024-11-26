@@ -14,6 +14,7 @@ import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
 import DateFilterHeader from "./DateFilterHeader";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -172,6 +173,13 @@ const Activity = () => {
             label="Edit"
             onClick={() => navigate("/activity-summary", { state: { id } })}
           />,
+          <GridActionsCellItem
+            icon={<SummarizeIcon />}
+            label="Report"
+            onClick={() =>
+              navigate("/invited-volunteer-report", { state: { id } })
+            }
+          />,
         ].filter(Boolean);
       },
     },
@@ -244,8 +252,9 @@ const Activity = () => {
   //     const users = fetchUserData();
   //     console.log(users);
   //   }, []);
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
@@ -255,10 +264,40 @@ const Activity = () => {
     setSelectedRows(newSelectedRows);
   };
 
-  // useEffect(
-  //   () => console.log(selectedRows, selectedRowsIds),
-  //   [selectedRows, selectedRowsIds]
-  // );
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
   // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
@@ -280,8 +319,7 @@ const Activity = () => {
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
-                  columnVisibilityModel={columnVisibilityModel}
+                  rows={selectedRowsToExport}
                   navigateTo={""}
                   mode="addActivity"
                 />

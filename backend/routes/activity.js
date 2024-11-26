@@ -7,6 +7,7 @@ router.get("/", authenticateToken, activityController.getAllActivities);
 router.post("/", authenticateToken, activityController.createActivity);
 router.get("/:id", authenticateToken, activityController.getActivityById);
 router.put("/:id", authenticateToken, activityController.updateActivity);
+router.put("/complete/:id", authenticateToken, activityController.completeActivity);
 router.delete("/:id", authenticateToken, activityController.deleteActivity);
 router.get("/volunteer-activity/:id", activityController.getCompletedActivity);
 

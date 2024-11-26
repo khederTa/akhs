@@ -150,7 +150,7 @@ const InvitedVolunteer = () => {
 
   useEffect(() => {
     const enrichedData = activityData?.Volunteers?.map((volunteer: any) => ({
-      volunteerId: volunteer.volunteerId,
+      volunteerId: volunteer?.volunteerId,
       active_status: volunteer.active_status,
       ...(volunteer.Person || {}),
       address: `${volunteer?.Person?.Address?.state?.split("/")[1] || ""} - ${
@@ -562,10 +562,11 @@ const InvitedVolunteer = () => {
           return [
             <GridActionsCellItem
               icon={<DeleteIcon />}
-              label="Execute"
-              onClick={() =>
-                setRows((prev: any[]) => prev.filter((row) => row.id !== id))
-              }
+              label="Delete"
+              disabled={rows.length === 1}
+              onClick={() => {
+                setRows((prev: any[]) => prev.filter((row) => row?.id !== id));
+              }}
             />,
           ].filter(Boolean);
         },
@@ -578,6 +579,7 @@ const InvitedVolunteer = () => {
       handleDateFilterChange,
       handleSortClick,
       handleTextFilterChange,
+      rows.length,
       setFilterVisibility,
       sortModel,
       t,
@@ -585,7 +587,7 @@ const InvitedVolunteer = () => {
   );
 
   useEffect(() => {
-    const volunteerIds = rows?.map((item: any) => item.volunteerId);
+    const volunteerIds = rows?.map((item: any) => item?.volunteerId);
     setInvitedVolunteerIds(volunteerIds);
   }, [rows, setInvitedVolunteerIds]);
 
@@ -606,7 +608,7 @@ const InvitedVolunteer = () => {
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return rows.find((row: any) => row.id === selected);
+      return rows.find((row: any) => row?.id === selected);
     });
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
@@ -635,7 +637,7 @@ const InvitedVolunteer = () => {
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
-              getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
+              getRowId={(row) => row?.volunteerId} // Ensure the correct row ID is used
               columns={columns}
               disableColumnFilter
               disableColumnMenu
@@ -648,7 +650,6 @@ const InvitedVolunteer = () => {
                   <GridCustomToolbar
                     clearAllFilters={clearAllFilters}
                     rows={selectedRows}
-                    columnVisibilityModel={columnVisibilityModel}
                     navigateTo={"/volunteer-information"}
                     mode={"inviteMore"}
                     setGetEligible={setGetEligible}

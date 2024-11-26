@@ -3,7 +3,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
-import SessionInfo from "./activityInfo/SessionInfo";
+import SessionInfo from "./SessionInfo";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
 import { Loading } from "./Loading";
 import dayjs from "dayjs";
@@ -108,12 +108,12 @@ export default function ActivitySummary() {
   //   useState<ActivityData>(defaultActivityData);
 
   const depObject = useMemo(
-    () => departments.find((dep) => dep.id === parseInt(selectedDepartment)),
+    () => departments.find((dep) => dep?.id === parseInt(selectedDepartment)),
     [departments, selectedDepartment]
   );
   const activitytypeObject = useMemo(
     () =>
-      activityTypes.find((act) => act.id === parseInt(selectedActivityType)),
+      activityTypes.find((act) => act?.id === parseInt(selectedActivityType)),
     [activityTypes, selectedActivityType]
   );
   console.log("activity data is ", activityData);
@@ -154,8 +154,8 @@ export default function ActivitySummary() {
           axios.get("/department"),
           axios.get("/serviceprovider"),
           location.state &&
-            location.state.id &&
-            axios.get(`/activity/${location.state.id}`),
+            location.state?.id &&
+            axios.get(`/activity/${location.state?.id}`),
         ]);
         setActivityTypes(activityTypeResponse.data);
         setDepartments(departmentResponse.data);
@@ -176,7 +176,7 @@ export default function ActivitySummary() {
           // })
           const processedSessions = sessionsValue.map((session: any) => ({
             ...session,
-            key: session.id,
+            key: session?.id,
             providerNames: session.ServiceProviders.map((item: any) => ({
               label: `${item.Volunteer.Person.fname} ${item.Volunteer.Person.lname} - ${item.Position.name}`,
               value: item.providerId,
@@ -202,7 +202,7 @@ export default function ActivitySummary() {
           //   return sessionval.ServiceProviders.map((provider: any) => ({
           //     label: provider.Volunteer.Person.fname,
           //     value: provider.providerId,
-          //     depId: provider.Department.id,
+          //     depId: provider.Department?.id,
           //   }));
           // });
           // setProviders(providerNames);
@@ -298,7 +298,7 @@ export default function ActivitySummary() {
         required
       >
         {activityTypes.map((type: any) => (
-          <MenuItem key={type.id} value={type.id}>
+          <MenuItem key={type?.id} value={type?.id}>
             {type.name}
           </MenuItem>
         ))}
@@ -312,7 +312,7 @@ export default function ActivitySummary() {
         required
       >
         {departments.map((dept: any) => (
-          <MenuItem key={dept.id} value={dept.id}>
+          <MenuItem key={dept?.id} value={dept?.id}>
             {dept.name}
           </MenuItem>
         ))}

@@ -58,14 +58,6 @@ export default function HistoryModal({
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const apiRef = useGridApiRef();
-  const [selectedRows, setSelectedRows] = useState([]);
-
-  const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
-    });
-    setSelectedRows(newSelectedRows);
-  };
   const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
   };
@@ -102,13 +94,31 @@ export default function HistoryModal({
       try {
         const response = await axios.get(endpoint);
         if (response.status === 200) {
-          // console.log(response);
+          console.log(response);
           if (activeTab === 0) {
-            const adjustedData = response.data.map((packageRow: any) => ({
-              ...packageRow,
-              activityTypes: packageRow.ActivityTypes,
-            }));
-            setRows(adjustedData);
+            const handledData = response.data.packages.map(
+              (packageRow: { ActivityTypes: any[] }) => {
+                let numberOfAttendedActivity = 0;
+
+                packageRow.ActivityTypes.forEach((actRow: { id: number }) => {
+                  response.data.activityData.forEach(
+                    (activity: { activityTypeId: number }) => {
+                      if (actRow.id === activity.activityTypeId) {
+                        numberOfAttendedActivity++;
+                      }
+                    }
+                  );
+                });
+
+                return {
+                  ...packageRow,
+                  activityTypes: packageRow.ActivityTypes,
+                  progress: `${numberOfAttendedActivity} of ${packageRow.ActivityTypes.length}`,
+                };
+              }
+            );
+
+            setRows(handledData);
           } else {
             const adjustedData = response.data.map((activityRow: any) => ({
               ...activityRow,
@@ -213,10 +223,18 @@ export default function HistoryModal({
           field: "activityTypes",
           headerName: t("activity types"),
           minWidth: 200,
-          editable: true,
+          editable: false,
           sortable: false,
           hideSortIcons: false,
           renderCell: (params: any) => <ActivityTypeRenderer {...params} />,
+        },
+        {
+          field: "progress",
+          headerName: t("progress"),
+          minWidth: 200,
+          editable: false,
+          sortable: false,
+          hideSortIcons: false,
         },
       ];
     } else {
@@ -318,6 +336,54 @@ export default function HistoryModal({
     t,
   ]);
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row: any) => row.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
+
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+
   return (
     <Dialog
       fullScreen
@@ -383,7 +449,7 @@ export default function HistoryModal({
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
+                  rows={selectedRowsToExport}
                   navigateTo={"/volunteer-information"}
                   mode="history"
                 />
@@ -395,10 +461,16 @@ export default function HistoryModal({
               toolbarDensity: t("density"),
             }}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>
