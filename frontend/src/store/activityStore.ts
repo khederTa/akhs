@@ -103,7 +103,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
             sessionName: "",
             serviceProviders: [],
             trainers: [],
-            hallName: "",
+            hallName: state.hallName, 
             dateValue: dayjs(),
             providerNames: [],
             trainerName: [],
@@ -172,7 +172,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
             sessionName: existingSession.sessionName || "",
             serviceProviders: existingSession.serviceProviders || [],
             trainers: existingSession.trainers || [],
-            hallName: existingSession.hallName || "",
+            hallName: existingSession.hallName || state.hallName,
             dateValue:
               (dayjs(state.startDate).isValid()
                 ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")

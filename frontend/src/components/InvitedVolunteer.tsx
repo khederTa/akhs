@@ -17,6 +17,7 @@ import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
 import dayjs from "dayjs";
 import { Loading } from "./Loading";
+import axios from "../utils/axios";
 
 const InvitedVolunteer = () => {
   const [selectedRows, setSelectedRows] = useState([]);

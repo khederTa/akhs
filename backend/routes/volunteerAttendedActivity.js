@@ -7,6 +7,7 @@ const authenticateToken = require('../middleware/auth');
 router.get('/', authenticateToken, volunteerAttendedActivityController.getAllVolunteerAttendedActivities);
 router.post('/', authenticateToken, volunteerAttendedActivityController.createVolunteerAttendedActivity);
 router.get('/:volunteerId/:activityId', authenticateToken, volunteerAttendedActivityController.getVolunteerAttendedActivityByIds);
+router.get('/:activityId', authenticateToken, volunteerAttendedActivityController.getVolunteersByActivity);
 router.put('/:volunteerId/:activityId', authenticateToken, volunteerAttendedActivityController.updateVolunteerAttendedActivity);
 router.delete('/:volunteerId/:activityId', authenticateToken, volunteerAttendedActivityController.deleteVolunteerAttendedActivity);
 

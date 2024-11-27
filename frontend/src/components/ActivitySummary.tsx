@@ -116,6 +116,8 @@ export default function ActivitySummary() {
       activityTypes.find((act) => act.id === parseInt(selectedActivityType)),
     [activityTypes, selectedActivityType]
   );
+
+
   console.log("activity data is ", activityData);
   console.log("title is ", title);
   console.log("startDate is", startDate);
@@ -277,6 +279,7 @@ export default function ActivitySummary() {
     },
     [sessions, updateSession]
   );
+  
   return loading ? (
     <Loading />
   ) : (
@@ -376,7 +379,7 @@ export default function ActivitySummary() {
                 // setTrainers={(value: any) =>
                 //   updateSession(session.key, "trainers", value)
                 // }
-                hallName={session.hallName || hallName}
+                hallName={session.hallName}
                 setHallName={(value: any) =>
                   updateSession(session.key, "hallName", value)
                 }
@@ -384,9 +387,9 @@ export default function ActivitySummary() {
                 setDateValue={(value: any) =>
                   updateSession(session.key, "dateValue", value)
                 }
-                min={index > 0 ? sessions[index - 1].dateValue : null}
+                min={index > 0 ? sessions[index - 1]?.dateValue : null}
                 max={
-                  index < numSessions - 1 ? sessions[index + 1].dateValue : null
+                  index < numSessions - 1 ? sessions[index + 1]?.dateValue : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>

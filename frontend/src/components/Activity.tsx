@@ -84,7 +84,7 @@ const Activity = () => {
     {
       field: "activityType",
       headerName: t("activity type"),
-      minWidth: 200,
+      minWidth: 250,
       sortable: false,
       hideSortIcons: true,
       renderHeader: () => (
@@ -104,7 +104,7 @@ const Activity = () => {
     {
       field: "numSessions",
       headerName: t("numSessions"),
-      minWidth: 150,      
+      minWidth: 150,
     },
     {
       field: "minSessions",
@@ -151,7 +151,24 @@ const Activity = () => {
           clearFilter={clearFilter}
         />
       ),
-      renderCell: (params) => (params?.value === true ? t("done") : t("not done")),
+      renderCell: (params) =>
+        params?.value === true ? t("done") : t("not done"),
+    },
+
+    {
+      field: "NumberOfAttendedActivity",
+      headerName: t("Number Of Attended Activity"),
+      minWidth: 250,
+    },
+    {
+      field: "NumberOfMales",
+      headerName: t("Number Of Males"),
+      minWidth: 150,
+    },
+    {
+      field: "NumberOfFemales",
+      headerName: t("Number Of Females"),
+      minWidth: 180,
     },
     {
       field: "actions",
@@ -178,11 +195,28 @@ const Activity = () => {
 
   useEffect(() => {
     async function fetchActivityData() {
-      const Activitys = axios
-        .get("activity")
-        .then((res) => {
-          // console.log(res.data);
-          const ActivityRows = res.data.map((activity: any) => {
+      try {
+        // Fetch the activities first
+        const activityResponse = await axios.get("activity");
+        const activities = activityResponse.data;
+        console.log("activivtys is" , activities)
+  
+        // Fetch volunteer attended activity data for each activity
+        const activityRows :any = await Promise.all(
+          activities.map(async (activity :any) => {
+            const fetchedAttendedResponse = await axios.get(
+              `volunteerAttendedActivity/${activity.id}`
+            );
+            console.log("fetchedAttendedResponse is" , fetchedAttendedResponse)
+            const fetchedAttended = fetchedAttendedResponse.data;
+            const fetchedAttendedMale = fetchedAttendedResponse.data.filter((attend :any)=>{
+               return attend.gender === "Male"
+            });
+            const fetchedAttendedFemale = fetchedAttendedResponse.data.filter((attend :any)=>{
+              return attend.gender === "Female"
+           });
+            console.log("fetchedAttendedMale" , fetchedAttendedMale)
+            // Construct the row with the fetched data
             return {
               id: activity?.id,
               done: activity?.done,
@@ -191,58 +225,26 @@ const Activity = () => {
               numSessions: activity?.numSessions,
               minSessions: activity?.minSessions,
               startDate: activity?.startDate,
+              NumberOfAttendedActivity: fetchedAttended?.length || 0, // Adjust based on API response structure
+              NumberOfMales : fetchedAttendedMale?.length || 0 ,
+              NumberOfFemales : fetchedAttendedFemale?.length || 0,
             };
-          });
-          setLoading(false);
-          setRows(ActivityRows);
-          setFilteredRows(ActivityRows);
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-      return Activitys;
+          })
+        );
+  
+        setLoading(false);
+        setRows(activityRows);
+        setFilteredRows(activityRows);
+      } catch (error) {
+        console.error("Error fetching activity data:", error);
+        setLoading(false); // Ensure loading is stopped in case of error
+      }
     }
-
+  
     fetchActivityData();
   }, [setFilteredRows]);
-  // console.log("rows is ", rows);
+  
 
-  // useEffect(() => {
-  //     async function fetchUserData() {
-  //       const userData = await axios
-  //         .get("/users")
-  //         .then((res) => {
-  //           const userRows = res.data.map((user: any) => {
-  //             return {
-  //               id: user?.userId,
-  //               firstName: user?.Person?.fname,
-  //               middleName: user?.Person?.mname,
-  //               lastName: user?.Person?.lname,
-  //               email: user?.Person?.email,
-  //               phone: user?.Person?.phone,
-  //               position: user?.position,
-  //               study: user?.Person?.study,
-  //               work: user?.Person?.work,
-  //               gender: user?.Person?.gender,
-  //               birthDate: user?.Person?.bDate,
-  //               roleName: user?.Role?.name,
-  //               roleDescription: user?.Role?.description,
-  //               departmentName: user?.Department?.name,
-  //               departmentDescription: user?.Department?.description,
-  //             };
-  //           });
-  //           setLoading(false);
-  //           setRows(userRows);
-  //         })
-  //         .catch((err) => {
-  //           console.error(err);
-  //         });
-  //       return userData;
-  //     }
-
-  //     const users = fetchUserData();
-  //     console.log(users);
-  //   }, []);
   const [selectedRows, setSelectedRows] = useState([]);
 
   const handleSelectionChange = (newSelection: any[]) => {
@@ -251,6 +253,7 @@ const Activity = () => {
     });
     setSelectedRows(newSelectedRows);
   };
+console.log("rows is " , rows);
 
   // useEffect(() => console.log(selectedRows), [selectedRows]);
   return (
