@@ -19,13 +19,12 @@ import { Loading } from "./Loading";
 import dayjs from "dayjs";
 
 export default function VolunteerPage() {
-  const [selectedRows, setSelectedRows] = useState([]);
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
-  const [getEligible, setGetEligible] = useState(false);
+  const [getEligible, setGetEligible] = useState(true);
 
   // Zustand store session state management
   const {
@@ -35,7 +34,6 @@ export default function VolunteerPage() {
     activityType,
     department,
     invitedVolunteerIds,
-    setInvitedVolunteerIds,
     numSessions,
     minSessions,
   } = useSessionStore((state) => ({
@@ -45,7 +43,6 @@ export default function VolunteerPage() {
     activityType: state.activityType,
     department: state.department,
     invitedVolunteerIds: state.invitedVolunteerIds,
-    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
     numSessions: state.numSessions,
     minSessions: state.minSessions,
   }));
@@ -165,11 +162,11 @@ export default function VolunteerPage() {
             volunteerId: volunteer.volunteerId,
             active_status: volunteer.active_status,
             ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.city?.split("/")[1] || ""} - ${
-              volunteer?.Person?.Address?.district?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
+            address: `${volunteer?.Person?.Address?.state || ""} - ${
+              volunteer?.Person?.Address?.city || ""
+            } - ${volunteer?.Person?.Address?.district || ""} - ${
+              volunteer?.Person?.Address?.village || ""
+            }`,
 
             personId: volunteer?.Person?.id,
             fileId: volunteer?.Person?.fileId,
@@ -191,7 +188,6 @@ export default function VolunteerPage() {
     fetchVolunteers();
   }, [activityType, getEligible, setFilteredRows]);
   console.log("the rows is ", rows);
-  console.log("selected rows is ", selectedRows);
 
   // Memoized columns definition to prevent re-rendering
   const columns: GridColDef[] = useMemo(
@@ -405,26 +401,6 @@ export default function VolunteerPage() {
           />
         ),
       },
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
 
       {
         field: "nationalNumber",
@@ -456,6 +432,26 @@ export default function VolunteerPage() {
           <FilterHeader
             key={"fixPhone"}
             field={"fixPhone"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
             filterModel={filterModel}
             sortModel={sortModel}
             filterVisibility={filterVisibility}
@@ -582,17 +578,54 @@ export default function VolunteerPage() {
       t,
     ]
   );
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
-    setInvitedVolunteerIds(newSelection as any);
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
   useEffect(() => {
-    console.log({ invitedVolunteerIds });
-  }, [invitedVolunteerIds]);
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -623,7 +656,7 @@ export default function VolunteerPage() {
                 toolbar: () => (
                   <GridCustomToolbar
                     clearAllFilters={clearAllFilters}
-                    rows={selectedRows}
+                    rows={selectedRowsToExport}
                     navigateTo={"/volunteer-information"}
                     mode={"show"}
                     setGetEligible={setGetEligible}
@@ -633,11 +666,16 @@ export default function VolunteerPage() {
               }}
               initialState={{ pagination: { paginationModel } }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection // Enable checkboxes for row selection
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
-              rowSelectionModel={invitedVolunteerIds}
+              rowSelectionModel={selectedRowsIds}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(model) =>
+                setColumnVisibilityModel(model)
+              }
+              checkboxSelection // Enable checkboxes for row selection
+              keepNonExistentRowsSelected
               disableRowSelectionOnClick
             />
           </Paper>

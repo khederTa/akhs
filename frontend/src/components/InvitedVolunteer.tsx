@@ -3,8 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Typography, Paper } from "@mui/material";
-// import axios from "../utils/axios";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
 import CustomDateRenderer from "./CustomDateRenderer";
@@ -15,12 +14,11 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
 import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
-import dayjs from "dayjs";
 import { Loading } from "./Loading";
 import axios from "../utils/axios";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 const InvitedVolunteer = () => {
-  const [selectedRows, setSelectedRows] = useState([]);
   const [rows, setRows] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
@@ -152,13 +150,13 @@ const InvitedVolunteer = () => {
 
   useEffect(() => {
     const enrichedData = activityData?.Volunteers?.map((volunteer: any) => ({
-      volunteerId: volunteer.volunteerId,
+      volunteerId: volunteer?.volunteerId,
       active_status: volunteer.active_status,
       ...(volunteer.Person || {}),
-      address: `${volunteer?.Person?.Address?.state?.split("/")[1] || ""} - ${
-        volunteer?.Person?.Address?.city?.split("/")[1] || ""
-      } - ${volunteer?.Person?.Address?.district?.split("/")[1] || ""} - ${
-        volunteer?.Person?.Address?.village?.split("/")[1] || ""
+      address: `${volunteer?.Person?.Address?.state || ""} - ${
+        volunteer?.Person?.Address?.city || ""
+      } - ${volunteer?.Person?.Address?.district || ""} - ${
+        volunteer?.Person?.Address?.village || ""
       }`,
 
       personId: volunteer?.Person?.id,
@@ -390,26 +388,7 @@ const InvitedVolunteer = () => {
           />
         ),
       },
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
+      
 
       {
         field: "nationalNumber",
@@ -451,6 +430,27 @@ const InvitedVolunteer = () => {
           />
         ),
       },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+      },
+
       {
         field: "smoking",
         type: "singleSelect",
@@ -554,6 +554,25 @@ const InvitedVolunteer = () => {
           );
         },
       },
+      {
+        field: "actions",
+        headerName: t("actions"),
+        type: "actions",
+        minWidth: 200,
+        getActions: ({ id }: any) => {
+          // console.log(id);
+          return [
+            <GridActionsCellItem
+              icon={<DeleteIcon />}
+              label="Delete"
+              disabled={rows.length === 1}
+              onClick={() => {
+                setRows((prev: any[]) => prev.filter((row) => row?.id !== id));
+              }}
+            />,
+          ].filter(Boolean);
+        },
+      },
     ],
     [
       clearFilter,
@@ -562,20 +581,15 @@ const InvitedVolunteer = () => {
       handleDateFilterChange,
       handleSortClick,
       handleTextFilterChange,
+      rows.length,
       setFilterVisibility,
       sortModel,
       t,
     ]
   );
-  const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
-    });
-    setSelectedRows(newSelectedRows);
-  };
 
   useEffect(() => {
-    const volunteerIds = rows?.map((item: any) => item.volunteerId);
+    const volunteerIds = rows?.map((item: any) => item?.volunteerId);
     setInvitedVolunteerIds(volunteerIds);
   }, [rows, setInvitedVolunteerIds]);
 
@@ -590,6 +604,20 @@ const InvitedVolunteer = () => {
   );
   console.log("sessions in invited volunteer is", sessions);
   console.log("department is");
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row: any) => row?.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -611,7 +639,7 @@ const InvitedVolunteer = () => {
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
-              getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
+              getRowId={(row) => row?.volunteerId} // Ensure the correct row ID is used
               columns={columns}
               disableColumnFilter
               disableColumnMenu
@@ -634,11 +662,16 @@ const InvitedVolunteer = () => {
               }}
               initialState={{ pagination: { paginationModel } }}
               pageSizeOptions={[5, 10]}
-              checkboxSelection // Enable checkboxes for row selection
               onRowSelectionModelChange={(newSelection: any) =>
                 handleSelectionChange(newSelection)
               }
-              rowSelectionModel={selectedRows}
+              rowSelectionModel={selectedRowsIds}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(model) =>
+                setColumnVisibilityModel(model)
+              }
+              checkboxSelection // Enable checkboxes for row selection
+              keepNonExistentRowsSelected
               disableRowSelectionOnClick
             />
           </Paper>

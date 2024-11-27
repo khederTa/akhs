@@ -503,28 +503,6 @@ const Volunteer = () => {
           />
         ),
       },
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
-      },
 
       {
         field: "nationalNumber",
@@ -567,6 +545,28 @@ const Volunteer = () => {
             clearFilter={clearFilter}
           />
         ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
       {
         field: "smoking",
@@ -797,11 +797,11 @@ const Volunteer = () => {
             volunteerId: volunteer.volunteerId,
             active_status: volunteer.active_status,
             ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.city?.split("/")[1] || ""} - ${
-              volunteer?.Person?.Address?.district?.split("/")[1] || ""
-            } - ${volunteer?.Person?.Address?.village?.split("/")[1] || ""}`,
+            address: `${volunteer?.Person?.Address?.state || ""} - ${
+              volunteer?.Person?.Address?.city || ""
+            } - ${volunteer?.Person?.Address?.district || ""} - ${
+              volunteer?.Person?.Address?.village || ""
+            }`,
 
             personId: volunteer?.Person?.id,
             fileId: volunteer?.Person?.fileId,
@@ -904,11 +904,9 @@ const Volunteer = () => {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
-          const updatedAddress = `${newAddress?.state?.split("/")[1] || ""} - ${
-            newAddress?.city?.split("/")[1] || ""
-          } - ${newAddress?.district?.split("/")[1] || ""} - ${
-            newAddress?.village?.split("/")[1] || ""
-          }`;
+          const updatedAddress = `${newAddress?.state || ""} - ${
+            newAddress?.city || ""
+          } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
           const updatedBdate = newBdate || oldBdate;
           updatedRow.bDate = updatedBdate;
 
@@ -1127,16 +1125,53 @@ const Volunteer = () => {
     [selectedRow, t]
   );
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
       <HistoryModal
@@ -1178,7 +1213,7 @@ const Volunteer = () => {
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
+                  rows={selectedRowsToExport}
                   navigateTo={"/volunteer-information"}
                 />
               ),
@@ -1191,10 +1226,16 @@ const Volunteer = () => {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

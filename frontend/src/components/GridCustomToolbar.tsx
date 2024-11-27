@@ -22,7 +22,6 @@ import VolunteerModal from "./VolunteerModal";
 
 type ToolbarProps = {
   rows: any;
-  columnVisibilityModel: any;
   navigateTo: string;
   clearAllFilters: () => void;
   mode?: string;
@@ -34,7 +33,7 @@ const GridCustomToolbar = forwardRef<
   HTMLDivElement,
   GridToolbarContainerProps & ToolbarProps
 >(function GridToolbar(props, _ref) {
-  const { clearAllFilters, rows, columnVisibilityModel, navigateTo } = props;
+  const { clearAllFilters, rows, navigateTo } = props;
   const [reportModalIsOpen, setReportModalIsOpen] = useState(false);
   const [reportName, setReportName] = useState("");
   const navigate = useNavigate();
@@ -46,22 +45,7 @@ const GridCustomToolbar = forwardRef<
     event.target.checked;
     if (props.setGetEligible) props.setGetEligible(event.target.checked);
   };
-  // Create a new array with translated keys
-  const translatedRows = rows.map((row: any) => {
-    if (!row) return;
-    const translatedRow: any = {};
-    Object.keys(row)
-      .sort()
-      .forEach((key) => {
-        if (
-          !key.toLowerCase().includes("id") &&
-          !(key.toLowerCase() === "file")
-        )
-          translatedRow[t(key)] = row[key];
-      });
 
-    return translatedRow;
-  });
   return (
     <>
       <VolunteerModal
@@ -72,10 +56,9 @@ const GridCustomToolbar = forwardRef<
       <ReportModal
         open={reportModalIsOpen}
         handleClose={() => setReportModalIsOpen(false)}
-        columnVisibilityModel={columnVisibilityModel}
         setReportName={setReportName}
         reportName={reportName}
-        rows={translatedRows}
+        rows={rows}
       />
       <ActivityDraggableModal open={open} onClose={() => setOpen(false)} />
 

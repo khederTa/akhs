@@ -28,7 +28,6 @@ const paginationModel = { page: 0, pageSize: 5 };
 export default function ExecuteActivity() {
   const location = useLocation();
   const [rows, setRows] = useState<VolunteerRow[]>([]);
-  const [selectedRows, setSelectedRows] = useState([]);
   const [activityId, setActivityId] = useState();
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -71,8 +70,6 @@ export default function ExecuteActivity() {
     sessions,
     addNewSession,
     addSessionIds,
-    setInvitedVolunteerIds,
-    invitedVolunteerIds,
     resetStore,
   } = useSessionStore((state) => ({
     title: state.title,
@@ -86,8 +83,6 @@ export default function ExecuteActivity() {
     sessions: state.sessions,
     addNewSession: state.addNewSession,
     addSessionIds: state.addSessionIds,
-    invitedVolunteerIds: state.invitedVolunteerIds,
-    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
     resetStore: state.resetStore,
   }));
 
@@ -137,7 +132,7 @@ export default function ExecuteActivity() {
           const attendance = activityData.Sessions.reduce(
             (acc: any, session: any) => ({
               ...acc,
-              [`session_${session.id}`]: session.Attendees.some(
+              [session.name]: session.Attendees.some(
                 (attendee: any) =>
                   attendee.volunteerId === volunteer.volunteerId &&
                   attendee.VolunteerAttendedSessions?.status === "attended"
@@ -151,10 +146,10 @@ export default function ExecuteActivity() {
             notes: volunteer.VolunteerAttendedActivity.notes || "",
             volunteerAttendedActivity:
               volunteer.VolunteerAttendedActivity.status === "attended",
-
             ...attendance,
           };
         });
+
         setRows(volunteers);
       }
     }
@@ -174,7 +169,7 @@ export default function ExecuteActivity() {
 
   const columns: GridColDef[] = useMemo(() => {
     const sessionColumns = sessions.map((session) => ({
-      field: `session_${session.key}`,
+      field: session.sessionName, // Use the session name directly
       headerName: session.sessionName,
       width: 150,
       sortable: false,
@@ -188,7 +183,10 @@ export default function ExecuteActivity() {
             if (e.target.checked) {
               let numberOfAttendedSession = 1;
               for (const key in params.row) {
-                if (key.startsWith("session_") && params.row[key] === true)
+                if (
+                  sessions.some((s) => s.sessionName === key) &&
+                  params.row[key] === true
+                )
                   numberOfAttendedSession++;
               }
               if (numberOfAttendedSession >= minSessions) {
@@ -197,7 +195,6 @@ export default function ExecuteActivity() {
                 flag = false;
               }
             }
-            console.log({ flag });
             const updatedRows = rows.map((row) =>
               row.id === params.row.id
                 ? {
@@ -290,35 +287,33 @@ export default function ExecuteActivity() {
     sortModel,
     t,
   ]);
-  const handleSelectionChange = (newSelection: any[]) => {
-    const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
-    });
-    setInvitedVolunteerIds(newSelection as any);
-    setSelectedRows(newSelectedRows);
-  };
+
   const handleSave = async () => {
     try {
       for (const row of rows) {
         console.log({ row });
         const rowSessions = Object.fromEntries(
-          Object.entries(row).filter(([key]) => key.startsWith("session_"))
+          Object.entries(row).filter(([key]) =>
+            sessions.some((session) => session.sessionName === key)
+          )
         );
-        console.log({
-          sessions: Object.fromEntries(
-            Object.entries(row).filter(([key]) => key.startsWith("session_"))
-          ),
-        });
 
         await axios.put(`/volunteerAttendedActivity/${row.id}/${activityId}`, {
           notes: row.notes, // Save notes
           attended: row.volunteerAttendedActivity, // Save activity attendance
         });
         Object.keys(rowSessions).forEach(async (key) => {
-          await axios.put(
-            `/volunteerAttendedSession/${row.id}/${key.split("_")[1]}`,
-            { attended: rowSessions[key] }
-          );
+          const sessionId = sessions.find(
+            (session) => session.sessionName === key
+          )?.key;
+          if (sessionId) {
+            await axios.put(
+              `/volunteerAttendedSession/${row.id}/${sessionId}`,
+              {
+                attended: rowSessions[key],
+              }
+            );
+          }
         });
       }
       setAlertMessage("Changes saved successfully!");
@@ -334,10 +329,11 @@ export default function ExecuteActivity() {
   const handleSaveAndComplete = async () => {
     await handleSave();
     try {
-      await axios.put(`/activity/${activityId}`, { done: true });
+      await axios.put(`/activity/complete/${activityId}`, { done: true });
       setDone(true);
       setAlertMessage("Activity saved and marked as complete!");
       setAlertSeverity("success");
+      handleExit();
     } catch (error) {
       console.error("Failed to markactivity  as complete:", error);
       alert("An error occurred while completing the activity.");
@@ -355,6 +351,59 @@ export default function ExecuteActivity() {
     );
     return newRow;
   };
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row: any) => row.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
+
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          sessions.some((session) => session.sessionName === key) ||
+          key.toLowerCase().includes("volunteerAttendedActivity".toLowerCase())
+        ) {
+          translatedRow[key] = row[key] ? t("attended") : "";
+        } else if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t, sessions]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -381,7 +430,7 @@ export default function ExecuteActivity() {
             toolbar: () => (
               <GridCustomToolbar
                 clearAllFilters={clearAllFilters}
-                rows={selectedRows}
+                rows={selectedRowsToExport}
                 navigateTo=""
                 mode={"exe"}
               />
@@ -389,11 +438,16 @@ export default function ExecuteActivity() {
           }}
           initialState={{ pagination: { paginationModel } }}
           pageSizeOptions={[5, 10]}
-          checkboxSelection // Enable checkboxes for row selection
           onRowSelectionModelChange={(newSelection: any) =>
             handleSelectionChange(newSelection)
           }
-          rowSelectionModel={invitedVolunteerIds}
+          rowSelectionModel={selectedRowsIds}
+          columnVisibilityModel={columnVisibilityModel}
+          onColumnVisibilityModelChange={(model) =>
+            setColumnVisibilityModel(model)
+          }
+          checkboxSelection // Enable checkboxes for row selection
+          keepNonExistentRowsSelected
           disableRowSelectionOnClick
         />
       </Paper>

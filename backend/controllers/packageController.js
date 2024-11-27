@@ -1,4 +1,4 @@
-const { Package, ActivityType } = require("../models");
+const { Package, ActivityType, Activity } = require("../models");
 const db = require("../models");
 const { QueryTypes } = require("sequelize");
 
@@ -110,8 +110,8 @@ exports.getCompletedPackages = async (req, res) => {
                   WHERE vaa.volunteerId = ${id}
                     AND vaa.status = "attended"
       )
-);
-`,
+      );
+      `,
       {
         type: QueryTypes.SELECT,
       }
@@ -123,8 +123,28 @@ exports.getCompletedPackages = async (req, res) => {
       },
     });
 
-    const packagesData = packages.filter(pack => completedPackages.find(comp => comp.id === pack.id))
-    return res.json(packagesData);
+    const packagesData = packages.filter((pack) =>
+      completedPackages.find((comp) => comp.id === pack.id)
+    );
+
+    const completedActivity = await db.sequelize.query(
+      `SELECT DISTINCT * FROM activities as a
+        JOIN activitytypes AS ats ON ats.id = a.activityTypeId
+        JOIN VolunteerAttendedActivity AS vaa ON a.id = vaa.activityId
+        WHERE vaa.volunteerId = ${id}
+          AND vaa.status = 'attended';`,
+      {
+        type: QueryTypes.SELECT,
+      }
+    );
+    const activities = await Activity.findAll({
+      include: { model: ActivityType },
+    });
+    const activityData = activities.filter((item) =>
+      completedActivity.find((elem) => elem.id === item.id)
+    );
+
+    return res.json({ packagesData, packages, activityData });
   } catch (error) {
     console.error("Error fetching completed packages:", error);
     throw error;

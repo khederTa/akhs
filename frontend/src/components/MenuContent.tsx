@@ -50,7 +50,7 @@ const mainListItems = [
     access: "read_user",
   },
   {
-    text: "activity type management",
+    text: "activity type",
     icon: <EditCalendarRoundedIcon />,
     to: "/activity-modules",
     access: "read_activityType",

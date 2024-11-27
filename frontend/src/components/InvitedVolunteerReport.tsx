@@ -1,68 +1,33 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import * as React from "react";
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import IconButton from "@mui/material/IconButton";
-import Typography from "@mui/material/Typography";
-import CloseIcon from "@mui/icons-material/Close";
-import Slide from "@mui/material/Slide";
-import { TransitionProps } from "@mui/material/transitions";
-import { useTranslation } from "react-i18next";
-import GridCustomToolbar from "./GridCustomToolbar";
-import DownloadButton from "./DownloadButton";
-import QAFilterHeader from "./QAFilterHeader";
-import FilterHeader from "./FilterHeader";
-import GenderFilterHeader from "./GenderFilterHeader";
-import CustomDateRenderer from "./CustomDateRenderer";
-import DateFilterHeader from "./DateFilterHeader";
-import { DataGrid, useGridApiRef } from "@mui/x-data-grid";
-import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import { useEffect, useState, useMemo } from "react";
+import { useLocation } from "react-router-dom";
 import { Paper } from "@mui/material";
 import axios from "../utils/axios";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import FilterHeader from "./FilterHeader";
+import DateFilterHeader from "./DateFilterHeader";
+import CustomDateRenderer from "./CustomDateRenderer";
+import QAFilterHeader from "./QAFilterHeader";
+import GenderFilterHeader from "./GenderFilterHeader";
+import GridCustomToolbar from "./GridCustomToolbar";
+import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import { useTranslation } from "react-i18next";
+import DownloadButton from "./DownloadButton";
 import { Loading } from "./Loading";
-import useSessionStore from "../store/activityStore";
 
-const Transition = React.forwardRef(function Transition(
-  props: TransitionProps & {
-    children: React.ReactElement<unknown>;
-  },
-  ref: React.Ref<unknown>
-) {
-  return <Slide direction="up" ref={ref} {...props} />;
-});
-interface VolunteerModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSave?: (value: any) => void;
-}
-export default function VolunteerModal({
-  open,
-  onClose,
-  onSave,
-}: VolunteerModalProps) {
-  const [rows, setRows] = React.useState<any[]>([]);
-  const apiRef = useGridApiRef();
-  const [getEligible, setGetEligible] = React.useState(true);
-
-  const paginationModel = { page: 0, pageSize: 5 };
+const InvitedVolunteerReport = () => {
+  const [rows, setRows] = useState<any>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
-  const [isLoading, setIsLoading] = React.useState(true);
-  // Zustand store session state management
-  const { invitedVolunteerIds, activityType } = useSessionStore((state) => ({
-    invitedVolunteerIds: state.invitedVolunteerIds,
-    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
-    activityType: state.activityType,
-  }));
+  const paginationModel = { page: 0, pageSize: 5 };
+  const location = useLocation();
 
   const {
     filteredRows,
     sortModel,
     filterModel,
     filterVisibility,
-    setFilteredRows,
     setFilterVisibility,
     handleTextFilterChange,
     handleDateFilterChange,
@@ -111,8 +76,33 @@ export default function VolunteerModal({
     rows, // your initial rows data
   });
 
-  // Memoized columns definition to prevent re-rendering
-  const columns: any[] = React.useMemo(
+  useEffect(() => {
+    async function getData() {
+      try {
+        const response = await axios.get(`/activity/${location.state.id}`);
+        const enrichedData = response.data?.Volunteers?.map(
+          (volunteer: any) => ({
+            volunteerId: volunteer.volunteerId,
+            ...(volunteer.Person || {}),
+            address: `${
+              volunteer?.Person?.Address?.state || ""
+            } - ${volunteer?.Person?.Address?.city || ""} - ${
+              volunteer?.Person?.Address?.district || ""
+            } - ${volunteer?.Person?.Address?.village || ""}`,
+          })
+        );
+
+        setRows(enrichedData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    getData();
+  }, [location.state.id]);
+
+  const columns: GridColDef[] = useMemo(
     () => [
       {
         field: "volunteerId",
@@ -246,10 +236,7 @@ export default function VolunteerModal({
         minWidth: 200,
         sortable: false,
         hideSortIcons: true,
-        renderCell: (params: { value: string | Date }) => (
-          <CustomDateRenderer value={params.value} />
-        ),
-
+        renderCell: (params) => <CustomDateRenderer value={params.value} />,
         renderHeader: () => (
           <DateFilterHeader
             key={"bDate"}
@@ -476,23 +463,6 @@ export default function VolunteerModal({
           />
         ),
       },
-      {
-        field: "file",
-        headerName: t("cv"),
-        hideSortIcons: true,
-        sortable: false,
-        renderCell: (params: {
-          row: { fname: any; File: { file: { data: number[] | null } } };
-        }) => {
-          // console.log(params.row);
-          return (
-            <DownloadButton
-              fileName={`${params.row.fname} CV`}
-              fileBinary={params.row.File?.file?.data}
-            />
-          );
-        },
-      },
     ],
     [
       clearFilter,
@@ -507,62 +477,10 @@ export default function VolunteerModal({
     ]
   );
 
-  React.useEffect(() => {
-    async function fetchVolunteers() {
-      setIsLoading(true);
-      try {
-        let response;
-        if (getEligible) {
-          console.log({ getEligible });
-          response = await axios.get(
-            `/volunteer/${activityType?.id}/eligible-volunteer`
-          );
-        } else {
-          response = await axios.get("/volunteer");
-        }
-        console.log("response is", response);
-        if (response && response.status === 200) {
-          const enrichedData = response.data.map((volunteer: any) => ({
-            volunteerId: volunteer.volunteerId,
-            active_status: volunteer.active_status,
-            ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state || ""
-            } - ${volunteer?.Person?.Address?.city || ""} - ${
-              volunteer?.Person?.Address?.district || ""
-            } - ${volunteer?.Person?.Address?.village || ""}`,
-
-            personId: volunteer?.Person?.id,
-            fileId: volunteer?.Person?.fileId,
-            file: volunteer?.Person?.File?.file?.data,
-            addressId: volunteer?.Person?.Address?.id,
-          }));
-          const processedData = enrichedData.filter(
-            (item: any) => !invitedVolunteerIds?.includes(item.id)
-          );
-          setRows(processedData);
-          setFilteredRows(processedData);
-          console.log("enricheddata is ", enrichedData);
-        } else {
-          console.error("Unexpected response:", response);
-        }
-      } catch (error) {
-        console.error("Error fetching volunteers:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    if (open) fetchVolunteers();
-  }, [activityType, getEligible, invitedVolunteerIds, open, setFilteredRows]);
-
-  const [columnVisibilityModel, setColumnVisibilityModel] = React.useState<any>(
-    {}
-  );
-  const [selectedRows, setSelectedRows] = React.useState([]);
-  const [selectedRowsToExport, setSelectedRowsToExport] = React.useState<any>(
-    []
-  );
-  const [selectedRowsIds, setSelectedRowsIds] = React.useState<any[]>([]);
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
       return rows.find((row: any) => row.id === selected);
@@ -571,7 +489,7 @@ export default function VolunteerModal({
     setSelectedRows(newSelectedRows);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Filter rows to include only the visible columns
     const processedRows = selectedRows.map((row) => {
       const newRow: any = {};
@@ -608,88 +526,51 @@ export default function VolunteerModal({
   // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
-    <Dialog
-      fullScreen
-      open={open}
-      // onClose={onClose}
-      TransitionComponent={Transition}
-    >
-      <AppBar
-        sx={{
-          position: "relative",
-          backgroundColor: "var(--template-palette-background-paper)",
-          color: "var(--template-palette-text-secondary)",
-        }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            onClick={onClose}
-            aria-label="close"
-          >
-            <CloseIcon />
-          </IconButton>
-          <Typography sx={{ ml: 2, flex: 1 }} variant="h6" component="div">
-            {t("invite more volunteer to the activity")}
-          </Typography>
-          <Button
-            autoFocus
-            variant="contained"
-            color="inherit"
-            onClick={() => {
-              if (onSave) onSave(selectedRows);
-            }}
-          >
-            {t("save")}
-          </Button>
-        </Toolbar>
-      </AppBar>
+    <>
       {isLoading ? (
         <Loading />
       ) : (
-        <Paper sx={{ height: 500, width: "100%" }}>
-          <DataGrid
-            rows={filteredRows}
-            columns={columns}
-            initialState={{ pagination: { paginationModel } }}
-            pageSizeOptions={[5, 10]}
-            sx={{ border: 0 }}
-            getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
-            disableColumnFilter
-            disableColumnMenu
-            slots={{
-              toolbar: () => (
-                <GridCustomToolbar
-                  clearAllFilters={clearAllFilters}
-                  rows={selectedRowsToExport}
-                  navigateTo={"/volunteer-information"}
-                  mode={"show"}
-                  setGetEligible={setGetEligible}
-                  getEligible={getEligible}
-                />
-              ),
-            }}
-            editMode="row"
-            localeText={{
-              toolbarColumns: t("columns"),
-              toolbarDensity: t("density"),
-            }}
-            apiRef={apiRef}
-            onRowSelectionModelChange={(newSelection: any) =>
-              handleSelectionChange(newSelection)
-            }
-            rowSelectionModel={selectedRowsIds}
-            columnVisibilityModel={columnVisibilityModel}
-            onColumnVisibilityModelChange={(model) =>
-              setColumnVisibilityModel(model)
-            }
-            checkboxSelection // Enable checkboxes for row selection
-            keepNonExistentRowsSelected
-            disableRowSelectionOnClick
-          />
-        </Paper>
+        <>
+          <Paper sx={{ height: 500, width: "100%" }}>
+            <DataGrid
+              rows={filteredRows}
+              getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
+              columns={columns}
+              disableColumnFilter
+              disableColumnMenu
+              localeText={{
+                toolbarColumns: t("columns"),
+                toolbarDensity: t("density"),
+              }}
+              slots={{
+                toolbar: () => (
+                  <GridCustomToolbar
+                    clearAllFilters={clearAllFilters}
+                    rows={selectedRowsToExport}
+                    navigateTo={""}
+                    mode={"exe"}
+                  />
+                ),
+              }}
+              initialState={{ pagination: { paginationModel } }}
+              pageSizeOptions={[5, 10]}
+              onRowSelectionModelChange={(newSelection: any) =>
+                handleSelectionChange(newSelection)
+              }
+              rowSelectionModel={selectedRowsIds}
+              columnVisibilityModel={columnVisibilityModel}
+              onColumnVisibilityModelChange={(model) =>
+                setColumnVisibilityModel(model)
+              }
+              checkboxSelection // Enable checkboxes for row selection
+              keepNonExistentRowsSelected
+              disableRowSelectionOnClick
+            />
+          </Paper>
+        </>
       )}
-    </Dialog>
+    </>
   );
-}
+};
+
+export default InvitedVolunteerReport;

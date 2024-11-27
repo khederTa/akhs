@@ -14,6 +14,7 @@ import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
 import DateFilterHeader from "./DateFilterHeader";
+import SummarizeIcon from "@mui/icons-material/Summarize";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -188,6 +189,13 @@ const Activity = () => {
             label="Edit"
             onClick={() => navigate("/activity-summary", { state: { id } })}
           />,
+          <GridActionsCellItem
+            icon={<SummarizeIcon />}
+            label="Report"
+            onClick={() =>
+              navigate("/invited-volunteer-report", { state: { id } })
+            }
+          />,
         ].filter(Boolean);
       },
     },
@@ -199,23 +207,27 @@ const Activity = () => {
         // Fetch the activities first
         const activityResponse = await axios.get("activity");
         const activities = activityResponse.data;
-        console.log("activivtys is" , activities)
-  
+        console.log("activivtys is", activities);
+
         // Fetch volunteer attended activity data for each activity
-        const activityRows :any = await Promise.all(
-          activities.map(async (activity :any) => {
+        const activityRows: any = await Promise.all(
+          activities.map(async (activity: any) => {
             const fetchedAttendedResponse = await axios.get(
               `volunteerAttendedActivity/${activity.id}`
             );
-            console.log("fetchedAttendedResponse is" , fetchedAttendedResponse)
+            console.log("fetchedAttendedResponse is", fetchedAttendedResponse);
             const fetchedAttended = fetchedAttendedResponse.data;
-            const fetchedAttendedMale = fetchedAttendedResponse.data.filter((attend :any)=>{
-               return attend.gender === "Male"
-            });
-            const fetchedAttendedFemale = fetchedAttendedResponse.data.filter((attend :any)=>{
-              return attend.gender === "Female"
-           });
-            console.log("fetchedAttendedMale" , fetchedAttendedMale)
+            const fetchedAttendedMale = fetchedAttendedResponse.data.filter(
+              (attend: any) => {
+                return attend.gender === "Male";
+              }
+            );
+            const fetchedAttendedFemale = fetchedAttendedResponse.data.filter(
+              (attend: any) => {
+                return attend.gender === "Female";
+              }
+            );
+            console.log("fetchedAttendedMale", fetchedAttendedMale);
             // Construct the row with the fetched data
             return {
               id: activity?.id,
@@ -226,12 +238,12 @@ const Activity = () => {
               minSessions: activity?.minSessions,
               startDate: activity?.startDate,
               NumberOfAttendedActivity: fetchedAttended?.length || 0, // Adjust based on API response structure
-              NumberOfMales : fetchedAttendedMale?.length || 0 ,
-              NumberOfFemales : fetchedAttendedFemale?.length || 0,
+              NumberOfMales: fetchedAttendedMale?.length || 0,
+              NumberOfFemales: fetchedAttendedFemale?.length || 0,
             };
           })
         );
-  
+
         setLoading(false);
         setRows(activityRows);
         setFilteredRows(activityRows);
@@ -240,22 +252,58 @@ const Activity = () => {
         setLoading(false); // Ensure loading is stopped in case of error
       }
     }
-  
+
     fetchActivityData();
   }, [setFilteredRows]);
-  
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
-console.log("rows is " , rows);
+  console.log("rows is ", rows);
+
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
 
   // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
       {loading ? (
@@ -276,8 +324,8 @@ console.log("rows is " , rows);
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
-                  navigateTo={"/volunteer-information"}
+                  rows={selectedRowsToExport}
+                  navigateTo={""}
                   mode="addActivity"
                 />
               ),
@@ -287,10 +335,16 @@ console.log("rows is " , rows);
               toolbarColumns: t("columns"),
               toolbarDensity: t("density"),
             }}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

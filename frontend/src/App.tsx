@@ -9,7 +9,6 @@ import Header from "./components/Header";
 import { Stack, TextField } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
-import ActivityInfo from "./components/activityInfo/ActivityInfo";
 import CreateNewUser from "./components/CreateNewUser";
 import Activity from "./components/Activity";
 import VolunteerInfo from "./components/VolunteerInfo";
@@ -31,6 +30,7 @@ import PermissionInitializer from "./components/PermissionInitializer";
 import { useAuthStore } from "./store/auth";
 import InvitedVolunteer from "./components/InvitedVolunteer";
 import ExecuteActivity from "./components/ExecuteActivity";
+import InvitedVolunteerReport from "./components/InvitedVolunteerReport";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
@@ -105,19 +105,6 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 )
               }
             />
-            <Route
-              path="/activity-information"
-              element={
-                permissions["create_activity"] ? (
-                  <Layout>
-                    <ActivityInfo />
-                  </Layout>
-                ) : (
-                  !permissionsLoading &&
-                  !loggedIn && <Navigate to="/" replace />
-                )
-              }
-            />
 
             <Route
               path="/activity-summary"
@@ -132,6 +119,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <InvitedVolunteer />
+                </Layout>
+              }
+            />
+            <Route
+              path="/invited-volunteer-report"
+              element={
+                <Layout>
+                  <InvitedVolunteerReport />
                 </Layout>
               }
             />

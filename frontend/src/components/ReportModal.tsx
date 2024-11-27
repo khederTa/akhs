@@ -16,7 +16,6 @@ interface ReportModalProps {
   setReportName: (name: string) => void;
   reportName: string;
   rows: any;
-  columnVisibilityModel: any;
 }
 
 export function ReportModal({
@@ -25,7 +24,6 @@ export function ReportModal({
   setReportName,
   reportName,
   rows,
-  columnVisibilityModel
 }: ReportModalProps) {
   const { t } = useTranslation();
   return (
@@ -38,7 +36,6 @@ export function ReportModal({
           event.preventDefault();
           exportToExcel(
             rows,
-            columnVisibilityModel,
             reportName
           )
           handleClose();

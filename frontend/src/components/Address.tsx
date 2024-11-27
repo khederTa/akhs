@@ -128,6 +128,9 @@ const Address = ({
             {...params}
             label={t("state")}
             variant="outlined"
+            sx={{
+              minWidth: "150px",
+            }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -155,6 +158,9 @@ const Address = ({
             {...params}
             label={t("city")}
             variant="outlined"
+            sx={{
+              minWidth: "150px",
+            }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -182,6 +188,9 @@ const Address = ({
             {...params}
             label={t("district")}
             variant="outlined"
+            sx={{
+              minWidth: "150px",
+            }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (
@@ -208,6 +217,9 @@ const Address = ({
             {...params}
             label={t("village")}
             variant="outlined"
+            sx={{
+              minWidth: "150px",
+            }}
             InputProps={{
               ...params.InputProps,
               endAdornment: (

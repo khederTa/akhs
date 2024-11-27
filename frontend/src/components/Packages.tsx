@@ -35,10 +35,8 @@ export function Packages() {
   const apiRef = useGridApiRef();
   const { t } = useTranslation();
   const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, ] = useState("");
-  const [alertSeverity, ] = useState<"success" | "error">(
-    "success"
-  );
+  const [alertMessage] = useState("");
+  const [alertSeverity] = useState<"success" | "error">("success");
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
@@ -350,16 +348,53 @@ export function Packages() {
     }
   };
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
-
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return filteredRows.find((row) => row.id === selected);
+      return rows.find((row: any) => row.id === selected);
     });
+    setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
+      });
+
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -393,7 +428,7 @@ export function Packages() {
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
+                  rows={selectedRowsToExport}
                   navigateTo={"/new-package"}
                 />
               ),
@@ -406,10 +441,16 @@ export function Packages() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>

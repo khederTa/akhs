@@ -547,28 +547,7 @@ export function UserManagement() {
         ),
       },
 
-      {
-        field: "address",
-        headerName: t("address"),
-        minWidth: 300,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"address"}
-            field={"address"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
-      },
+      
       {
         field: "nationalNumber",
         headerName: t("nationalNumber"),
@@ -685,6 +664,28 @@ export function UserManagement() {
             clearFilter={clearFilter}
           />
         ),
+      },
+      {
+        field: "address",
+        headerName: t("address"),
+        minWidth: 650,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"address"}
+            field={"address"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
       {
         field: "smoking",
@@ -866,7 +867,28 @@ export function UserManagement() {
         },
       },
     ],
-    [t, roleOptions, positionOptions, departmentOptions, filterModel, sortModel, filterVisibility, handleSortClick, handleTextFilterChange, setFilterVisibility, clearFilter, newBdate, handleDateFilterChange, rowModesModel, rows, handleEditClick, handleOpenDeleteDialog, handleToggleActive, handleSave, handleCancel]
+    [
+      t,
+      roleOptions,
+      positionOptions,
+      departmentOptions,
+      filterModel,
+      sortModel,
+      filterVisibility,
+      handleSortClick,
+      handleTextFilterChange,
+      setFilterVisibility,
+      clearFilter,
+      newBdate,
+      handleDateFilterChange,
+      rowModesModel,
+      rows,
+      handleEditClick,
+      handleOpenDeleteDialog,
+      handleToggleActive,
+      handleSave,
+      handleCancel,
+    ]
   );
 
   useEffect(() => {
@@ -1051,10 +1073,10 @@ export function UserManagement() {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
-          const updatedAddress = `${newAddress?.state?.split("/")[1] || ""} - ${
-            newAddress?.city?.split("/")[1] || ""
-          } - ${newAddress?.district?.split("/")[1] || ""} - ${
-            newAddress?.village?.split("/")[1] || ""
+          const updatedAddress = `${newAddress?.state || ""} - ${
+            newAddress?.city || ""
+          } - ${newAddress?.district || ""} - ${
+            newAddress?.village || ""
           }`;
           // Detect changes and update departmentId and positionId accordingly
           const selectedDepartment = departmentOptions.find(
@@ -1226,19 +1248,53 @@ export function UserManagement() {
     ]
   );
 
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
+  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
+  const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
+  const handleSelectionChange = (newSelection: any[]) => {
+    const newSelectedRows: any = newSelection.map((selected) => {
+      return rows.find((row: any) => row.id === selected);
+    });
+    setSelectedRowsIds(newSelection);
+    setSelectedRows(newSelectedRows);
+  };
 
-  const handleSelectionChange = useCallback(
-    (newSelection: any[]) => {
-      const newSelectedRows: any = newSelection.map((selected) => {
-        return filteredRows.find((row: { id: any }) => row.id === selected);
+  useEffect(() => {
+    // Filter rows to include only the visible columns
+    const processedRows = selectedRows.map((row) => {
+      const newRow: any = {};
+      for (const col in row) {
+        if (columnVisibilityModel[col] !== false) {
+          // Include only if the column is visible
+          newRow[col] = row[col];
+        }
+      }
+      return newRow;
+    });
+
+    // Create a new array with translated keys
+    const translatedRows = processedRows.map((row: any) => {
+      if (!row) return;
+      const translatedRow: any = {};
+      Object.keys(row).forEach((key) => {
+        if (
+          !key.toLowerCase().includes("id") &&
+          !(key.toLowerCase() === "file") &&
+          !(key.toLowerCase() === "active_status")
+        )
+          translatedRow[t(key)] = row[key];
       });
-      setSelectedRows(newSelectedRows);
-    },
-    [filteredRows]
-  );
 
-  useEffect(() => console.log(selectedRows), [selectedRows]);
+      return translatedRow;
+    });
+
+    setSelectedRowsToExport(translatedRows);
+  }, [selectedRows, columnVisibilityModel, t]);
+
+  // useEffect(() => console.log(selectedRows), [selectedRows]);
+  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
+  // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
     <>
@@ -1272,7 +1328,7 @@ export function UserManagement() {
               toolbar: () => (
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
-                  rows={selectedRows}
+                  rows={selectedRowsToExport}
                   navigateTo={"/create-new-user"}
                 />
               ),
@@ -1285,10 +1341,16 @@ export function UserManagement() {
             rowModesModel={rowModesModel}
             processRowUpdate={processRowUpdate}
             apiRef={apiRef}
-            checkboxSelection // Enable checkboxes for row selection
             onRowSelectionModelChange={(newSelection: any) =>
               handleSelectionChange(newSelection)
             }
+            rowSelectionModel={selectedRowsIds}
+            columnVisibilityModel={columnVisibilityModel}
+            onColumnVisibilityModelChange={(model) =>
+              setColumnVisibilityModel(model)
+            }
+            checkboxSelection // Enable checkboxes for row selection
+            keepNonExistentRowsSelected
             disableRowSelectionOnClick
           />
         </Paper>
