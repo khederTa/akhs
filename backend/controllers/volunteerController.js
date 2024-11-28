@@ -105,11 +105,22 @@ exports.createVolunteer = async (req, res) => {
 
     // Send the created volunteer as the response
     res.status(201).json(volunteer);
-  } catch (error) {
+  }  catch (error) {
     console.error("Error creating volunteer:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while creating the volunteer" });
+
+    // Handle Sequelize unique constraint errors
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        error: "ValidationError",
+        message: error.errors[0].message, // Provides the exact message (e.g., "nationalNumber must be unique")
+        field: error.errors[0].path,     // Provides the field causing the error (e.g., "nationalNumber")
+      });
+    }
+
+    // Handle other errors
+    res.status(500).json({
+      error: "An error occurred while creating the volunteer",
+    });
   }
 };
 

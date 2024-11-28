@@ -62,15 +62,15 @@ exports.getAllServiceProviders = async (req, res) => {
           model: Position,
           attributes: ["id", "name"],
         },
-        {
-          model: User,
-          required: false, // Ensures it's a LEFT JOIN, so ServiceProviders without a User are included
-          attributes: [], // No attributes from User are retrieved
-        },
+        // {
+        //   model: User,
+        //   required: false, // Ensures it's a LEFT JOIN, so ServiceProviders without a User are included
+        //   attributes: [], // No attributes from User are retrieved
+        // },
       ],
-      where: {
-        "$User.providerId$": null, // Filter for ServiceProviders with no associated User
-      },
+      // where: {
+      //   "$User.providerId$": null, // Filter for ServiceProviders with no associated User
+      // },
     });
     res.json(serviceProviders);
   } catch (error) {
@@ -167,10 +167,21 @@ exports.createServiceProvider = async (req, res) => {
     });
 
     res.status(201).json(serviceProvider);
-  } catch (error) {
-    console.error("Error creating service provider:", error);
+  }  catch (error) {
+    console.error("Error creating Service Provider:", error);
+
+    // Handle Sequelize unique constraint errors
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        error: "ValidationError",
+        message: error.errors[0].message, // Provides the exact message (e.g., "nationalNumber must be unique")
+        field: error.errors[0].path,     // Provides the field causing the error (e.g., "nationalNumber")
+      });
+    }
+
+    // Handle other errors
     res.status(500).json({
-      error: "An error occurred while creating the service provider.",
+      error: "An error occurred while creating the Service Provider",
     });
   }
 };

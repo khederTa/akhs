@@ -19,6 +19,7 @@ import FileUpload from "./FileUpload";
 import Address from "./Address";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
+import AlertNotification from "./AlertNotification";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -44,8 +45,17 @@ const VolunteerInfo = () => {
   const [compSkill, setCompSkill] = useState("No");
   const [koboSkill, setKoboSkill] = useState("No");
   const [errors, setErrors] = useState<any>({});
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
   const validateForm = () => {
     const newErrors: any = {};
     if (!gender) newErrors.gender = t("gender is required");
@@ -124,262 +134,328 @@ const VolunteerInfo = () => {
 
     try {
       const response = await axios.post("/volunteer", payload);
+
       if (response.status === 201) {
+        setAlertMessage("Volunteer created successfully!");
+        setAlertSeverity("success");
+        setAlertOpen(true);
         navigate("/volunteer");
       }
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      console.error("Error submitting form:", error);
+
+      if (error.response && error.response.data) {
+        const { error: backendError, message, field } = error.response.data;
+
+        // Display specific validation errors
+        if (backendError === "ValidationError") {
+          setAlertMessage(`${message}`);
+          setAlertSeverity("error");
+          setAlertOpen(true);
+        } else {
+          // Generic error message
+          setAlertMessage("An unexpected error occurred.");
+          setAlertSeverity("error");
+          setAlertOpen(true);
+        }
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <Card variant="highlighted">
-      <Typography
-        component="h1"
-        variant="h4"
-        sx={{ width: "100%", fontSize: "clamp(1.8rem, 5vw, 2.5rem)" }}
-      >
-        {t("create new volunteer")}
-      </Typography>
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        noValidate
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          flexWrap: "wrap",
-          gap: 2,
-          width: "100%",
-        }}
-      >
-        {[
-          {
-            id: "fname",
-            label: t("fname"),
-            placeholder: t("John"),
-          },
-          {
-            id: "mname",
-            label: t("mname"),
-            placeholder: t("Adam"),
-          },
-          {
-            id: "lname",
-            label: t("lname"),
-            placeholder: t("Doe"),
-          },
-          {
-            id: "momname",
-            label: t("momName"),
-            placeholder: t("Jane"),
-          },
-          {
-            id: "phone",
-            label: t("phone"),
-            placeholder: "0988776655",
-          },
-          {
-            id: "email",
-            label: t("email"),
-            placeholder: "example@akhs.com",
-          },
-          {
-            id: "study",
-            label: t("study"),
-            placeholder: t("software engineering"),
-          },
-          {
-            id: "work",
-            label: t("work"),
-            placeholder: t("software developer"),
-          },
-          {
-            id: "nationalNumber",
-            label: t("nationalNumber"),
-            placeholder: "050500",
-          },
-          {
-            id: "fixPhone",
-            label: t("fixPhone"),
-            placeholder: "0338800000",
-          },
-        ].map(({ id, label, placeholder }) => (
+    <>
+      <AlertNotification
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={handleAlertClose}
+      />
+      <Card variant="highlighted">
+        <Typography
+          component="h1"
+          variant="h4"
+          sx={{ width: "100%", fontSize: "clamp(1.8rem, 5vw, 2.5rem)" }}
+        >
+          {t("create new volunteer")}
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          noValidate
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            gap: 2,
+            width: "100%",
+          }}
+        >
+          {[
+            {
+              id: "fname",
+              label: t("fname"),
+              placeholder: t("John"),
+            },
+            {
+              id: "mname",
+              label: t("mname"),
+              placeholder: t("Adam"),
+            },
+            {
+              id: "lname",
+              label: t("lname"),
+              placeholder: t("Doe"),
+            },
+            {
+              id: "momname",
+              label: t("momName"),
+              placeholder: t("Jane"),
+            },
+            {
+              id: "phone",
+              label: t("phone"),
+              placeholder: "0988776655",
+            },
+            {
+              id: "email",
+              label: t("email"),
+              placeholder: "example@akhs.com",
+            },
+            {
+              id: "study",
+              label: t("study"),
+              placeholder: t("software engineering"),
+            },
+            {
+              id: "work",
+              label: t("work"),
+              placeholder: t("software developer"),
+            },
+            {
+              id: "nationalNumber",
+              label: t("nationalNumber"),
+              placeholder: "050500",
+            },
+            {
+              id: "fixPhone",
+              label: t("fixPhone"),
+              placeholder: "0338800000",
+            },
+          ].map(({ id, label, placeholder }) => (
+            <FormControl
+              sx={{
+                flex: { xs: "1 1 100%", md: "1 1 30%" },
+                minWidth: "20%",
+              }}
+              key={id}
+              error={!!errors[id]}
+            >
+              <FormLabel htmlFor={id}>{label}</FormLabel>
+              <TextField
+                id={id}
+                name={id}
+                placeholder={placeholder}
+                fullWidth
+                error={!!errors[id]}
+              />
+              {errors[id] && <FormHelperText>{errors[id]}</FormHelperText>}
+            </FormControl>
+          ))}
+
+          <FormControl
+            sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
+            error={!!errors.birthDate}
+          >
+            <FormLabel htmlFor="birthDate">{t("birth date")}</FormLabel>
+            <TextField
+              id="birthDate"
+              name="birthDate"
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              fullWidth
+              error={!!errors.birthDate}
+            />
+            {errors.birthDate && (
+              <FormHelperText>{errors.birthDate}</FormHelperText>
+            )}
+          </FormControl>
           <FormControl
             sx={{
               flex: { xs: "1 1 100%", md: "1 1 30%" },
               minWidth: "20%",
             }}
-            key={id}
-            error={!!errors[id]}
-          >
-            <FormLabel htmlFor={id}>{label}</FormLabel>
-            <TextField
-              id={id}
-              name={id}
-              placeholder={placeholder}
-              fullWidth
-              error={!!errors[id]}
-            />
-            {errors[id] && <FormHelperText>{errors[id]}</FormHelperText>}
-          </FormControl>
-        ))}
-
-        <FormControl
-          sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
-          error={!!errors.birthDate}
-        >
-          <FormLabel htmlFor="birthDate">{t("birth date")}</FormLabel>
-          <TextField
-            id="birthDate"
-            name="birthDate"
-            type="date"
-            value={birthDate}
-            onChange={(e) => setBirthDate(e.target.value)}
-            fullWidth
-            error={!!errors.birthDate}
-          />
-          {errors.birthDate && (
-            <FormHelperText>{errors.birthDate}</FormHelperText>
-          )}
-        </FormControl>
-        <FormControl
-          sx={{
-            flex: { xs: "1 1 100%", md: "1 1 30%" },
-            minWidth: "20%",
-          }}
-          key={"note"}
-          error={!!errors["note"]}
-        >
-          <FormLabel htmlFor={"note"}>{t("notes")}</FormLabel>
-          <TextField
-            id={"note"}
-            name={"note"}
-            placeholder={t("add your notes")}
-            fullWidth
+            key={"note"}
             error={!!errors["note"]}
-          />
-          {errors["note"] && <FormHelperText>{errors["note"]}</FormHelperText>}
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ flex: "1 1 40%" }}
-          error={!!errors.addressId}
-        >
-          <FormLabel>{t("address")}</FormLabel>
-          <Address setAddressId={setAddressId} />
-          {errors.addressId && (
-            <FormHelperText>{errors.addressId}</FormHelperText>
-          )}
-        </FormControl>
-
-        <FormControl
-          component="fieldset"
-          sx={{ flex: "1 1 100%" }}
-          error={!!errors.gender}
-        >
-          <FormLabel component="legend">{t("gender")}</FormLabel>
-          <RadioGroup
-            row
-            value={gender}
-            onChange={(e) => setGender(e.target.value)}
           >
-            <FormControlLabel value="Male" control={<Radio />} label={t("male")} />
-            <FormControlLabel
-              value="Female"
-              control={<Radio />}
-              label={t("female")}
+            <FormLabel htmlFor={"note"}>{t("notes")}</FormLabel>
+            <TextField
+              id={"note"}
+              name={"note"}
+              placeholder={t("add your notes")}
+              fullWidth
+              error={!!errors["note"]}
             />
-          </RadioGroup>
-          {errors.gender && <FormHelperText>{errors.gender}</FormHelperText>}
-        </FormControl>
+            {errors["note"] && (
+              <FormHelperText>{errors["note"]}</FormHelperText>
+            )}
+          </FormControl>
+          <FormControl
+            component="fieldset"
+            sx={{ flex: "1 1 40%" }}
+            error={!!errors.addressId}
+          >
+            <FormLabel>{t("address")}</FormLabel>
+            <Address setAddressId={setAddressId} />
+            {errors.addressId && (
+              <FormHelperText>{errors.addressId}</FormHelperText>
+            )}
+          </FormControl>
 
-        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
-          <FormLabel component="legend">
-            {t("do you have past or current volunteer experience?")}
-          </FormLabel>
-          <RadioGroup
-            row
-            value={prevVol}
-            onChange={(e) => setPrevVol(e.target.value)}
+          <FormControl
+            component="fieldset"
+            sx={{ flex: "1 1 100%" }}
+            error={!!errors.gender}
           >
-            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
-            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
-          </RadioGroup>
-        </FormControl>
-        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
-          <FormLabel component="legend">
-            {t("do you have skills in Microsoft Office Programs?")}
-          </FormLabel>
-          <RadioGroup
-            row
-            value={compSkill}
-            onChange={(e) => setCompSkill(e.target.value)}
-          >
-            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
-            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
-          </RadioGroup>
-        </FormControl>
-        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
-          <FormLabel component="legend">
-            {t("are you a smoker / hookah, cigarette?")}
-          </FormLabel>
-          <RadioGroup
-            row
-            value={smoking}
-            onChange={(e) => setSmoking(e.target.value)}
-          >
-            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
-            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
-          </RadioGroup>
-        </FormControl>
+            <FormLabel component="legend">{t("gender")}</FormLabel>
+            <RadioGroup
+              row
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+            >
+              <FormControlLabel
+                value="Male"
+                control={<Radio />}
+                label={t("male")}
+              />
+              <FormControlLabel
+                value="Female"
+                control={<Radio />}
+                label={t("female")}
+              />
+            </RadioGroup>
+            {errors.gender && <FormHelperText>{errors.gender}</FormHelperText>}
+          </FormControl>
 
-        <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
-          <FormLabel component="legend">
-            {t("have you used the Kobo data tool?")}
-          </FormLabel>
-          <RadioGroup
-            row
-            value={koboSkill}
-            onChange={(e) => setKoboSkill(e.target.value)}
-          >
-            <FormControlLabel value="Yes" control={<Radio />} label={t("yes")} />
-            <FormControlLabel value="No" control={<Radio />} label={t("no")} />
-          </RadioGroup>
-        </FormControl>
+          <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+            <FormLabel component="legend">
+              {t("do you have past or current volunteer experience?")}
+            </FormLabel>
+            <RadioGroup
+              row
+              value={prevVol}
+              onChange={(e) => setPrevVol(e.target.value)}
+            >
+              <FormControlLabel
+                value="Yes"
+                control={<Radio />}
+                label={t("yes")}
+              />
+              <FormControlLabel
+                value="No"
+                control={<Radio />}
+                label={t("no")}
+              />
+            </RadioGroup>
+          </FormControl>
+          <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+            <FormLabel component="legend">
+              {t("do you have skills in Microsoft Office Programs?")}
+            </FormLabel>
+            <RadioGroup
+              row
+              value={compSkill}
+              onChange={(e) => setCompSkill(e.target.value)}
+            >
+              <FormControlLabel
+                value="Yes"
+                control={<Radio />}
+                label={t("yes")}
+              />
+              <FormControlLabel
+                value="No"
+                control={<Radio />}
+                label={t("no")}
+              />
+            </RadioGroup>
+          </FormControl>
+          <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+            <FormLabel component="legend">
+              {t("are you a smoker / hookah, cigarette?")}
+            </FormLabel>
+            <RadioGroup
+              row
+              value={smoking}
+              onChange={(e) => setSmoking(e.target.value)}
+            >
+              <FormControlLabel
+                value="Yes"
+                control={<Radio />}
+                label={t("yes")}
+              />
+              <FormControlLabel
+                value="No"
+                control={<Radio />}
+                label={t("no")}
+              />
+            </RadioGroup>
+          </FormControl>
 
-        <FormControl
-          error={!!errors.fileId}
-          component="fieldset"
-          sx={{ flex: "1 1 50%" }}
-        >
-          <FormLabel htmlFor="compSkill">{t("your resume")}</FormLabel>
-          <FileUpload fileId={fileId} setFileId={setFileId} />
-          {errors.fileId && <FormHelperText>{errors.fileId}</FormHelperText>}
-        </FormControl>
+          <FormControl component="fieldset" sx={{ flex: "1 1 100%" }}>
+            <FormLabel component="legend">
+              {t("have you used the Kobo data tool?")}
+            </FormLabel>
+            <RadioGroup
+              row
+              value={koboSkill}
+              onChange={(e) => setKoboSkill(e.target.value)}
+            >
+              <FormControlLabel
+                value="Yes"
+                control={<Radio />}
+                label={t("yes")}
+              />
+              <FormControlLabel
+                value="No"
+                control={<Radio />}
+                label={t("no")}
+              />
+            </RadioGroup>
+          </FormControl>
 
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            justifyContent: "center",
-            marginTop: 2,
-          }}
-        >
-          <Button
-            type="submit"
-            variant="contained"
-            sx={{ flex: "1 0 100%", mt: 2 }}
+          <FormControl
+            error={!!errors.fileId}
+            component="fieldset"
+            sx={{ flex: "1 1 50%" }}
           >
-            {isLoading
-              ? t("creating new volunteer...")
-              : t("create new volunteer")}
-          </Button>
+            <FormLabel htmlFor="compSkill">{t("your resume")}</FormLabel>
+            <FileUpload fileId={fileId} setFileId={setFileId} />
+            {errors.fileId && <FormHelperText>{errors.fileId}</FormHelperText>}
+          </FormControl>
+
+          <Box
+            sx={{
+              width: "100%",
+              display: "flex",
+              justifyContent: "center",
+              marginTop: 2,
+            }}
+          >
+            <Button
+              type="submit"
+              variant="contained"
+              sx={{ flex: "1 0 100%", mt: 2 }}
+            >
+              {isLoading
+                ? t("creating new volunteer...")
+                : t("create new volunteer")}
+            </Button>
+          </Box>
         </Box>
-      </Box>
-    </Card>
+      </Card>
+    </>
   );
 };
 
