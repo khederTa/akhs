@@ -992,13 +992,7 @@ const Volunteer = () => {
             fileId,
           });
 
-          // Update address data
-          // const addressResponse = await axios.put(`/address/${addressId}`, {
-          //   state,
-          //   city,
-          //   district,
-          //   village,
-          // });
+         
 
           if (
             volunteerResponse.status === 200 &&
@@ -1028,25 +1022,7 @@ const Volunteer = () => {
                   : row;
               })
             );
-            // setFilteredRows((prevRows: any) =>
-            //   prevRows.map((row: any) => {
-            //     console.log(row);
-            //     return row.volunteerId === volunteerId
-            //       ? {
-            //           ...updatedRow,
-            //           file: updatedFile ? updatedFile : updatedRow.file,
-            //           File: updatedFile
-            //             ? {
-            //                 id: fileId,
-            //                 file: updatedFile,
-            //               }
-            //             : updatedRow.File,
-            //           address: updatedAddress ? updatedAddress : address,
-            //           addressId: addressId,
-            //         }
-            //       : row;
-            //   })
-            // );
+         
 
             return {
               ...updatedRow,
@@ -1081,17 +1057,7 @@ const Volunteer = () => {
         if (updatedFile) {
           handleFileUpload(oldRow.file);
         }
-        // if (oldRow && oldRow?.file?.lenngth > 0 && updatedFile) {
-        //   handleFileUpload(oldRow.file);
-        // } else if (updatedFile) {
-        //   console.log({ updatedFile });
-        //   deleteFile(oldRow.fileId, true);
-        // }
-        // setRows((prevRows: any) =>
-        //   prevRows.map((row: any) =>
-        //     row.volunteerId === updatedRow.volunteerId ? { oldRow } : row
-        //   )
-        // );
+       
         return oldRow;
       }
     },

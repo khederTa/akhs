@@ -13,7 +13,11 @@ module.exports = (sequelize, DataTypes) => {
       gender: DataTypes.STRING,
       study: DataTypes.STRING,
       work: DataTypes.STRING,
-      nationalNumber: DataTypes.STRING,
+      nationalNumber:{
+        type: DataTypes.STRING,
+        unique: true, // Ensures this column is unique
+        allowNull: false
+      },
       fixPhone: DataTypes.STRING,
       smoking: DataTypes.STRING,
       note: DataTypes.STRING,

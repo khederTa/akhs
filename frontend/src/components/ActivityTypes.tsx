@@ -20,6 +20,7 @@ import {
   Autocomplete,
   TextField,
   Switch,
+  Tooltip,
 } from "@mui/material";
 import axios from "../utils/axios";
 import { Loading } from "./Loading";
@@ -434,49 +435,57 @@ export function ActivityTypes() {
 
           return [
             !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(params.id)}
-                key="edit"
-              />
+              <Tooltip title={t("edit")}>
+                <GridActionsCellItem
+                  icon={<EditIcon />}
+                  label="Edit"
+                  onClick={() => handleEditClick(params.id)}
+                  key="edit"
+                />
+              </Tooltip>
             ),
             !isInEditMode && (
-              <Stack
-                spacing={1}
-                sx={{
-                  display: "flex",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <AntSwitch
-                  defaultChecked={
-                    rows.find((row) => row.id === params.id).active_status ===
-                    "active"
-                  }
-                  inputProps={{ "aria-label": "ant design" }}
-                  onChange={() => handleToggleActive(params.id)}
+              <Tooltip title={t("active / inactive")}>
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: "flex",
+                    height: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AntSwitch
+                    defaultChecked={
+                      rows.find((row) => row.id === params.id).active_status ===
+                      "active"
+                    }
+                    inputProps={{ "aria-label": "ant design" }}
+                    onChange={() => handleToggleActive(params.id)}
+                  />
+                </Stack>
+              </Tooltip>
+            ),
+            isInEditMode && (
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => {
+                    handleSave(params.id);
+                  }}
+                  key="save"
                 />
-              </Stack>
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => {
-                  handleSave(params.id);
-                }}
-                key="save"
-              />
-            ),
-            isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(params.id)}
-                key="cancel"
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(params.id)}
+                  key="cancel"
+                />
+              </Tooltip>
             ),
           ].filter(Boolean) as React.ReactElement[]; // Ensure only elements remain in the array
         },
