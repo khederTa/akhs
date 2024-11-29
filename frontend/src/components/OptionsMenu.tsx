@@ -13,6 +13,7 @@ import MenuButton from "./MenuButton";
 import { logout } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import ChangePasswordModal from "./ChangePasswordModal";
 
 const MenuItem = styled(MuiMenuItem)({
   margin: "2px 0",
@@ -21,6 +22,8 @@ const MenuItem = styled(MuiMenuItem)({
 export default function OptionsMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const [changePasswordModalOpen, setChangePasswordModalOpen] =
+    React.useState(false);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
@@ -31,6 +34,10 @@ export default function OptionsMenu() {
   };
   return (
     <React.Fragment>
+      <ChangePasswordModal
+        open={changePasswordModalOpen}
+        handleClose={() => setChangePasswordModalOpen(false)}
+      />
       <MenuButton
         aria-label="Open menu"
         onClick={handleClick}
@@ -59,6 +66,9 @@ export default function OptionsMenu() {
         }}
       >
         {/* <MenuItem onClick={() => navigate("/profile")}>{t("profile")}</MenuItem> */}
+        <MenuItem onClick={() => setChangePasswordModalOpen(true)}>
+          {t("change password")}
+        </MenuItem>
         {/* <MenuItem onClick={handleClose}>My account</MenuItem>
         <Divider />
         <MenuItem onClick={handleClose}>Add another account</MenuItem>
@@ -73,7 +83,7 @@ export default function OptionsMenu() {
             [`& .${listItemIconClasses.root}`]: {
               ml: "auto",
               minWidth: 0,
-              padding: "5px 12px"
+              padding: "5px 12px",
             },
           }}
         >

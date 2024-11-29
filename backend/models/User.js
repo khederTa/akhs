@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         autoIncrement: true,
       },
-      
+
       password: DataTypes.STRING,
       refreshToken: DataTypes.STRING,
     },
@@ -23,19 +23,25 @@ module.exports = (sequelize, DataTypes) => {
             console.log(`Password hashed during create: ${user.password}`);
           }
         },
-
+        beforeUpdate: async (user) => {
+          if (user.changed("password")) {
+            // Only hash if the password field has been modified
+            const salt = await bcrypt.genSalt(10);
+            user.password = await bcrypt.hash(user.password, salt);
+            console.log(`Password hashed during update: ${user.password}`);
+          }
+        },
       },
     }
   );
-  
 
   User.associate = (models) => {
-    User.hasMany(models.Log, {foreignKey: "userId"})
-    User.hasMany(models.SpecificAttributePermission, {foreignKey: "userId"})
-    User.belongsTo(models.ServiceProvider, { foreignKey: "providerId" }); 
-    User.belongsTo(models.Role, { foreignKey: "roleId" }); 
-    
-    User.hasOne(models.Department, { foreignKey: "managerId" }); 
+    User.hasMany(models.Log, { foreignKey: "userId" });
+    User.hasMany(models.SpecificAttributePermission, { foreignKey: "userId" });
+    User.belongsTo(models.ServiceProvider, { foreignKey: "providerId" });
+    User.belongsTo(models.Role, { foreignKey: "roleId" });
+
+    User.hasOne(models.Department, { foreignKey: "managerId" });
     User.belongsToMany(models.Permission, { through: "UserPermission" });
   };
 

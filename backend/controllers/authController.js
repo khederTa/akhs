@@ -7,6 +7,7 @@ const {
 const { User, Person, Volunteer, ServiceProvider } = require("../models");
 const jwt = require("jsonwebtoken");
 const { sequelize } = require("../models");
+const bcrypt = require("bcryptjs");
 
 // Register function to handle the dependencies
 exports.register = async (req, res) => {
@@ -96,6 +97,35 @@ exports.login = async (req, res) => {
     await user.save();
     // 8. Return the tokens
     res.json({ accessToken, refreshToken });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+exports.changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const { id } = req.params;
+
+    // Find the user by userId
+    const user = await User.findOne({
+      where: { userId: id },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
+    }
+
+    // Validate the current password
+    const isMatch = await user.validatePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(401).json({ message: "Password Incorrect" });
+    }
+
+    // Update the password
+    user.password = newPassword;
+    await user.save(); // This will trigger the `beforeUpdate` hook to hash the password
+
+    res.status(200).json({ message: "Password changed correctly" });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
