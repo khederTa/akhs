@@ -82,8 +82,8 @@ exports.getVillages = async (req, res) => {
 
 exports.getAddressById = async (req, res) => {
   try {
-    console.log(req.query);
-    const { id } = req.query;
+    console.log(req.params);
+    const { id } = req.params;
 
     const address = await Address.findByPk(id);
     if (!address) {

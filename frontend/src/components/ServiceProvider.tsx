@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper, Stack, TextField } from "@mui/material";
+import { Paper, Stack, TextField, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -531,7 +531,7 @@ const ServiceProvider = () => {
           />
         ),
       },
-      
+
       {
         field: "nationalNumber",
         headerName: t("nationalNumber"),
@@ -724,58 +724,68 @@ const ServiceProvider = () => {
           const isInEditMode = rowModesModel[id]?.mode === "edit";
           return [
             !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<PersonAddAlt1RoundedIcon />}
-                label="Promote"
-                onClick={() => handleOpenPromoteDialog(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<DeleteIcon />}
-                label="Delete"
-                onClick={() => handleOpenDeleteDialog(id)}
-              />
-            ),
-            !isInEditMode && (
-              <Stack
-                spacing={1}
-                sx={{
-                  display: "flex",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <AntSwitch
-                  defaultChecked={
-                    rows.find((row) => row.providerId === id)?.active_status ===
-                    "active"
-                  }
-                  inputProps={{ "aria-label": "ant design" }}
-                  onChange={() => handleToggleActive(id as number)}
+              <Tooltip title={t("edit")}>
+                <GridActionsCellItem
+                  icon={<EditIcon />}
+                  label="Edit"
+                  onClick={() => handleEditClick(id)}
                 />
-              </Stack>
+              </Tooltip>
+            ),
+            !isInEditMode && (
+              <Tooltip title={t("promote")}>
+                <GridActionsCellItem
+                  icon={<PersonAddAlt1RoundedIcon />}
+                  label="Promote"
+                  onClick={() => handleOpenPromoteDialog(id)}
+                />
+              </Tooltip>
+            ),
+            // !isInEditMode && (
+            //   <GridActionsCellItem
+            //     icon={<DeleteIcon />}
+            //     label="Delete"
+            //     onClick={() => handleOpenDeleteDialog(id)}
+            //   />
+            // ),
+            !isInEditMode && (
+              <Tooltip title={t("active / inactive")}>
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: "flex",
+                    height: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AntSwitch
+                    defaultChecked={
+                      rows.find((row) => row.providerId === id)
+                        ?.active_status === "active"
+                    }
+                    inputProps={{ "aria-label": "ant design" }}
+                    onChange={() => handleToggleActive(id as number)}
+                  />
+                </Stack>
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => handleSave(id)}
-              />
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => handleSave(id)}
+                />
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(id)}
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(id)}
+                />
+              </Tooltip>
             ),
           ].filter(Boolean);
         },
@@ -798,7 +808,6 @@ const ServiceProvider = () => {
       rows,
       handleEditClick,
       handleOpenPromoteDialog,
-      handleOpenDeleteDialog,
       handleToggleActive,
       handleSave,
       handleCancel,

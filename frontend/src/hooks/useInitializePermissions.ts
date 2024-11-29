@@ -3,18 +3,22 @@ import { useEffect } from "react";
 import axios from "../utils/axios";
 import { useAuthStore } from "../store/auth";
 import { usePermissionStore } from "../store/permissionStore";
-
+import { setUser } from "../utils/auth";
 const useInitializePermissions = () => {
   const setPermissions = usePermissionStore((state) => state.setPermissions);
+  const setUserRole = usePermissionStore((state) => state.setUserRole);
   const roleId = useAuthStore((state) => state.user()?.roleId);
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   useEffect(() => {
     const fetchPermissions = async () => {
+      if (!isLoggedIn()) {
+        await setUser();
+      }
       if (roleId === null) return;
       try {
-        console.log("render");
         const response = await axios.get(`/role/${roleId}/permissions`);
-        const permissionsMap = response.data.reduce(
+        const permissionsMap = await response.data.permissions.reduce(
           (
             acc: Record<string, boolean>,
             perm: { action: string; resource: string }
@@ -24,7 +28,8 @@ const useInitializePermissions = () => {
           },
           {}
         );
-        setPermissions({ ...permissionsMap, read_home: true });
+        setUserRole(response.data.role.name);
+        setPermissions({ ...permissionsMap, read_home: roleId !== 3 });
       } catch (error) {
         console.error("Error fetching permissions:", error);
         setPermissions({});
@@ -32,7 +37,7 @@ const useInitializePermissions = () => {
     };
 
     fetchPermissions();
-  }, [roleId, setPermissions]);
+  }, [isLoggedIn, roleId, setPermissions, setUserRole]);
 };
 
 export default useInitializePermissions;

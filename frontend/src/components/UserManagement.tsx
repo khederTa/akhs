@@ -10,7 +10,7 @@ import {
 } from "@mui/x-data-grid";
 
 import Paper from "@mui/material/Paper";
-import { Stack } from "@mui/material";
+import { Stack, Tooltip } from "@mui/material";
 
 import { Loading } from "./Loading";
 
@@ -35,6 +35,8 @@ import GridCustomToolbar from "./GridCustomToolbar";
 import AlertNotification from "./AlertNotification";
 import { useTranslation } from "react-i18next";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
+import { usePermissionStore } from "../store/permissionStore";
+import { useAuthStore } from "../store/auth";
 // type UserType = {
 //   userId: number;
 //   ServiceProvider: {
@@ -87,6 +89,7 @@ export function UserManagement() {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [address, setAddress] = useState<number | null>(null);
+  const userId = useAuthStore((state) => state.allUserData?.userId);
 
   const [addressId, setAddressId] = useState<number | null>(null);
   const [newAddress, setNewAddress] = useState<number | any>(null);
@@ -122,6 +125,7 @@ export function UserManagement() {
     }
   }, [uploadFileSizeError]);
   const { t } = useTranslation();
+  const { userRole } = usePermissionStore((state) => state);
   const {
     filteredRows,
     sortModel,
@@ -547,7 +551,6 @@ export function UserManagement() {
         ),
       },
 
-      
       {
         field: "nationalNumber",
         headerName: t("nationalNumber"),
@@ -814,54 +817,72 @@ export function UserManagement() {
         type: "actions",
         width: 150,
         getActions: ({ id }) => {
+          const row = rows.find((item) => item.userId === id);
           const isInEditMode = rowModesModel[id]?.mode === "edit";
           return [
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<DeleteIcon />}
-                label="Delete"
-                onClick={() => handleOpenDeleteDialog(id)}
-              />
-            ),
-            !isInEditMode && (
-              <Stack
-                spacing={1}
-                sx={{
-                  display: "flex",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <AntSwitch
-                  defaultChecked={
-                    rows.find((row: any) => row.userId === id)
-                      ?.active_status === "active"
-                  }
-                  inputProps={{ "aria-label": "ant design" }}
-                  onChange={() => handleToggleActive(id as number)}
+            !isInEditMode &&
+              ((userRole === "officer" && row.role === "data entry") ||
+                row.userId === userId ||
+                userRole === "admin") && (
+                <Tooltip title={t("edit")}>
+                  <GridActionsCellItem
+                    icon={<EditIcon />}
+                    label="Edit"
+                    onClick={() => handleEditClick(id)}
+                  />
+                </Tooltip>
+              ),
+            !isInEditMode &&
+              ((userRole === "officer" && row.role === "data entry") ||
+                userRole === "admin") && (
+                <Tooltip title={t("delete")}>
+                  <GridActionsCellItem
+                    icon={<DeleteIcon />}
+                    label="Delete"
+                    onClick={() => handleOpenDeleteDialog(id)}
+                  />
+                </Tooltip>
+              ),
+            !isInEditMode &&
+              ((userRole === "officer" && row.role === "data entry") ||
+                userRole === "admin") && (
+                <Tooltip title={t("active / inactive")}>
+                  <Stack
+                    spacing={1}
+                    sx={{
+                      display: "flex",
+                      height: "100%",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <AntSwitch
+                      defaultChecked={
+                        rows.find((row: any) => row.userId === id)
+                          ?.active_status === "active"
+                      }
+                      inputProps={{ "aria-label": "ant design" }}
+                      onChange={() => handleToggleActive(id as number)}
+                    />
+                  </Stack>
+                </Tooltip>
+              ),
+            isInEditMode && (
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => handleSave(id)}
                 />
-              </Stack>
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => handleSave(id)}
-              />
-            ),
-            isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(id)}
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(id)}
+                />
+              </Tooltip>
             ),
           ].filter(Boolean);
         },
@@ -881,8 +902,10 @@ export function UserManagement() {
       clearFilter,
       newBdate,
       handleDateFilterChange,
-      rowModesModel,
       rows,
+      rowModesModel,
+      userRole,
+      userId,
       handleEditClick,
       handleOpenDeleteDialog,
       handleToggleActive,
@@ -1075,9 +1098,7 @@ export function UserManagement() {
         try {
           const updatedAddress = `${newAddress?.state || ""} - ${
             newAddress?.city || ""
-          } - ${newAddress?.district || ""} - ${
-            newAddress?.village || ""
-          }`;
+          } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
           // Detect changes and update departmentId and positionId accordingly
           const selectedDepartment = departmentOptions.find(
             (dept: any) => dept.label === updatedRow.department

@@ -18,6 +18,7 @@ import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
 import SaveIcon from "@mui/icons-material/Save";
 import CloseIcon from "@mui/icons-material/Close";
 import AlertNotification from "./AlertNotification";
+import { usePermissionStore } from "../store/permissionStore";
 type VolunteerRow = {
   id: number;
   fullName: string;
@@ -29,6 +30,8 @@ export default function ExecuteActivity() {
   const location = useLocation();
   const [rows, setRows] = useState<VolunteerRow[]>([]);
   const [activityId, setActivityId] = useState();
+  const { userRole } = usePermissionStore((state) => state);
+
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [alertOpen, setAlertOpen] = useState(false);
@@ -132,7 +135,7 @@ export default function ExecuteActivity() {
           const attendance = activityData.Sessions.reduce(
             (acc: any, session: any) => ({
               ...acc,
-              [session.name]: session.Attendees.some(
+              [`${session.name}_${session.id}`]: session.Attendees.some(
                 (attendee: any) =>
                   attendee.volunteerId === volunteer.volunteerId &&
                   attendee.VolunteerAttendedSessions?.status === "attended"
@@ -169,7 +172,7 @@ export default function ExecuteActivity() {
 
   const columns: GridColDef[] = useMemo(() => {
     const sessionColumns = sessions.map((session) => ({
-      field: session.sessionName, // Use the session name directly
+      field: `${session.sessionName}_${session.key}`, // Use the session name directly
       headerName: session.sessionName,
       width: 150,
       sortable: false,
@@ -184,7 +187,7 @@ export default function ExecuteActivity() {
               let numberOfAttendedSession = 1;
               for (const key in params.row) {
                 if (
-                  sessions.some((s) => s.sessionName === key) &&
+                  sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
                   params.row[key] === true
                 )
                   numberOfAttendedSession++;
@@ -195,6 +198,7 @@ export default function ExecuteActivity() {
                 flag = false;
               }
             }
+            console.log(params.field);
             const updatedRows = rows.map((row) =>
               row.id === params.row.id
                 ? {
@@ -247,7 +251,12 @@ export default function ExecuteActivity() {
               if (e.target.checked) {
                 let numberOfAttendedSession = 0;
                 for (const key in params.row) {
-                  if (key.startsWith("session_") && params.row[key] === true)
+                  console.log({ key });
+                  console.log({ row: params.row[key] });
+                  if (
+                    sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
+                    params.row[key] === true
+                  )
                     numberOfAttendedSession++;
                 }
                 if (numberOfAttendedSession < minSessions) {
@@ -294,7 +303,9 @@ export default function ExecuteActivity() {
         console.log({ row });
         const rowSessions = Object.fromEntries(
           Object.entries(row).filter(([key]) =>
-            sessions.some((session) => session.sessionName === key)
+            sessions.some(
+              (session) => `${session.sessionName}_${session.key}` === key
+            )
           )
         );
 
@@ -304,7 +315,7 @@ export default function ExecuteActivity() {
         });
         Object.keys(rowSessions).forEach(async (key) => {
           const sessionId = sessions.find(
-            (session) => session.sessionName === key
+            (session) => `${session.sessionName}_${session.key}` === key
           )?.key;
           if (sessionId) {
             await axios.put(
@@ -452,21 +463,23 @@ export default function ExecuteActivity() {
         />
       </Paper>
       <Box justifyContent={"flex-start"} mt={2}>
-        <Button
-          onClick={handleSaveAndComplete}
-          sx={{ minWidth: "250px", margin: "0 15px", gap: "10px" }}
-          variant="contained"
-        >
-          <AssignmentTurnedInIcon fontSize="small" />
-          {t("save and complete")}
-        </Button>
+        {userRole !== "data entry" && (
+          <Button
+            onClick={handleSaveAndComplete}
+            sx={{ minWidth: "250px", margin: "0 15px", gap: "10px" }}
+            variant="contained"
+          >
+            <AssignmentTurnedInIcon fontSize="small" />
+            {t("save and complete")}
+          </Button>
+        )}
         <Button
           onClick={handleSave}
           sx={{ minWidth: "150px", margin: "0 15px", gap: "10px" }}
           variant="outlined"
         >
           <SaveIcon fontSize="small" />
-          {t("save")}
+          {t("save as draft")}
         </Button>
         <Button
           onClick={handleExit}

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
 
@@ -10,20 +10,19 @@ import {
   FormLabel,
   TextField,
   Button,
-  MenuItem,
   FormHelperText,
   RadioGroup,
   FormControlLabel,
   Radio,
 } from "@mui/material";
-import Select from "@mui/material/Select";
 import { useNavigate } from "react-router-dom";
 import FileUpload from "./FileUpload";
 import Address from "./Address";
 import axios from "../utils/axios";
 import PasswordInput from "./PasswordInput";
 import { useTranslation } from "react-i18next";
-import { usePermissionStore } from "../store/permissionStore";
+import { useAuthStore } from "../store/auth";
+import dayjs from "dayjs";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -38,9 +37,20 @@ const Card = styled(MuiCard)(({ theme }) => ({
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
 }));
 
-const CreateNewUser = () => {
+const Profile = () => {
   const [gender, setGender] = useState("Male");
   const [birthDate, setBirthDate] = useState("");
+  const [fname, setFname] = useState("");
+  const [lname, setLname] = useState("");
+  const [mname, setMname] = useState("");
+  const [momName, setMomName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [study, setStudy] = useState("");
+  const [work, setWork] = useState("");
+  const [note, setNote] = useState("");
+  const [nationalNumber, setNationalNumber] = useState("");
+  const [fixPhone, setFixPhone] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [addressId, setAddressId] = useState<number | null>(null);
@@ -51,10 +61,46 @@ const CreateNewUser = () => {
   const [koboSkill, setKoboSkill] = useState("No");
   const [errors, setErrors] = useState<any>({});
   const { t } = useTranslation();
-  const { userRole } = usePermissionStore((state) => state);
-  const [department, setDepartment] = React.useState("");
-  const [position, setPosition] = React.useState("");
   const navigate = useNavigate();
+  const userId = useAuthStore((state) => state?.allUserData?.userId);
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await axios.get(`/user/${userId}`);
+        console.log(response);
+        setFname(response.data?.ServiceProvider?.Volunteer?.Person?.fname);
+        setLname(response.data?.ServiceProvider?.Volunteer?.Person?.lname);
+        setMname(response.data?.ServiceProvider?.Volunteer?.Person?.mname);
+        setMomName(response.data?.ServiceProvider?.Volunteer?.Person?.momname);
+        setEmail(response.data?.ServiceProvider?.Volunteer?.Person?.email);
+        setPhone(response.data?.ServiceProvider?.Volunteer?.Person?.phone);
+        setNote(response.data?.ServiceProvider?.Volunteer?.Person?.note);
+        setWork(response.data?.ServiceProvider?.Volunteer?.Person?.work);
+        setStudy(response.data?.ServiceProvider?.Volunteer?.Person?.study);
+        setBirthDate(response.data?.ServiceProvider?.Volunteer?.Person?.bDate);
+        setAddressId(
+          response.data?.ServiceProvider?.Volunteer?.Person?.addressId
+        );
+        setPrevVol(response.data?.ServiceProvider?.Volunteer?.Person?.prevVol);
+        setSmoking(response.data?.ServiceProvider?.Volunteer?.Person?.smoking);
+        setCompSkill(
+          response.data?.ServiceProvider?.Volunteer?.Person?.compSkill
+        );
+        setKoboSkill(
+          response.data?.ServiceProvider?.Volunteer?.Person?.koboSkill
+        );
+        setNationalNumber(
+          response.data?.ServiceProvider?.Volunteer?.Person?.nationalNumber
+        );
+        setFixPhone(
+          response.data?.ServiceProvider?.Volunteer?.Person?.fixPhone
+        );
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    fetchUser();
+  }, [userId]);
 
   const validateForm = () => {
     const newErrors: any = {};
@@ -68,9 +114,6 @@ const CreateNewUser = () => {
     if (!koboSkill) newErrors.koboSkill = t("Kobo tool experience is required");
     // if (!fileId) newErrors.fileId = t("file upload is required");
     if (!addressId) newErrors.addressId = t("address is required");
-    if (!department) newErrors.departmentId = t("department is required");
-    if (!position) newErrors.positionId = t("position is required");
-    if (!role) newErrors.roleId = t("role is required");
 
     // Validate required text fields
     [
@@ -100,28 +143,14 @@ const CreateNewUser = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const [role, setRole] = useState("");
-  const [roles, setRoles] = useState<any>([{}]);
-  const [departments, setDepartments] = useState<any>([{}]);
-  const [positions, setPositions] = useState<any>([{}]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
     const data = new FormData(event.currentTarget);
-    const selectedDepartment = departmentOptions.filter((depOption: any) => {
-      if (depOption.label === department) return depOption;
-    });
-    const sendedDepartmentId = selectedDepartment?.[0]?.id || null;
 
-    const selectedPosition = positionOptions.filter((posOption: any) => {
-      if (posOption.label === position) return posOption;
-    });
-    const selectedRole = roleOptions.filter((roleOption: any) => {
-      if (roleOption.label === role) return roleOption;
-    });
-    const sendedPositionId = selectedPosition?.[0].id || null;
     const payload = {
       personData: {
         fname: data.get("fname"),
@@ -144,24 +173,15 @@ const CreateNewUser = () => {
         fileId,
         addressId,
       },
-      volunteerData: {
-        active_status: "active",
-      },
-      serviceProviderData: {
-        departmentId: sendedDepartmentId,
-        positionId: sendedPositionId,
-      },
       userData: {
         password,
-        position,
-        roleId: selectedRole[0].id,
       },
     };
     console.log(payload);
     try {
-      const response = await axios.post("/user", payload);
+      const response = await axios.put(`/user/${userId}`, payload);
       if (response.status === 201) {
-        navigate("/user-management");
+        navigate("/");
       }
     } catch (error) {
       console.error(error);
@@ -170,83 +190,6 @@ const CreateNewUser = () => {
     }
   };
 
-  // Initialize departments and positions with default values if empty
-  const departmentOptions = useMemo(
-    () =>
-      departments.length > 0
-        ? departments.map((department: any) => ({
-            label: department.name,
-            id: department.id,
-          }))
-        : [{ label: t("no departments available"), id: null }],
-    [departments, t]
-  );
-
-  const positionOptions = useMemo(
-    () =>
-      positions.length > 0
-        ? positions.map((position: any) => ({
-            label: position.name,
-            id: position.id,
-          }))
-        : [{ label: t("no positions available"), id: null }],
-    [positions, t]
-  );
-  const roleOptions = useMemo(
-    () =>
-      roles.length > 0
-        ? roles.map((role: any) => ({
-            label: role.name,
-            id: role.id,
-          }))
-        : [{ label: t("no positions available"), id: null }],
-    [roles, t]
-  );
-  // console.log("departmenoptions is", departmentOptions);
-  //fetch departments and position
-  useEffect(() => {
-    async function fetchDepartment() {
-      const res = await axios.get("department");
-      if (res.status === 200) {
-        setDepartments(res.data);
-        // console.log("departments", departments);
-      }
-    }
-    async function fetchPosition() {
-      const res = await axios.get("position");
-      if (res.status === 200) {
-        setPositions(res.data);
-        // console.log("positions", positions);
-      }
-    }
-    async function fetchRole() {
-      await axios
-        .get("/role")
-        .then((res) => {
-          const roleData = res.data;
-          // setIsLoading(false);
-          console.log(res);
-          if (userRole === "officer") {
-            const handledRoles = roleData.filter(
-              (item: { name: string }) => item.name === "data entry"
-            );
-            setRoles(handledRoles);
-          } else {
-            setRoles(roleData);
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-        });
-    }
-    fetchPosition();
-
-    fetchDepartment();
-    fetchRole();
-  }, []);
-
-  // console.log("department is", department);
-  // console.log("departmentId is", departmentId);
   return (
     <Card variant="highlighted">
       <Typography
@@ -254,7 +197,7 @@ const CreateNewUser = () => {
         variant="h4"
         sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
       >
-        {t("create new user")}
+        {t("profile")}
       </Typography>
       <Box
         component="form"
@@ -273,53 +216,73 @@ const CreateNewUser = () => {
             id: "fname",
             label: t("fname"),
             placeholder: t("John"),
+            value: fname,
+            onChange: setFname,
           },
           {
             id: "mname",
             label: t("mname"),
             placeholder: t("Adam"),
+            value: mname,
+            onChange: setMname,
           },
           {
             id: "lname",
             label: t("lname"),
             placeholder: t("Doe"),
+            value: lname,
+            onChange: setLname,
           },
           {
             id: "momname",
             label: t("momName"),
             placeholder: t("Jane"),
+            value: momName,
+            onChange: setMomName,
           },
           {
             id: "phone",
             label: t("phone"),
             placeholder: "0988776655",
+            value: phone,
+            onChange: setPhone,
           },
           {
             id: "email",
             label: t("email"),
             placeholder: "example@akhs.com",
+            value: email,
+            onChange: setEmail,
           },
           {
             id: "study",
             label: t("study"),
             placeholder: t("software engineering"),
+            value: study,
+            onChange: setStudy,
           },
           {
             id: "work",
             label: t("work"),
             placeholder: t("software developer"),
+            value: work,
+            onChange: setWork,
           },
           {
             id: "nationalNumber",
             label: t("nationalNumber"),
             placeholder: "050500",
+            value: nationalNumber,
+            onChange: setNationalNumber,
           },
           {
             id: "fixPhone",
             label: t("fixPhone"),
             placeholder: "0338800000",
+            value: fixPhone,
+            onChange: setFixPhone,
           },
-        ].map(({ id, label, placeholder }) => {
+        ].map(({ id, label, placeholder, value, onChange }) => {
           return id !== "password" ? (
             <FormControl
               sx={{
@@ -333,6 +296,8 @@ const CreateNewUser = () => {
               <TextField
                 id={id}
                 name={id}
+                value={value}
+                onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
                 fullWidth
                 error={!!errors[id]}
@@ -368,7 +333,7 @@ const CreateNewUser = () => {
             id="birthDate"
             name="birthDate"
             type="date"
-            value={birthDate}
+            value={dayjs(birthDate).format("YYYY-MM-DD")}
             onChange={(e) => setBirthDate(e.target.value)}
             fullWidth
             error={!!errors.birthDate}
@@ -377,82 +342,16 @@ const CreateNewUser = () => {
             <FormHelperText>{errors.birthDate}</FormHelperText>
           )}
         </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
-          error={!!errors.roleId}
-        >
-          <FormLabel htmlFor="Role">{t("role")}</FormLabel>
-          <Select
-            labelId="Role"
-            id="Role"
-            value={role}
-            label="Role"
-            onChange={(e) => setRole(e.target.value)}
-          >
-            {roleOptions?.map((roleoption: any) => (
-              <MenuItem key={roleoption.id} value={roleoption.label}>
-                {roleoption.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {errors.roleId && <FormHelperText>{errors.roleId}</FormHelperText>}
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
-          error={!!errors.departmentId}
-        >
-          <FormLabel htmlFor="Department">{t("department")}</FormLabel>
-          <Select
-            labelId="Department"
-            id="Department"
-            value={department}
-            label="Department"
-            onChange={(e) => setDepartment(e.target.value)}
-          >
-            {departmentOptions?.map((departmentoption: any) => (
-              <MenuItem
-                key={departmentoption.id}
-                value={departmentoption.label}
-              >
-                {departmentoption.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {errors.departmentId && (
-            <FormHelperText>{errors.departmentId}</FormHelperText>
-          )}
-        </FormControl>
-        <FormControl
-          component="fieldset"
-          sx={{ flex: { xs: "1 1 100%", md: "1 1 40%" } }}
-          error={!!errors.positionId}
-        >
-          <FormLabel htmlFor="position">{t("position")}</FormLabel>
-          <Select
-            labelId="position"
-            id="position"
-            value={position}
-            onChange={(e) => setPosition(e.target.value)}
-          >
-            {positionOptions?.map((positionoption: any) => (
-              <MenuItem key={positionoption.id} value={positionoption.label}>
-                {positionoption.label}
-              </MenuItem>
-            ))}
-          </Select>
-          {errors.positionId && (
-            <FormHelperText>{errors.positionId}</FormHelperText>
-          )}
-        </FormControl>
+
         <FormControl
           component="fieldset"
           sx={{ flex: { xs: "1 1 100%", md: "1 1 40%" } }}
           error={!!errors.addressId}
         >
           <FormLabel>{t("address")}</FormLabel>
-          <Address setAddressId={setAddressId} />
+          <Address
+            setAddressId={setAddressId}
+          />
           {errors.addressId && (
             <FormHelperText>{errors.addressId}</FormHelperText>
           )}
@@ -472,6 +371,8 @@ const CreateNewUser = () => {
             name={"note"}
             placeholder={t("add your notes")}
             fullWidth
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
             error={!!errors["note"]}
           />
           {errors["note"] && <FormHelperText>{errors["note"]}</FormHelperText>}
@@ -603,4 +504,4 @@ const CreateNewUser = () => {
   );
 };
 
-export default CreateNewUser;
+export default Profile;

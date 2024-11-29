@@ -1,6 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper, Stack, styled, Switch, TextField } from "@mui/material";
+import {
+  Paper,
+  Stack,
+  styled,
+  Switch,
+  TextField,
+  Tooltip,
+} from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -32,6 +39,7 @@ import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import VolunteerPromoteModal from "./VolunteerPromoteModal";
 import HistoryModal from "./HistoryModal";
+import { usePermissionStore } from "../store/permissionStore";
 export const AntSwitch = styled(Switch)(({ theme }: any) => ({
   width: 28,
   height: 16,
@@ -121,6 +129,7 @@ const Volunteer = () => {
   const apiRef = useGridApiRef();
   const paginationModel = { page: 0, pageSize: 5 };
   const { t } = useTranslation();
+  const { userRole } = usePermissionStore((state) => state);
   const {
     filteredRows,
     sortModel,
@@ -273,7 +282,7 @@ const Volunteer = () => {
   }, []);
 
   // Memoized columns definition to prevent re-rendering
-  const columns: GridColDef[] = useMemo(
+  const columns: any[] = useMemo(
     () => [
       {
         field: "volunteerId",
@@ -415,8 +424,10 @@ const Volunteer = () => {
         sortable: false,
         hideSortIcons: true,
         editable: true,
-        renderCell: (params) => <CustomDateRenderer value={params.value} />,
-        renderEditCell: (_params) => (
+        renderCell: (params: { value: string | Date }) => (
+          <CustomDateRenderer value={params.value} />
+        ),
+        renderEditCell: (_params: any) => (
           <TextField
             type="date"
             value={newBdate}
@@ -566,7 +577,9 @@ const Volunteer = () => {
             clearFilter={clearFilter}
           />
         ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
+        renderEditCell: (_params: any) => (
+          <Address setAddressId={setAddressId} />
+        ),
       },
       {
         field: "smoking",
@@ -666,7 +679,9 @@ const Volunteer = () => {
         headerName: t("cv"),
         hideSortIcons: true,
         sortable: false,
-        renderCell: (params) => {
+        renderCell: (params: {
+          row: { fname: any; File: { file: { data: number[] | null } } };
+        }) => {
           // console.log(params.row);
           return (
             <DownloadButton
@@ -676,7 +691,7 @@ const Volunteer = () => {
           );
         },
         editable: true,
-        renderEditCell: (params) => {
+        renderEditCell: (params: { row: { fileId: number } }) => {
           // console.log(params.row);
           return (
             <FileUpload
@@ -694,69 +709,81 @@ const Volunteer = () => {
         headerName: t("actions"),
         type: "actions",
         width: 250,
-        getActions: ({ id }) => {
+        getActions: ({ id }: any) => {
           const isInEditMode = rowModesModel[id]?.mode === "edit";
           return [
             !isInEditMode && (
-              <GridActionsCellItem
-                icon={<WorkHistoryIcon />}
-                label="ViewHistory"
-                onClick={() => handleViewHistoryClick(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<PersonAddAlt1RoundedIcon />}
-                label="Promote"
-                onClick={() => handleOpenPromoteDialog(id)}
-              />
-            ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<DeleteIcon />}
-                label="Delete"
-                onClick={() => handleOpenDeleteDialog(id)}
-              />
-            ),
-            !isInEditMode && (
-              <Stack
-                spacing={1}
-                sx={{
-                  display: "flex",
-                  height: "100%",
-                  justifyContent: "center",
-                }}
-              >
-                <AntSwitch
-                  defaultChecked={
-                    rows.find((row) => row.id === id)?.active_status ===
-                    "active"
-                  }
-                  inputProps={{ "aria-label": "ant design" }}
-                  onChange={() => handleToggleActive(id as number)}
+              <Tooltip title={t("volunteer activity history")}>
+                <GridActionsCellItem
+                  icon={<WorkHistoryIcon />}
+                  label="volunteer activity history"
+                  onClick={() => handleViewHistoryClick(id)}
                 />
-              </Stack>
+              </Tooltip>
+            ),
+            !isInEditMode && userRole !== "data entry" && (
+              <Tooltip title={t("edit")}>
+                <GridActionsCellItem
+                  icon={<EditIcon />}
+                  label="edit"
+                  onClick={() => handleEditClick(id)}
+                />
+              </Tooltip>
+            ),
+            !isInEditMode && userRole !== "data entry" && (
+              <Tooltip title={t("promote")}>
+                <GridActionsCellItem
+                  icon={<PersonAddAlt1RoundedIcon />}
+                  label="promote"
+                  onClick={() => handleOpenPromoteDialog(id)}
+                />
+              </Tooltip>
+            ),
+            // !isInEditMode && (
+            //   <GridActionsCellItem
+            //     icon={<DeleteIcon />}
+            //     label="Delete"
+            //     onClick={() => handleOpenDeleteDialog(id)}
+            //   />
+            // ),
+            !isInEditMode && userRole !== "data entry" && (
+              <Tooltip title={t("active / inactive")}>
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: "flex",
+                    height: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AntSwitch
+                    defaultChecked={
+                      rows.find((row: { id: any }) => row.id === id)
+                        ?.active_status === "active"
+                    }
+                    inputProps={{ "aria-label": "ant design" }}
+                    onChange={() => handleToggleActive(id as number)}
+                  />
+                </Stack>
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => handleSave(id)}
-              />
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => handleSave(id)}
+                />
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(id)}
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(id)}
+                />
+              </Tooltip>
             ),
           ].filter(Boolean);
         },
@@ -774,11 +801,11 @@ const Volunteer = () => {
       newBdate,
       handleDateFilterChange,
       rowModesModel,
+      userRole,
       rows,
       handleViewHistoryClick,
       handleEditClick,
       handleOpenPromoteDialog,
-      handleOpenDeleteDialog,
       handleToggleActive,
       handleSave,
       handleCancel,
@@ -863,10 +890,10 @@ const Volunteer = () => {
 
       // Update the rows state after deletion
 
-      setFilteredRows((prevRows) =>
+      setFilteredRows((prevRows: any[]) =>
         prevRows.filter((row: any) => row.volunteerId !== selectedRow)
       );
-      setRows((prevRows) =>
+      setRows((prevRows: any[]) =>
         prevRows.filter((row: any) => row.volunteerId !== selectedRow)
       );
       handleCloseDeleteDialog();
@@ -1095,7 +1122,7 @@ const Volunteer = () => {
             volunteerId: selectedRow,
           });
           if (response.status === 201) {
-            setRows((prevRows) =>
+            setRows((prevRows: any[]) =>
               prevRows.filter((row: any) => row.volunteerId !== selectedRow)
             );
             setAlertMessage(t("volunteer has promoted to a user"));
@@ -1108,7 +1135,7 @@ const Volunteer = () => {
           });
 
           if (response.status === 201) {
-            setRows((prevRows) =>
+            setRows((prevRows: any[]) =>
               prevRows.filter((row: any) => row.volunteerId !== selectedRow)
             );
             setAlertMessage(t("volunteer has promoted to a provider"));

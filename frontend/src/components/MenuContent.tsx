@@ -29,49 +29,49 @@ const mainListItems = [
     text: "activity management",
     icon: <EventRoundedIcon />,
     to: "/activity-management",
-    access: "read_activity",
+    access: "activity",
   },
   {
     text: "volunteer management",
     icon: <AccountBoxRoundedIcon />,
     to: "/volunteer",
-    access: "read_volunteer",
+    access: "volunteer",
   },
   {
     text: "provider management",
     icon: <SupervisorAccountIcon />,
     to: "/serviceprovider",
-    access: "read_serviceProvider",
+    access: "serviceProvider",
   },
   {
     text: "user management",
     icon: <ManageAccountsIcon />,
     to: "/user-management",
-    access: "read_user",
+    access: "user",
   },
   {
     text: "activity type",
     icon: <EditCalendarRoundedIcon />,
     to: "/activity-modules",
-    access: "read_activityType",
+    access: "activityType",
   },
   {
     text: "package management",
     icon: <ListAltRoundedIcon />,
     to: "/packages",
-    access: "read_package",
+    access: "package",
   },
   {
     text: "department management",
     icon: <DomainIcon />,
     to: "/departments",
-    access: "read_department",
+    access: "department",
   },
   {
     text: "position management",
     icon: <ModeIcon />,
     to: "/position",
-    access: "read_position",
+    access: "position",
   },
 ];
 
@@ -87,7 +87,6 @@ export default function MenuContent() {
     mainListItems.findIndex((item) => item.to === location.pathname)
   );
   const { permissions } = usePermissionStore((state) => state);
-
   const navigate = useNavigate();
   const { t } = useTranslation();
   return (
@@ -95,7 +94,11 @@ export default function MenuContent() {
       <List dense>
         {mainListItems.map((item, index) => {
           // Get the permission for the current item outside the JSX
-          const hasPermission = permissions[item.access];
+          const hasPermission =
+            permissions[item.access] ||
+            (permissions[`read_${item.access}`] &&
+              (permissions[`create_${item.access}`] ||
+                permissions[`update_${item.access}`]));
 
           // Conditionally render the ListItem based on the permission
           return (

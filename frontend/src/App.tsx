@@ -43,7 +43,10 @@ export default function App(props: { disableCustomTheme?: boolean }) {
   const { permissions } = usePermissionStore((state) => state);
 
   useEffect(() => {
-    setUser();
+    async function onMount() {
+      await setUser();
+    }
+    onMount();
   }, []);
 
   // useEffect(() => {
@@ -73,16 +76,18 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                     <h2>Welcome to the dashboard</h2>
                     <TextField type="time" />
                   </Layout>
+                ) : !permissionsLoading && !loggedIn ? (
+                  <Navigate to="/sign-in" replace />
                 ) : (
-                  !permissionsLoading &&
-                  !loggedIn && <Navigate to="/sign-in" replace />
+                  <Navigate to="/activity-management" replace />
                 )
               }
             />
             <Route
               path="/user-management"
               element={
-                permissions["read_user"] ? (
+                permissions["read_user"] &&
+                (permissions["create_user"] || permissions["update_user"]) ? (
                   <Layout>
                     <UserManagement />
                   </Layout>
@@ -95,7 +100,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/activity-management"
               element={
-                permissions["read_activity"] ? (
+                permissions["read_activity"] &&
+                (permissions["create_activity"] ||
+                  permissions["update_activity"]) ? (
                   <Layout>
                     <Activity />
                   </Layout>
@@ -134,7 +141,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/volunteer"
               element={
-                permissions["read_volunteer"] ? (
+                permissions["read_volunteer"] &&
+                (permissions["create_volunteer"] ||
+                  permissions["update_volunteer"]) ? (
                   <Layout>
                     <Volunteer />
                   </Layout>
@@ -177,7 +186,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/serviceprovider"
               element={
-                permissions["read_serviceProvider"] ? (
+                permissions["read_serviceProvider"] &&
+                (permissions["create_serviceProvider"] ||
+                  permissions["update_serviceProvider"]) ? (
                   <Layout>
                     <ServiceProvider />
                   </Layout>
@@ -218,7 +229,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/activity-modules"
               element={
-                permissions["read_activityType"] ? (
+                permissions["read_activityType"] &&
+                (permissions["create_activityType"] ||
+                  permissions["update_activityType"]) ? (
                   <Layout>
                     <ActivityTypes />
                   </Layout>
@@ -244,7 +257,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/packages"
               element={
-                permissions["read_package"] ? (
+                permissions["read_package"] &&
+                (permissions["create_package"] ||
+                  permissions["update_package"]) ? (
                   <Layout>
                     <Packages />
                   </Layout>
@@ -270,7 +285,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/departments"
               element={
-                permissions["read_department"] ? (
+                permissions["read_department"] &&
+                (permissions["create_department"] ||
+                  permissions["update_department"]) ? (
                   <Layout>
                     <Department />
                   </Layout>
@@ -296,7 +313,9 @@ export default function App(props: { disableCustomTheme?: boolean }) {
             <Route
               path="/position"
               element={
-                permissions["read_position"] ? (
+                permissions["read_position"] &&
+                (permissions["create_position"] ||
+                  permissions["update_position"]) ? (
                   <Layout>
                     <Position />
                   </Layout>

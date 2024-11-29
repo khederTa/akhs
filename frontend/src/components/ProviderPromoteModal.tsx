@@ -11,12 +11,13 @@ import {
   DialogTitle,
   MenuItem,
   Paper,
-  Box
+  Box,
 } from "@mui/material";
 import Draggable from "react-draggable";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
+import { usePermissionStore } from "../store/permissionStore";
 
 // Function to make the dialog draggable
 function PaperComponent(props: any) {
@@ -52,19 +53,27 @@ export default function ProviderPromoteModal({
   const [passwordError, setPasswordError] = useState(false);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
   const { t } = useTranslation();
+  const { userRole } = usePermissionStore((state) => state);
   useEffect(() => {
     // Fetch Roles
     const fetchRoles = async () => {
       try {
         const response = await axios.get("/role");
-        setRoles(response.data);
+        if (userRole === "officer") {
+          const handledRoles = response.data.filter(
+            (item: { name: string }) => item.name === "data entry"
+          );
+          setRoles(handledRoles);
+        } else {
+          setRoles(response.data);
+        }
       } catch (error) {
         console.error("Error fetching Roles:", error);
       }
     };
 
     fetchRoles();
-  }, []);
+  }, [userRole]);
 
   const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();

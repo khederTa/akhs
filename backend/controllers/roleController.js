@@ -22,7 +22,7 @@ exports.getAllRoles = async (req, res) => {
 
 exports.getRolePermissionsById = async (req, res) => {
   const { roleId } = req.params;
-  console.log("hi")
+  console.log("hi");
   try {
     // Find the role by ID and include associated permissions
     const role = await Role.findByPk(roleId, {
@@ -44,7 +44,7 @@ exports.getRolePermissionsById = async (req, res) => {
       resource: perm.resource,
     }));
 
-    return res.json(permissions);
+    return res.json({ permissions, role });
   } catch (error) {
     console.error("Error fetching role permissions:", error);
     return res.status(500).json({ message: "Server error" });

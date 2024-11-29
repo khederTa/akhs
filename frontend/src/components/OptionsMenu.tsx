@@ -1,6 +1,6 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import Divider, { dividerClasses } from "@mui/material/Divider";
+import { dividerClasses } from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MuiMenuItem from "@mui/material/MenuItem";
 import { paperClasses } from "@mui/material/Paper";
@@ -12,6 +12,7 @@ import MoreVertRoundedIcon from "@mui/icons-material/MoreVertRounded";
 import MenuButton from "./MenuButton";
 import { logout } from "../utils/auth";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const MenuItem = styled(MuiMenuItem)({
   margin: "2px 0",
@@ -21,6 +22,7 @@ export default function OptionsMenu() {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
@@ -56,12 +58,12 @@ export default function OptionsMenu() {
           },
         }}
       >
-        <MenuItem onClick={handleClose}>Profile</MenuItem>
-        <MenuItem onClick={handleClose}>My account</MenuItem>
+        {/* <MenuItem onClick={() => navigate("/profile")}>{t("profile")}</MenuItem> */}
+        {/* <MenuItem onClick={handleClose}>My account</MenuItem>
         <Divider />
         <MenuItem onClick={handleClose}>Add another account</MenuItem>
-        <MenuItem onClick={handleClose}>Settings</MenuItem>
-        <Divider />
+        <MenuItem onClick={handleClose}>Settings</MenuItem> */}
+        {/* <Divider /> */}
         <MenuItem
           onClick={async () => {
             await logout();
@@ -71,10 +73,11 @@ export default function OptionsMenu() {
             [`& .${listItemIconClasses.root}`]: {
               ml: "auto",
               minWidth: 0,
+              padding: "5px 12px"
             },
           }}
         >
-          <ListItemText>Logout</ListItemText>
+          <ListItemText>{t("logout")}</ListItemText>
           <ListItemIcon>
             <LogoutRoundedIcon fontSize="small" />
           </ListItemIcon>

@@ -18,6 +18,7 @@ import Draggable from "react-draggable";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
+import { usePermissionStore } from "../store/permissionStore";
 
 function PaperComponent(props: any) {
   return (
@@ -57,6 +58,7 @@ export default function VolunteerPromoteModal({
   onSubmit,
 }: PropsType) {
   const { t } = useTranslation();
+  const { userRole } = usePermissionStore((state) => state);
   const [tabIndex, setTabIndex] = React.useState(0);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
   const [positions, setPositions] = React.useState<ItemType[]>([]);
@@ -80,13 +82,20 @@ export default function VolunteerPromoteModal({
         ]);
         setPositions(positionRes.data);
         setDepartments(departmentRes.data);
-        setRoles(roleRes.data);
+        if (userRole === "officer") {
+          const handledRoles = roleRes.data.filter(
+            (item: { name: string }) => item.name === "data entry"
+          );
+          setRoles(handledRoles);
+        } else {
+          setRoles(roleRes.data);
+        }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
     fetchData();
-  }, []);
+  }, [userRole]);
 
   const handleChangeTab = (_event: React.SyntheticEvent, newValue: number) =>
     setTabIndex(newValue);

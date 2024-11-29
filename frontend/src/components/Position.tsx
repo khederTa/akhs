@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper } from "@mui/material";
+import { Paper, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -11,7 +11,7 @@ import {
 import { Loading } from "./Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
@@ -26,8 +26,8 @@ const Position = () => {
   const [action, setAction] = useState("");
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [, setIsDeleteDialogOpen] = useState(false);
-  const [, setRowToDelete] = useState<any>(null);
+  // const [, setIsDeleteDialogOpen] = useState(false);
+  // const [, setRowToDelete] = useState<any>(null);
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
@@ -81,10 +81,10 @@ const Position = () => {
     setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
   }, []);
 
-  const handleOpenDeleteDialog = useCallback((id: any) => {
-    setRowToDelete(id);
-    setIsDeleteDialogOpen(true);
-  }, []);
+  // const handleOpenDeleteDialog = useCallback((id: any) => {
+  //   setRowToDelete(id);
+  //   setIsDeleteDialogOpen(true);
+  // }, []);
   const columns: GridColDef[] = useMemo(
     () => [
       { field: "id", headerName: t("id"), width: 200 },
@@ -140,36 +140,42 @@ const Position = () => {
 
           return [
             !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(params.id)}
-                key="edit"
-              />
+              <Tooltip title={t("edit")}>
+                <GridActionsCellItem
+                  icon={<EditIcon />}
+                  label="Edit"
+                  onClick={() => handleEditClick(params.id)}
+                  key="edit"
+                />
+              </Tooltip>
             ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<DeleteIcon />}
-                label="Delete"
-                onClick={() => handleOpenDeleteDialog(params.id)}
-                key="delete"
-              />
+            // !isInEditMode && (
+            //   <GridActionsCellItem
+            //     icon={<DeleteIcon />}
+            //     label="Delete"
+            //     onClick={() => handleOpenDeleteDialog(params.id)}
+            //     key="delete"
+            //   />
+            // ),
+            isInEditMode && (
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => handleSave(params.id)}
+                  key="save"
+                />
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => handleSave(params.id)}
-                key="save"
-              />
-            ),
-            isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(params.id)}
-                key="cancel"
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(params.id)}
+                  key="cancel"
+                />
+              </Tooltip>
             ),
           ].filter(Boolean) as React.ReactElement[];
         },
@@ -181,7 +187,6 @@ const Position = () => {
       filterVisibility,
       handleCancel,
       handleEditClick,
-      handleOpenDeleteDialog,
       handleSave,
       handleSortClick,
       handleTextFilterChange,

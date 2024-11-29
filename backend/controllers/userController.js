@@ -143,7 +143,12 @@ exports.promoteVolunteer = async (req, res) => {
 };
 
 exports.getUserById = async (req, res) => {
-  const user = await User.findByPk(req.params.id);
+  const user = await User.findByPk(req.params.id, {
+    include: {
+      model: ServiceProvider,
+      include: { model: Volunteer, include: Person },
+    },
+  });
   res.json(user);
 };
 

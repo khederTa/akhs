@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Paper } from "@mui/material";
+import { Paper, Tooltip } from "@mui/material";
 import {
   DataGrid,
   GridColDef,
@@ -10,7 +10,7 @@ import {
 import { Loading } from "./Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
@@ -128,39 +128,45 @@ const Department = () => {
 
           return [
             !isInEditMode && (
-              <GridActionsCellItem
-                icon={<EditIcon />}
-                label="Edit"
-                onClick={() => handleEditClick(params.id)}
-                key="edit"
-              />
+              <Tooltip title={t("edit")}>
+                <GridActionsCellItem
+                  icon={<EditIcon />}
+                  label="Edit"
+                  onClick={() => handleEditClick(params.id)}
+                  key="edit"
+                />
+              </Tooltip>
             ),
-            !isInEditMode && (
-              <GridActionsCellItem
-                icon={<DeleteIcon />}
-                label="Delete"
-                onClick={() => handleOpenDeleteDialog(params.id)}
-                key="delete"
-              />
+            // !isInEditMode && (
+            //   <GridActionsCellItem
+            //     icon={<DeleteIcon />}
+            //     label="Delete"
+            //     onClick={() => handleOpenDeleteDialog(params.id)}
+            //     key="delete"
+            //   />
+            // ),
+            isInEditMode && (
+              <Tooltip title={t("save")}>
+                <GridActionsCellItem
+                  icon={<SaveIcon />}
+                  label="Save"
+                  onClick={() => {
+                    console.log("Saving...");
+                    handleSave(params.id);
+                  }}
+                  key="save"
+                />
+              </Tooltip>
             ),
             isInEditMode && (
-              <GridActionsCellItem
-                icon={<SaveIcon />}
-                label="Save"
-                onClick={() => {
-                  console.log("Saving...");
-                  handleSave(params.id);
-                }}
-                key="save"
-              />
-            ),
-            isInEditMode && (
-              <GridActionsCellItem
-                icon={<CancelIcon />}
-                label="Cancel"
-                onClick={() => handleCancel(params.id)}
-                key="cancel"
-              />
+              <Tooltip title={t("cancel")}>
+                <GridActionsCellItem
+                  icon={<CancelIcon />}
+                  label="Cancel"
+                  onClick={() => handleCancel(params.id)}
+                  key="cancel"
+                />
+              </Tooltip>
             ),
           ].filter(Boolean) as React.ReactElement[]; // Ensure only elements remain in the array
         },
@@ -210,10 +216,10 @@ const Department = () => {
     setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
   };
 
-  const handleOpenDeleteDialog = (id: any) => {
-    setRowToDelete(id); // Set the ID of the row to delete
-    setIsDeleteDialogOpen(true); // Open the delete dialog
-  };
+  // const handleOpenDeleteDialog = (id: any) => {
+  //   setRowToDelete(id); // Set the ID of the row to delete
+  //   setIsDeleteDialogOpen(true); // Open the delete dialog
+  // };
 
   const handleCloseDeleteDialog = () => {
     setIsDeleteDialogOpen(false);

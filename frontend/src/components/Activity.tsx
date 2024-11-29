@@ -2,7 +2,7 @@
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
-import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import Paper from "@mui/material/Paper";
 import { useState, useEffect } from "react";
 import axios from "../utils/axios";
@@ -15,12 +15,17 @@ import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
 import DateFilterHeader from "./DateFilterHeader";
 import SummarizeIcon from "@mui/icons-material/Summarize";
+import { usePermissionStore } from "../store/permissionStore";
+import { Tooltip } from "@mui/material";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const { permissions } = usePermissionStore((state) => state);
+  const { userRole } = usePermissionStore((state) => state);
+  console.log({ permissions, userRole });
   const {
     filteredRows,
     sortModel,
@@ -54,7 +59,7 @@ const Activity = () => {
   // console.log("log activitys" , rows);
 
   const paginationModel = { page: 0, pageSize: 5 };
-  const columns: GridColDef[] = [
+  const columns: any[] = [
     {
       field: "id",
       headerName: t("id"),
@@ -118,7 +123,9 @@ const Activity = () => {
       minWidth: 200,
       sortable: false,
       hideSortIcons: true,
-      renderCell: (params) => <CustomDateRenderer value={params.value} />,
+      renderCell: (params: { value: string | Date }) => (
+        <CustomDateRenderer value={params.value} />
+      ),
       renderHeader: () => (
         <DateFilterHeader
           key={"startDate"}
@@ -152,7 +159,7 @@ const Activity = () => {
           clearFilter={clearFilter}
         />
       ),
-      renderCell: (params) =>
+      renderCell: (params: { value: boolean }) =>
         params?.value === true ? t("done") : t("not done"),
     },
 
@@ -177,26 +184,35 @@ const Activity = () => {
       type: "actions",
       minWidth: 200,
       getActions: ({ id }: any) => {
-        // console.log(id);
+        const row: any = rows.find((item: any) => item.id === id);
         return [
-          <GridActionsCellItem
-            icon={<PlayArrowIcon />}
-            label="Execute"
-            onClick={() => navigate("/execute-activity", { state: { id } })}
-          />,
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            onClick={() => navigate("/activity-summary", { state: { id } })}
-          />,
-          <GridActionsCellItem
-            icon={<SummarizeIcon />}
-            label="Report"
-            onClick={() =>
-              navigate("/invited-volunteer-report", { state: { id } })
-            }
-          />,
-        ].filter(Boolean);
+          <Tooltip title={t("execute")}>
+            <GridActionsCellItem
+              icon={<PlayArrowIcon />}
+              label="Execute"
+              onClick={() => navigate("/execute-activity", { state: { id } })}
+            />
+          </Tooltip>,
+          (permissions["update_activity"] && row.done !== true) ||
+          userRole === "admin" ? (
+            <Tooltip title={t("edit")}>
+              <GridActionsCellItem
+                icon={<EditIcon />}
+                label="Edit"
+                onClick={() => navigate("/activity-summary", { state: { id } })}
+              />
+            </Tooltip>
+          ) : null,
+          <Tooltip title={t("reports")}>
+            <GridActionsCellItem
+              icon={<SummarizeIcon />}
+              label="Report"
+              onClick={() =>
+                navigate("/invited-volunteer-report", { state: { id } })
+              }
+            />
+          </Tooltip>,
+        ].filter(Boolean); // Filter out null values
       },
     },
   ];
