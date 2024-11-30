@@ -129,7 +129,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
             required
           />
           <TextField
-            label="Hall Name"
+            label={t("hall name")}
             value={hallName}
             onChange={(e) => setHallName(e.target.value)}
             fullWidth
@@ -137,7 +137,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
           />
           <TextField
             select
-            label={t("activity module")}
+            label={t("activity type")}
             value={selectedActivityModule}
             onChange={(e) => setSelectedActivityModule(e.target.value)}
             required

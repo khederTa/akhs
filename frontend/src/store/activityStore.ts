@@ -55,12 +55,6 @@ type ActivityStore = {
   setActivityData: (value: any) => void;
 };
 
-function generateRandomNumber(): number {
-  const min = 100000000;
-  const max = 999999999;
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 const useSessionStore = create<ActivityStore>((set) => ({
   sessions: [],
   numSessions: 1,

@@ -229,18 +229,18 @@ const Activity = () => {
         const activityRows: any = await Promise.all(
           activities.map(async (activity: any) => {
             const fetchedAttendedResponse = await axios.get(
-              `volunteerAttendedActivity/${activity.id}`
+              `volunteerAttendedActivity/${activity?.id}`
             );
             console.log("fetchedAttendedResponse is", fetchedAttendedResponse);
             const fetchedAttended = fetchedAttendedResponse.data;
             const fetchedAttendedMale = fetchedAttendedResponse.data.filter(
               (attend: any) => {
-                return attend.gender === "Male";
+                return attend?.gender === "Male";
               }
             );
             const fetchedAttendedFemale = fetchedAttendedResponse.data.filter(
               (attend: any) => {
-                return attend.gender === "Female";
+                return attend?.gender === "Female";
               }
             );
             console.log("fetchedAttendedMale", fetchedAttendedMale);

@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Typography, Paper } from "@mui/material";
+import { Button, Typography, Paper, Box } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
@@ -17,11 +17,16 @@ import useSessionStore from "../store/activityStore";
 import { Loading } from "./Loading";
 import axios from "../utils/axios";
 import DeleteIcon from "@mui/icons-material/Delete";
-
+import { DirectionContext } from "../shared-theme/AppTheme";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
 const InvitedVolunteer = () => {
   const [rows, setRows] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
+  const { direction } = useContext(DirectionContext);
+
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
   const [getEligible, setGetEligible] = useState(false);
@@ -38,6 +43,7 @@ const InvitedVolunteer = () => {
     numSessions,
     minSessions,
     activityData,
+    setMode,
   } = useSessionStore((state) => ({
     sessions: state.sessions,
     title: state.title,
@@ -49,6 +55,7 @@ const InvitedVolunteer = () => {
     numSessions: state.numSessions,
     minSessions: state.minSessions,
     activityData: state.activityData,
+    setMode: state.setMode,
   }));
 
   console.log("activityData in invited volunteer is", activityData);
@@ -61,7 +68,7 @@ const InvitedVolunteer = () => {
 
   const handleSubmit = async (event: any) => {
     event.preventDefault();
-
+    setMode("");
     const processedSessions = sessions.map((session) => ({
       ...session,
       dateValue: session.dateValue,
@@ -388,7 +395,6 @@ const InvitedVolunteer = () => {
           />
         ),
       },
-      
 
       {
         field: "nationalNumber",
@@ -625,14 +631,14 @@ const InvitedVolunteer = () => {
         <Loading />
       ) : (
         <>
-          <Typography variant="h4">Volunteer Information</Typography>
+          {/* <Typography variant="h4">Volunteer Information</Typography>
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
           <Typography variant="body1">
             Activity Module: {activityType.name}
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
-          <Typography variant="body1">Start Date: {startDate}</Typography>
+          <Typography variant="body1">Start Date: {startDate}</Typography> */}
           {/* <Button variant="contained" sx={{ width: 200 }}>
             Invite New Volunteers
           </Button> */}
@@ -675,16 +681,48 @@ const InvitedVolunteer = () => {
               disableRowSelectionOnClick
             />
           </Paper>
-          <Button
-            variant="contained"
-            sx={{ mt: 2, mr: 2 }}
-            onClick={handleBack}
-          >
-            Back to Activity Summary
-          </Button>
-          <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-            Edit Activity
-          </Button>
+
+          {direction === "ltr" ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowBackIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("save changes")}
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowForwardIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("save changes")}
+              </Button>
+            </Box>
+          )}
         </>
       )}
     </>

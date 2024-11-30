@@ -1,10 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import axios from "../utils/axios";
 import dayjs from "dayjs";
 import isDateInFormat from "../utils/isDateInFormat";
+import { DirectionContext } from "../shared-theme/AppTheme";
+import { useTranslation } from "react-i18next";
 
 const SessionInfo = ({
   selectedDepartment,
@@ -26,34 +28,20 @@ const SessionInfo = ({
   endTime,
   setEndTime,
 }: any) => {
+  const { direction } = useContext(DirectionContext); // Get the current direction (ltr or rtl)
   const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
-  // console.log(
-  //   `isDateInFormat(dateValue, "YYYY-MM-DD") => ${isDateInFormat(
-  //     dateValue,
-  //     "YYYY-MM-DD"
-  //   )}`
-  // );
-  // console.log(
-  //   `isDateInFormat(min, "YYYY-MM-DD") => ${isDateInFormat(min, "YYYY-MM-DD")}`
-  // );
-  // console.log(
-  //   `isDateInFormat(max, "YYYY-MM-DD") => ${isDateInFormat(
-  //     dateValue,
-  //     "YYYY-MM-DD"
-  //   )}`
-  // );
-  // console.log({ dateValue, min, max });
-  // Fetch data from API
+  const {t} = useTranslation()
   useEffect(() => {
     axios
-      .get("serviceprovider") // Replace with your API endpoint
+      .get("/serviceprovider")
       .then((response) => {
         const serviceproviders = response.data;
+        console.log({ serviceproviders });
         setServiceProviders(
           serviceproviders.map((provider: any) => ({
-            label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position.name}`,
+            label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position?.name}`,
             value: provider.providerId,
-            depId: provider.Department.id,
+            depId: provider.Department?.id,
           }))
         );
       })
@@ -72,23 +60,36 @@ const SessionInfo = ({
   return (
     <Card
       sx={{
+        position: "relative",
         display: "flex",
-        height: "auto",
-        width: 1200,
-        justifyContent: "space-between",
+        flexWrap: "wrap",
+        gap: 2,
+        padding: 2,
       }}
     >
+      {/* Clear Button */}
+      <ClearIcon
+        onClick={removeSession}
+        style={{
+          position: "absolute",
+          top: 8,
+          [direction === "rtl" ? "left" : "right"]: 8,
+          cursor: "pointer",
+        }}
+      />
+
+      {/* Session Fields */}
       <Stack>
-        <FormLabel>Session Name</FormLabel>
+        <FormLabel>{t("session name")}</FormLabel>
         <TextField
-          sx={{ width: 100 }}
           value={sessionName}
           onChange={(e) => setSessionName(e.target.value)}
+          sx={{ width: 100 }}
         />
       </Stack>
 
       <Stack>
-        <FormLabel>Date</FormLabel>
+        <FormLabel>{t("date")}</FormLabel>
         <TextField
           type="date"
           value={
@@ -96,61 +97,45 @@ const SessionInfo = ({
               ? dateValue
               : dayjs(dateValue).format("YYYY-MM-DD")
           }
-          slotProps={{
-            htmlInput: {
-              min: isDateInFormat(min, "YYYY-MM-DD")
-                ? min
-                : dayjs(min).format("YYYY-MM-DD"),
-              max: isDateInFormat(max, "YYYY-MM-DD")
-                ? max
-                : dayjs(max).format("YYYY-MM-DD"),
-            },
-            inputLabel: { shrink: true },
+          inputProps={{
+            min: isDateInFormat(min, "YYYY-MM-DD")
+              ? min
+              : dayjs(min).format("YYYY-MM-DD"),
+            max: isDateInFormat(max, "YYYY-MM-DD")
+              ? max
+              : dayjs(max).format("YYYY-MM-DD"),
           }}
-          // InputProps={{
-          //   inputProps: {
-          //     min: isDateInFormat(min, "YYYY-MM-DD")
-          //       ? min
-          //       : dayjs(min).format("YYYY-MM-DD"),
-          //     max: isDateInFormat(max, "YYYY-MM-DD")
-          //       ? max
-          //       : dayjs(max).format("YYYY-MM-DD"),
-          //   },
-          // }}
           onChange={(e) => setDateValue(e.target.value)}
-          // InputLabelProps={{ shrink: true }}
         />
       </Stack>
 
       <Stack>
-        <FormLabel>Hall Name</FormLabel>
+        <FormLabel>{t("hall name")}</FormLabel>
         <TextField
-          sx={{ width: 100 }}
           value={hallName}
           onChange={(e) => setHallName(e.target.value)}
+          sx={{ width: 100 }}
         />
       </Stack>
 
       <Stack>
-        <FormLabel>Service Provider</FormLabel>
+        <FormLabel>{t("service provider")}</FormLabel>
         <Autocomplete
-          id="tags-filled"
-          sx={{ width: 160 }}
           multiple
           options={selectedServiceProvider || []}
           value={Array.isArray(providerNames) ? providerNames : []}
           onChange={(_event, newValue) => setProviderNames(newValue)}
           getOptionLabel={(option) => option?.label || ""}
           renderInput={(params) => <TextField {...params} variant="standard" />}
+          sx={{ maxWidth: 250}}
         />
       </Stack>
 
       <Stack>
-        <FormLabel htmlFor="startTime">Start Time</FormLabel>
+        <FormLabel htmlFor="startTime">{t("start time")}</FormLabel>
         <TextField
           id="startTime"
           type="time"
-          sx={{ width: 125 }}
           value={startTime || dayjs(startTime).format("HH:mm") || ""}
           onChange={(e) => {
             const val = e.target.value;
@@ -162,19 +147,14 @@ const SessionInfo = ({
               return;
             setStartTime(val);
           }}
-          slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          // InputLabelProps={{ shrink: true }}
         />
       </Stack>
 
       <Stack>
-        <FormLabel htmlFor="endTime">End Time</FormLabel>
+        <FormLabel htmlFor="endTime">{t("end time")}</FormLabel>
         <TextField
           id="endTime"
           type="time"
-          sx={{ width: 125 }}
           value={endTime || dayjs(endTime).format("HH:mm") || ""}
           onChange={(e) => {
             const val = e.target.value;
@@ -186,15 +166,7 @@ const SessionInfo = ({
               return;
             setEndTime(val);
           }}
-          slotProps={{
-            inputLabel: { shrink: true },
-          }}
-          // InputLabelProps={{ shrink: true }}
         />
-      </Stack>
-
-      <Stack>
-        <ClearIcon onClick={removeSession} style={{ cursor: "pointer" }} />
       </Stack>
     </Card>
   );

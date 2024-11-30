@@ -1,8 +1,8 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // VolunteerPage.tsx
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Typography, Paper } from "@mui/material";
+import { Button, Paper, Box } from "@mui/material";
 import axios from "../utils/axios";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
@@ -17,11 +17,15 @@ import DownloadButton from "./DownloadButton";
 import useSessionStore from "../store/activityStore";
 import { Loading } from "./Loading";
 import dayjs from "dayjs";
-
+import { DirectionContext } from "../shared-theme/AppTheme";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
 export default function VolunteerPage() {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const { t } = useTranslation();
+  const { direction } = useContext(DirectionContext);
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
   const [getEligible, setGetEligible] = useState(true);
@@ -33,7 +37,6 @@ export default function VolunteerPage() {
     startDate,
     activityType,
     department,
-    invitedVolunteerIds,
     numSessions,
     minSessions,
   } = useSessionStore((state) => ({
@@ -42,7 +45,6 @@ export default function VolunteerPage() {
     startDate: state.startDate,
     activityType: state.activityType,
     department: state.department,
-    invitedVolunteerIds: state.invitedVolunteerIds,
     numSessions: state.numSessions,
     minSessions: state.minSessions,
   }));
@@ -51,42 +53,6 @@ export default function VolunteerPage() {
     console.log({ sessions });
 
     navigate("/activity-summary");
-  };
-
-  const handleSubmit = async (event: any) => {
-    event.preventDefault();
-    console.log({ sessions });
-
-    const processedSessions = sessions.map((session) => ({
-      ...session,
-      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
-      startTime: dayjs(session.startTime.$d).format("hh:mm:ss"),
-      endTime: dayjs(session.endTime.$d).format("hh:mm:ss"),
-    }));
-
-    const payload: any = {
-      activityData: {
-        title,
-        activityTypeId: activityType.id,
-        departmentId: department.id,
-        numSessions,
-        minSessions,
-        startDate,
-      },
-      sessionsData: {
-        sessions: processedSessions,
-      },
-      invitedVolunteersData: {
-        volunteerIds: invitedVolunteerIds,
-      },
-    };
-    console.log({ payload });
-    const response = await axios.post("/activity", payload);
-    console.log(response);
-
-    if (response.status === 200) {
-      navigate("/activity-management");
-    }
   };
 
   const {
@@ -626,21 +592,55 @@ export default function VolunteerPage() {
   // useEffect(() => console.log(selectedRows), [selectedRows]);
   // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
   // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    console.log({ sessions });
 
+    const processedSessions = sessions.map((session) => ({
+      ...session,
+      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
+      startTime: dayjs(session.startTime.$d).format("hh:mm:ss"),
+      endTime: dayjs(session.endTime.$d).format("hh:mm:ss"),
+    }));
+
+    const payload: any = {
+      activityData: {
+        title,
+        activityTypeId: activityType.id,
+        departmentId: department.id,
+        numSessions,
+        minSessions,
+        startDate,
+      },
+      sessionsData: {
+        sessions: processedSessions,
+      },
+      invitedVolunteersData: {
+        volunteerIds: selectedRowsIds,
+      },
+    };
+    console.log({ payload });
+    const response = await axios.post("/activity", payload);
+    console.log(response);
+
+    if (response.status === 200) {
+      navigate("/activity-management");
+    }
+  };
   return (
     <>
       {isLoading ? (
         <Loading />
       ) : (
         <>
-          <Typography variant="h4">Volunteer Information</Typography>
+          {/* <Typography variant="h4">Volunteer Information</Typography>
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>
           <Typography variant="body1">
             Activity Type: {activityType.name}
           </Typography>
           <Typography variant="body1">Sessions: {sessions.length}</Typography>
-          <Typography variant="body1">Start Date: {startDate}</Typography>
+          <Typography variant="body1">Start Date: {startDate}</Typography> */}
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
@@ -679,16 +679,48 @@ export default function VolunteerPage() {
               disableRowSelectionOnClick
             />
           </Paper>
-          <Button
-            variant="contained"
-            sx={{ mt: 2, mr: 2 }}
-            onClick={handleBack}
-          >
-            Back to Activity Summary
-          </Button>
-          <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
-            Update Activity
-          </Button>
+
+          {direction === "ltr" ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowBackIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("create activity")}
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowForwardIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("create activity")}
+              </Button>
+            </Box>
+          )}
         </>
       )}
     </>

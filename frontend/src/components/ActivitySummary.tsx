@@ -1,5 +1,11 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
@@ -7,7 +13,11 @@ import SessionInfo from "./SessionInfo";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
 import { Loading } from "./Loading";
 import dayjs from "dayjs";
-
+import AddIcon from "@mui/icons-material/Add";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import { DirectionContext } from "../shared-theme/AppTheme";
+import { useTranslation } from "react-i18next";
 type ItemType = {
   id: number;
   name: string;
@@ -37,7 +47,6 @@ export default function ActivitySummary() {
     minSessions,
     sessions,
     title,
-    hallName,
     startDate,
     activityType,
     department,
@@ -116,7 +125,6 @@ export default function ActivitySummary() {
       activityTypes.find((act) => act?.id === parseInt(selectedActivityType)),
     [activityTypes, selectedActivityType]
   );
-
 
   console.log("activity data is ", activityData);
   console.log("title is ", title);
@@ -232,7 +240,8 @@ export default function ActivitySummary() {
   console.log("session number is", numSessions);
 
   // console.log("providers in activity summary is ", providers.current);
-
+  const { direction } = useContext(DirectionContext);
+  const { t } = useTranslation();
   const handleNext = useCallback(() => {
     // Helper function to validate if a single session is complete
     const isSessionComplete = (session: any) => {
@@ -278,91 +287,108 @@ export default function ActivitySummary() {
     },
     [sessions, updateSession]
   );
-  
+
   return loading ? (
     <Loading />
   ) : (
-    <Box sx={{ p: 4 }}>
-      <Typography variant="h4">Activity Summary</Typography>
+    <>
+      <Typography variant="h4">{t("activity summary")}</Typography>
 
-      <TextField
-        label="Title"
-        value={title}
-        onChange={(e) => setTitle(e.target.value)}
-        fullWidth
-        margin="normal"
-      />
-      <TextField
-        fullWidth
-        select
-        label="Activity Type"
-        value={selectedActivityType}
-        onChange={(e) => setSelectedActivityType(e.target.value)}
-        required
-      >
-        {activityTypes.map((type: any) => (
-          <MenuItem key={type?.id} value={type?.id}>
-            {type.name}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        fullWidth
-        select
-        label="Department"
-        value={selectedDepartment}
-        onChange={handleChangeDepartment}
-        required
-      >
-        {departments.map((dept: any) => (
-          <MenuItem key={dept?.id} value={dept?.id}>
-            {dept.name}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        label="Number of Sessions"
-        type="number"
-        value={numSessions}
-        onChange={(e) => {
-          const val = Math.max(1, parseInt(e.target.value) || 1);
-          setNumSessions(val);
-          setMinSessions(Math.ceil(val / 2));
+      <Box
+        sx={{
+          p: 4,
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          gap: "10px",
         }}
-        required
-      />
-      <TextField
-        label="Minimum Required Sessions"
-        type="number"
-        value={minSessions}
-        onChange={(e) => {
-          const val = parseInt(e.target.value) || 1;
-          if (val >= Math.ceil(numSessions / 2) && val <= numSessions)
-            setMinSessions(val);
-        }}
-        required
-      />
+      >
+        <TextField
+          label={t("title")}
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          sx={{ width: "175px" }}
+          margin="normal"
+          required
+        />
+        <TextField
+          select
+          label={t("activity type")}
+          value={selectedActivityType}
+          onChange={(e) => setSelectedActivityType(e.target.value)}
+          sx={{ width: "175px" }}
+          margin="normal"
+          required
+        >
+          {activityTypes.map((type: any) => (
+            <MenuItem key={type?.id} value={type?.id}>
+              {type.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          select
+          label={t("department")}
+          value={selectedDepartment}
+          onChange={handleChangeDepartment}
+          sx={{ width: "175px" }}
+          margin="normal"
+          required
+        >
+          {departments.map((dept: any) => (
+            <MenuItem key={dept?.id} value={dept?.id}>
+              {dept.name}
+            </MenuItem>
+          ))}
+        </TextField>
+        <TextField
+          label={t("numSessions")}
+          type="number"
+          value={numSessions}
+          onChange={(e) => {
+            const val = Math.max(1, parseInt(e.target.value) || 1);
+            setNumSessions(val);
+            setMinSessions(Math.ceil(val / 2));
+          }}
+          sx={{ width: "175px" }}
+          margin="normal"
+          required
+        />
+        <TextField
+          label={t("minSessions")}
+          type="number"
+          value={minSessions}
+          onChange={(e) => {
+            const val = parseInt(e.target.value) || 1;
+            if (val >= Math.ceil(numSessions / 2) && val <= numSessions)
+              setMinSessions(val);
+          }}
+          sx={{ width: "175px" }}
+          margin="normal"
+          required
+        />
 
-      <TextField
-        label="Start Date"
-        type="date"
-        value={
-          dayjs(startDate).isValid()
-            ? dayjs(startDate).format("YYYY-MM-DD")
-            : ""
-        }
-        onChange={(e) => setStartDate(e.target.value)}
-        InputLabelProps={{ shrink: true }}
-      />
+        <TextField
+          label={t("start date")}
+          type="date"
+          value={
+            dayjs(startDate).isValid()
+              ? dayjs(startDate).format("YYYY-MM-DD")
+              : ""
+          }
+          onChange={(e) => setStartDate(e.target.value)}
+          sx={{ width: "175px" }}
+          margin="normal"
+          InputLabelProps={{ shrink: true }}
+        />
 
-      <Button onClick={() => navigate("/")}>Back to Activities</Button>
-
-      <div>
         {sessions.map((session, index) => {
           console.log(session);
           return (
-            <React.Fragment key={session.key}>
-              <Typography>Session {index + 1}</Typography>
+            <div key={session.key} style={{ width: "100%" }}>
+              <Typography>
+                {t("session")} {index + 1}
+              </Typography>
               <SessionInfo
                 key={session.key}
                 sessionName={session.sessionName}
@@ -388,7 +414,9 @@ export default function ActivitySummary() {
                 }
                 min={index > 0 ? sessions[index - 1]?.dateValue : null}
                 max={
-                  index < numSessions - 1 ? sessions[index + 1]?.dateValue : null
+                  index < numSessions - 1
+                    ? sessions[index + 1]?.dateValue
+                    : null
                 }
                 providerNames={session.providerNames}
                 setProviderNames={(value: any) =>
@@ -408,27 +436,59 @@ export default function ActivitySummary() {
                 }
                 removeSession={() => removeSession(session.key)}
               />
-            </React.Fragment>
+            </div>
           );
         })}
-
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Button
-            variant="contained"
-            sx={{ marginTop: 2 }}
-            onClick={addSession}
-          >
-            Add Session
-          </Button>
-          <Button
-            variant="contained"
-            sx={{ marginTop: 2 }}
-            onClick={mode === "edit" ? handleEditNext : handleNext}
-          >
-            Next
-          </Button>
-        </div>
+        <Button variant="outlined" sx={{ marginTop: 2 }} onClick={addSession}>
+          <AddIcon />
+          {t("add session")}
+        </Button>
+      </Box>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          width: "100%",
+        }}
+      >
+        {direction === "ltr" ? (
+          <>
+            <Button
+              onClick={() => {
+                setMode("");
+                navigate("/activity-management");
+              }}
+              variant="outlined"
+            >
+              <ArrowBackIcon fontSize="small" /> {t("back to activities")}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={mode === "edit" ? handleEditNext : handleNext}
+            >
+              {t("next")} <ArrowForwardIcon fontSize="small" />
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              onClick={() => {
+                setMode("");
+                navigate("/activity-management");
+              }}
+              variant="outlined"
+            >
+              <ArrowForwardIcon fontSize="small" /> {t("back to activities")}
+            </Button>
+            <Button
+              variant="contained"
+              onClick={mode === "edit" ? handleEditNext : handleNext}
+            >
+              {t("next")} <ArrowBackIcon fontSize="small" />
+            </Button>
+          </>
+        )}
       </div>
-    </Box>
+    </>
   );
 }
