@@ -31,6 +31,7 @@ import { useAuthStore } from "./store/auth";
 import InvitedVolunteer from "./components/InvitedVolunteer";
 import ExecuteActivity from "./components/ExecuteActivity";
 import InvitedVolunteerReport from "./components/InvitedVolunteerReport";
+import MainGrid from "./components/MainGrid";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
@@ -73,8 +74,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 permissions["read_home"] ? (
                   <Layout>
-                    <h2>Welcome to the dashboard</h2>
-                    <TextField type="time" />
+                   <MainGrid/>
                   </Layout>
                 ) : !permissionsLoading && !loggedIn ? (
                   <Navigate to="/sign-in" replace />
