@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 import { ReportModal } from "./ReportModal";
 import ActivityDraggableModal from "./ActivityDraggableModal";
 import VolunteerModal from "./VolunteerModal";
+import useSessionStore from "../store/activityStore";
 
 type ToolbarProps = {
   rows: any;
@@ -45,6 +46,8 @@ const GridCustomToolbar = forwardRef<
     event.target.checked;
     if (props.setGetEligible) props.setGetEligible(event.target.checked);
   };
+
+
 
   return (
     <>

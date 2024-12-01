@@ -74,7 +74,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 permissions["read_home"] ? (
                   <Layout>
-                   <MainGrid/>
+                    <MainGrid />
                   </Layout>
                 ) : !permissionsLoading && !loggedIn ? (
                   <Navigate to="/sign-in" replace />
@@ -164,6 +164,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                   !permissionsLoading &&
                   !loggedIn && <Navigate to="/" replace />
                 )
+              }
+            />
+            <Route
+              path="/join-us"
+              element={
+                <Layout>
+                  <VolunteerInfo />
+                </Layout>
               }
             />
             <Route

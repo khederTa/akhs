@@ -53,10 +53,10 @@ export default function VolunteerModal({
   // Zustand store session state management
   const { invitedVolunteerIds, activityType } = useSessionStore((state) => ({
     invitedVolunteerIds: state.invitedVolunteerIds,
-    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
     activityType: state.activityType,
   }));
 
+  console.log({ invitedVolunteerIds });
   const {
     filteredRows,
     sortModel,
@@ -326,7 +326,6 @@ export default function VolunteerModal({
           />
         ),
       },
-      
 
       {
         field: "nationalNumber",
@@ -526,11 +525,11 @@ export default function VolunteerModal({
             volunteerId: volunteer.volunteerId,
             active_status: volunteer.active_status,
             ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state || ""
-            } - ${volunteer?.Person?.Address?.city || ""} - ${
-              volunteer?.Person?.Address?.district || ""
-            } - ${volunteer?.Person?.Address?.village || ""}`,
+            address: `${volunteer?.Person?.Address?.state || ""} - ${
+              volunteer?.Person?.Address?.city || ""
+            } - ${volunteer?.Person?.Address?.district || ""} - ${
+              volunteer?.Person?.Address?.village || ""
+            }`,
 
             personId: volunteer?.Person?.id,
             fileId: volunteer?.Person?.fileId,
@@ -538,7 +537,7 @@ export default function VolunteerModal({
             addressId: volunteer?.Person?.Address?.id,
           }));
           const processedData = enrichedData.filter(
-            (item: any) => !invitedVolunteerIds?.includes(item.id)
+            (item: any) => !invitedVolunteerIds?.includes(item.volunteerId)
           );
           setRows(processedData);
           setFilteredRows(processedData);
@@ -565,8 +564,10 @@ export default function VolunteerModal({
   const [selectedRowsIds, setSelectedRowsIds] = React.useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return rows.find((row: any) => row.id === selected);
+      return rows.find((row: any) => row.volunteerId === selected);
     });
+    console.log(rows);
+    console.log(newSelectedRows);
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
@@ -638,6 +639,7 @@ export default function VolunteerModal({
             variant="contained"
             color="inherit"
             onClick={() => {
+              console.log({ selectedRows });
               if (onSave) onSave(selectedRows);
             }}
           >

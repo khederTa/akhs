@@ -616,7 +616,7 @@ const InvitedVolunteer = () => {
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return rows.find((row: any) => row?.id === selected);
+      return rows.find((row: any) => row?.volunteerId === selected);
     });
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);

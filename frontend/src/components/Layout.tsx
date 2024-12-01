@@ -6,15 +6,16 @@ import AppNavbar from "./AppNavbar";
 import SideMenu from "./SideMenu";
 import Header from "./Header";
 import { useAuthStore } from "../store/auth";
-import { Navigate } from "react-router-dom"; // Redirect to the sign-in page
+import { Navigate, useLocation } from "react-router-dom"; // Redirect to the sign-in page
 
 export function Layout({ children }: { children: ReactNode }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const loggedIn = isLoggedIn();
-
+  const location = useLocation();
+  console.log({ location });
   // Redirect to sign-in page if the user is not logged in
-  if (!loggedIn) {
+  if (!loggedIn && location.pathname !== "/join-us") {
     return <Navigate to="/sign-in" />;
   }
 

@@ -178,7 +178,7 @@ const VolunteerInfo = () => {
           variant="h4"
           sx={{ width: "100%", fontSize: "clamp(1.8rem, 5vw, 2.5rem)" }}
         >
-          {t("create new volunteer")}
+          {t("volunteer information")}
         </Typography>
         <Box
           component="form"
