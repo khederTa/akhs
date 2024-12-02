@@ -233,7 +233,7 @@ exports.updateActivity = async (req, res) => {
   try {
     const activityId = req.params.id;
     const { activityData, sessionsData, invitedVolunteersData } = req.body;
-
+    // console.log({ activityData, sessionsData, invitedVolunteersData });
     // Check if the activity exists
     const activity = await Activity.findByPk(activityId);
     if (!activity) {
@@ -376,13 +376,13 @@ exports.updateActivity = async (req, res) => {
       // Delete the sessions that are not in the incoming payload
       for (const vol of volunteerAttendedSessionsToDelete) {
         await VolunteerAttendedSessions.destroy({
-          where: { volunteerId: vol.volunteerId },
+          where: { volunteerId: vol.volunteerId, sessionId },
         });
       }
 
       invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
         const existedVolunteer = await VolunteerAttendedSessions.findAll({
-          where: { volunteerId: volunteerData },
+          where: { volunteerId: volunteerData, sessionId },
         });
         // console.log("existedVolunteer: ", existedVolunteer);
         if (existedVolunteer.length === 0)
@@ -411,12 +411,12 @@ exports.updateActivity = async (req, res) => {
     // Delete the sessions that are not in the incoming payload
     for (const vol of volunteerAttendedActivityToDelete) {
       await VolunteerAttendedActivity.destroy({
-        where: { volunteerId: vol.volunteerId },
+        where: { volunteerId: vol.volunteerId, activityId },
       });
     }
     invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
       const existedVolunteer = await VolunteerAttendedActivity.findAll({
-        where: { volunteerId: volunteerData },
+        where: { volunteerId: volunteerData, activityId },
       });
       // console.log("existedVolunteer: ", existedVolunteer);
 

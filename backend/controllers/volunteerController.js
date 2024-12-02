@@ -105,7 +105,7 @@ exports.createVolunteer = async (req, res) => {
 
     // Send the created volunteer as the response
     res.status(201).json(volunteer);
-  }  catch (error) {
+  } catch (error) {
     console.error("Error creating volunteer:", error);
 
     // Handle Sequelize unique constraint errors
@@ -113,7 +113,7 @@ exports.createVolunteer = async (req, res) => {
       return res.status(400).json({
         error: "ValidationError",
         message: error.errors[0].message, // Provides the exact message (e.g., "nationalNumber must be unique")
-        field: error.errors[0].path,     // Provides the field causing the error (e.g., "nationalNumber")
+        field: error.errors[0].path, // Provides the field causing the error (e.g., "nationalNumber")
       });
     }
 
@@ -196,6 +196,7 @@ exports.deleteVolunteer = async (req, res) => {
 exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
   try {
     const { activityTypeId } = req.params;
+
     // Step 1: Find prerequisite activity types for the given activity type
     const activityType = await ActivityType.findByPk(activityTypeId, {
       include: {
@@ -211,8 +212,8 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
       (prerequisite) => prerequisite.id
     );
 
-    // return all volunteers where there are no conditions to attend the activity
-    if (!prerequisiteTypeIds || prerequisiteTypeIds?.length === 0) {
+    // Return all volunteers if there are no prerequisites
+    if (!prerequisiteTypeIds || prerequisiteTypeIds.length === 0) {
       const volunteers = await Volunteer.findAll({
         attributes: ["volunteerId", "active_status"],
         include: [
@@ -249,8 +250,8 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
           },
           {
             model: ServiceProvider,
-            required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
-            attributes: [], // We don’t need to retrieve any columns from ServiceProvider
+            required: false,
+            attributes: [],
           },
         ],
         where: {
@@ -259,29 +260,31 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
       });
       return res.json(volunteers);
     }
-    
-    // Step 2: Find activities that belong to these prerequisite activity types
+
+    // Step 2: Retrieve all activities grouped by prerequisite activity type
     const prerequisiteActivities = await Activity.findAll({
       where: {
         activityTypeId: prerequisiteTypeIds,
       },
-      attributes: ["id"],
+      attributes: ["id", "activityTypeId"],
     });
 
-    // Get the list of prerequisite activity IDs
-    const prerequisiteActivityIds = prerequisiteActivities.map(
-      (activity) => activity.id
-    );
+    // Group activity IDs by their activity type
+    const activitiesByType = prerequisiteActivities.reduce((acc, activity) => {
+      acc[activity.activityTypeId] = acc[activity.activityTypeId] || [];
+      acc[activity.activityTypeId].push(activity.id);
+      return acc;
+    }, {});
 
-    // Step 3: Retrieve volunteers who attended these prerequisite activities
+    // Step 3: Find volunteers who have attended at least one activity from each prerequisite type
     const volunteers = await Volunteer.findAll({
       include: [
         {
           model: Activity,
-          where: { id: prerequisiteActivityIds },
+          attributes: ["id", "activityTypeId"],
           through: {
             attributes: [], // Exclude the join table fields
-            where: { status: "attended" }, // Optional: Only get those who attended
+            where: { status: "attended" },
           },
         },
         {
@@ -317,8 +320,8 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
         },
         {
           model: ServiceProvider,
-          required: false, // Ensures it's a LEFT JOIN, so volunteers without a ServiceProvider are included
-          attributes: [], // We don’t need to retrieve any columns from ServiceProvider
+          required: false,
+          attributes: [],
         },
       ],
       where: {
@@ -326,8 +329,21 @@ exports.getVolunteersForActivityTypePrerequisites = async (req, res) => {
       },
     });
 
-    return res.json(volunteers);
+    // Step 4: Filter volunteers based on attendance of prerequisite activities
+    const eligibleVolunteers = volunteers.filter((volunteer) => {
+      const attendedActivityTypeIds = new Set(
+        volunteer.Activities.map((activity) => activity.activityTypeId)
+      );
+
+      // Check if the volunteer attended at least one activity from each prerequisite type
+      return prerequisiteTypeIds.every((typeId) =>
+        attendedActivityTypeIds.has(typeId)
+      );
+    });
+
+    return res.json(eligibleVolunteers);
   } catch (error) {
     console.error("Error fetching volunteers:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
