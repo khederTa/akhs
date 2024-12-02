@@ -299,6 +299,8 @@ export default function ExecuteActivity() {
 
   const handleSave = async () => {
     try {
+      await axios.put(`/activity/complete/${activityId}`, { done: false });
+      setDone(false);
       for (const row of rows) {
         console.log({ row });
         const rowSessions = Object.fromEntries(
@@ -338,8 +340,8 @@ export default function ExecuteActivity() {
   };
 
   const handleSaveAndComplete = async () => {
-    await handleSave();
     try {
+      await handleSave();
       await axios.put(`/activity/complete/${activityId}`, { done: true });
       setDone(true);
       setAlertMessage("Activity saved and marked as complete!");
@@ -425,7 +427,7 @@ export default function ExecuteActivity() {
         onClose={handleAlertClose}
       />
       <h2>{title}</h2>
-      <Paper sx={{ height: 400, width: "100%" }}>
+      <Paper sx={{ height: 500, width: "100%" }}>
         <DataGrid
           rows={filteredRows}
           getRowId={(row) => row.id} // Ensure the correct row ID is used

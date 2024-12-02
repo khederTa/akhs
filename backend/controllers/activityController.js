@@ -13,7 +13,7 @@ const {
   Address,
 } = require("../models");
 const db = require("../models");
-const { QueryTypes } = require("sequelize");
+const { QueryTypes, where } = require("sequelize");
 
 exports.getAllActivities = async (req, res) => {
   const Activities = await Activity.findAll({
@@ -231,11 +231,11 @@ exports.updateActivity = async (req, res) => {
   // await Activity.update(req.body, { where: { id: req.params.id } });
   // res.json({ message: "Activity updated" });
   try {
-    const activivtyId = req.params.id;
+    const activityId = req.params.id;
     const { activityData, sessionsData, invitedVolunteersData } = req.body;
 
     // Check if the activity exists
-    const activity = await Activity.findByPk(activivtyId);
+    const activity = await Activity.findByPk(activityId);
     if (!activity) {
       return res.status(404).json({ error: "Activity not found" });
     }
@@ -245,7 +245,7 @@ exports.updateActivity = async (req, res) => {
 
     // Get all existing sessions for this activity
     const existingSessions = await Session.findAll({
-      where: { activityId: activivtyId },
+      where: { activityId: activityId },
     });
 
     // Extract session IDs from the request payload
@@ -270,9 +270,9 @@ exports.updateActivity = async (req, res) => {
       await session.destroy();
     }
 
-    await VolunteerAttendedActivity.destroy({
-      where: { activityId: activivtyId }, // Specify the activityId
-    });
+    // await VolunteerAttendedActivity.destroy({
+    //   where: { activityId: activityId }, // Specify the activityId
+    // });
 
     sessionsData.sessions.map(async (sessionDate) => {
       const {
@@ -289,7 +289,7 @@ exports.updateActivity = async (req, res) => {
         (provider) => provider.value
       );
       const sessionExist = await Session.findAll({ where: { id } });
-      console.log(sessionExist);
+      // console.log(sessionExist);
       let session;
       if (sessionExist && sessionExist.length > 0) {
         // Update existing session
@@ -300,7 +300,7 @@ exports.updateActivity = async (req, res) => {
             date: dateValue,
             startTime,
             endTime,
-            activityId: activivtyId,
+            activityId: activityId,
           },
           { where: { id } }
         );
@@ -316,10 +316,33 @@ exports.updateActivity = async (req, res) => {
           date: dateValue,
           startTime,
           endTime,
-          activityId: activivtyId,
+          activityId: activityId,
         });
         session = await Session.findByPk(session.id);
         await session.addServiceProviders(serviceProviderIds); // Replace service providers
+        invitedVolunteersData.volunteerIds.map(async (id) => {
+          console.log({ id });
+          const attendedSessions = await VolunteerAttendedSessions.findAll({
+            where: {
+              volunteerId: id,
+              status: "attended",
+            },
+          });
+
+          const count = attendedSessions.filter((item) =>
+            incomingSessionIds.includes(item.sessionId)
+          ).length;
+
+          const attended = count >= activityData.minSessions;
+
+          const volunteerAttendedActivity =
+            await VolunteerAttendedActivity.findOne({
+              where: { volunteerId: id, activityId },
+            });
+          await volunteerAttendedActivity.update({
+            status: attended ? "attended" : "invited",
+          });
+        });
       }
       // // Retrieve the instance
       // session = await Session.findByPk(id);
@@ -331,24 +354,78 @@ exports.updateActivity = async (req, res) => {
 
       const sessionId = session.id;
 
-      await VolunteerAttendedSessions.destroy({
-        where: { sessionId: sessionId },
-      });
+      // await VolunteerAttendedSessions.destroy({
+      //   where: { sessionId: sessionId },
+      // });
+      const existingVolunteerAttendedSessions =
+        await VolunteerAttendedSessions.findAll({
+          where: { sessionId },
+        });
+
+      // Identify sessions to delete
+      const volunteerAttendedSessionsToDelete =
+        existingVolunteerAttendedSessions.filter(
+          (item) =>
+            !invitedVolunteersData.volunteerIds.includes(item.volunteerId)
+        );
+
+      console.log(
+        "volunteerAttendedSessionsToDelete: ",
+        volunteerAttendedSessionsToDelete
+      );
+      // Delete the sessions that are not in the incoming payload
+      for (const vol of volunteerAttendedSessionsToDelete) {
+        await VolunteerAttendedSessions.destroy({
+          where: { volunteerId: vol.volunteerId },
+        });
+      }
 
       invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
-        await VolunteerAttendedSessions.create({
-          volunteerId: volunteerData,
-          sessionId,
-          status: "invited",
+        const existedVolunteer = await VolunteerAttendedSessions.findAll({
+          where: { volunteerId: volunteerData },
         });
+        // console.log("existedVolunteer: ", existedVolunteer);
+        if (existedVolunteer.length === 0)
+          await VolunteerAttendedSessions.create({
+            volunteerId: volunteerData,
+            sessionId,
+            status: "invited",
+          });
       });
     });
-    invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
-      await VolunteerAttendedActivity.create({
-        volunteerId: volunteerData,
-        activityId: activivtyId,
-        status: "invited",
+    const existingVolunteerAttendedActivity =
+      await VolunteerAttendedActivity.findAll({
+        where: { activityId },
       });
+
+    // Identify sessions to delete
+    const volunteerAttendedActivityToDelete =
+      existingVolunteerAttendedActivity.filter(
+        (item) => !invitedVolunteersData.volunteerIds.includes(item.volunteerId)
+      );
+
+    console.log(
+      "volunteerAttendedActivityToDelete: ",
+      volunteerAttendedActivityToDelete
+    );
+    // Delete the sessions that are not in the incoming payload
+    for (const vol of volunteerAttendedActivityToDelete) {
+      await VolunteerAttendedActivity.destroy({
+        where: { volunteerId: vol.volunteerId },
+      });
+    }
+    invitedVolunteersData.volunteerIds.map(async (volunteerData) => {
+      const existedVolunteer = await VolunteerAttendedActivity.findAll({
+        where: { volunteerId: volunteerData },
+      });
+      // console.log("existedVolunteer: ", existedVolunteer);
+
+      if (existedVolunteer.length === 0)
+        await VolunteerAttendedActivity.create({
+          volunteerId: volunteerData,
+          activityId: activityId,
+          status: "invited",
+        });
     });
     res.json({ message: "Activity updated", activity });
   } catch (error) {
@@ -360,10 +437,10 @@ exports.updateActivity = async (req, res) => {
 };
 
 exports.completeActivity = async (req, res) => {
-  const activivtyId = req.params.id;
+  const activityId = req.params.id;
 
   // Check if the activity exists
-  const activity = await Activity.findByPk(activivtyId);
+  const activity = await Activity.findByPk(activityId);
   if (!activity) {
     return res.status(404).json({ error: "Activity not found" });
   }

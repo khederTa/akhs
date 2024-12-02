@@ -573,7 +573,7 @@ const InvitedVolunteer = () => {
               label="Delete"
               disabled={rows.length === 1}
               onClick={() => {
-                setRows((prev: any[]) => prev.filter((row) => row?.id !== id));
+                setRows((prev: any[]) => prev.filter((row) => row?.volunteerId !== id));
               }}
             />,
           ].filter(Boolean);
