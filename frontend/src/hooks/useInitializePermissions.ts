@@ -15,7 +15,7 @@ const useInitializePermissions = () => {
       if (!isLoggedIn()) {
         await setUser();
       }
-      if (roleId === null) return;
+      if (!roleId && roleId == null) return;
       try {
         const response = await axios.get(`/role/${roleId}/permissions`);
         const permissionsMap = await response.data.permissions.reduce(

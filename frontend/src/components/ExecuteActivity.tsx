@@ -197,6 +197,20 @@ export default function ExecuteActivity() {
               } else {
                 flag = false;
               }
+            } else {
+              let numberOfAttendedSession = 0;
+              for (const key in params.row) {
+                if (
+                  sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
+                  params.row[key] === true
+                )
+                  numberOfAttendedSession++;
+              }
+              if (numberOfAttendedSession - 1 >= minSessions) {
+                flag = true;
+              } else {
+                flag = false;
+              }
             }
             console.log(params.field);
             const updatedRows = rows.map((row) =>

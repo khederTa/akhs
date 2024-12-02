@@ -6,7 +6,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
-import { Stack, TextField } from "@mui/material";
+import { Stack } from "@mui/material";
 import { Loading } from "./components/Loading";
 import { UserManagement } from "./components/UserManagement";
 import CreateNewUser from "./components/CreateNewUser";
@@ -69,20 +69,7 @@ export default function App(props: { disableCustomTheme?: boolean }) {
         <BrowserRouter>
           <Routes>
             {/* Protected Route with Layout as default */}
-            <Route
-              path="/"
-              element={
-                permissions["read_home"] ? (
-                  <Layout>
-                    <MainGrid />
-                  </Layout>
-                ) : !permissionsLoading && !loggedIn ? (
-                  <Navigate to="/sign-in" replace />
-                ) : (
-                  <Navigate to="/activity-management" replace />
-                )
-              }
-            />
+            <Route path="/" element={<MainGrid />} />
             <Route
               path="/user-management"
               element={

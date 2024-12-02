@@ -226,5 +226,16 @@
   "get eligible volunteer": "طلب المتطوعين المؤهلين",
   "volunteer activity history": "تاريخ الأنشطة للمتطوع",
   "active / inactive": "تنشيط / إلغاء تنشيط",
-  "volunteer information": "معلومات المتطوع"
+  "volunteer information": "معلومات المتطوع",
+  "users": "المستخدمين",
+  "service providers": "مزودي الخدمة",
+  "activities": "الأنشطة",
+  "statistics": "إحصائيات",
+  "upcoming activities": "الأنشطة القادمة",
+  "Copyright © ": "جميع الحقوق محفوظة © ",
+  "Aga Khan For Health Services": "أغا خان للخدمات الصحية",
+  "change password": "تغيير كلمة المرور",
+  "logout": "تسجيل الخروج"
+
+
 }
