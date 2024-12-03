@@ -11,7 +11,7 @@ import {
 import { Loading } from "./Loading";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
 import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
@@ -143,7 +143,7 @@ const ServiceProvider = () => {
   // active / inactive volunteer
   const handleToggleActive = useCallback(
     async (id: number) => {
-      const rowIndex = rows.findIndex((row: any) => row.id === id);
+      const rowIndex = rows.findIndex((row: any) => row.providerId === id);
       if (rowIndex === -1) return;
 
       const volunteerId = rows[rowIndex].volunteerId;
@@ -182,10 +182,10 @@ const ServiceProvider = () => {
     [filteredRows, rows, setFilteredRows]
   );
   // Open delete confirmation dialog
-  const handleOpenDeleteDialog = useCallback((id: any) => {
-    setSelectedRow(id);
-    setIsDeleteDialogOpen(true);
-  }, []);
+  // const handleOpenDeleteDialog = useCallback((id: any) => {
+  //   setSelectedRow(id);
+  //   setIsDeleteDialogOpen(true);
+  // }, []);
   // Initialize departments and positions with default values if empty
   const departmentOptions = useMemo(
     () =>
@@ -827,13 +827,13 @@ const ServiceProvider = () => {
             department: provider.Department?.name,
             ...(provider.Volunteer.Person || {}),
             address: `${
-              provider?.Volunteer?.Person?.Address?.state.split("/")[1] || ""
+              provider?.Volunteer?.Person?.Address?.state || ""
             } - ${
-              provider?.Volunteer?.Person?.Address?.city.split("/")[1] || ""
+              provider?.Volunteer?.Person?.Address?.city || ""
             } - ${
-              provider?.Volunteer?.Person?.Address?.district.split("/")[1] || ""
+              provider?.Volunteer?.Person?.Address?.district || ""
             } - ${
-              provider?.Volunteer?.Person?.Address?.village.split("/")[1] || ""
+              provider?.Volunteer?.Person?.Address?.village || ""
             }`,
             personId: provider?.Volunteer?.Person?.id,
             fileId: provider?.Volunteer?.Person?.fileId,

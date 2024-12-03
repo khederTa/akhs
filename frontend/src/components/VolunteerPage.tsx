@@ -139,9 +139,12 @@ export default function VolunteerPage() {
             file: volunteer?.Person?.File?.file?.data,
             addressId: volunteer?.Person?.Address?.id,
           }));
-          setRows(enrichedData);
-          setFilteredRows(enrichedData);
-          console.log("enricheddata is ", enrichedData);
+          const handledRows = enrichedData.filter(
+            (vol: { active_status: string }) => vol.active_status === "active"
+          );
+          setRows(handledRows);
+          setFilteredRows(handledRows);
+          console.log("handledRows is ", enrichedData);
         } else {
           console.error("Unexpected response:", response);
         }
@@ -595,7 +598,7 @@ export default function VolunteerPage() {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     console.log({ sessions });
-
+    if (selectedRowsIds.length === 0) return;
     const processedSessions = sessions.map((session) => ({
       ...session,
       dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),

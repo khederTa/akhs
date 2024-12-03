@@ -164,7 +164,7 @@ const ServiceProviderInfo = () => {
       console.error("Error submitting form:", error);
 
       if (error.response && error.response.data) {
-        const { error: backendError, message, field } = error.response.data;
+        const { error: backendError, message } = error.response.data;
 
         // Display specific validation errors
         if (backendError === "ValidationError") {

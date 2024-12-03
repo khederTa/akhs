@@ -41,13 +41,12 @@ const GridCustomToolbar = forwardRef<
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [openVolunteerModal, setOpenVolunteerModal] = useState(false);
+  const { setMode } = useSessionStore((state) => state);
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     console.log(event.target.checked);
     event.target.checked;
     if (props.setGetEligible) props.setGetEligible(event.target.checked);
   };
-
-
 
   return (
     <>
@@ -94,7 +93,13 @@ const GridCustomToolbar = forwardRef<
           )}
         {props.mode === "addActivity" && (
           <>
-            <Button type="button" onClick={() => setOpen(true)}>
+            <Button
+              type="button"
+              onClick={() => {
+                setMode("");
+                setOpen(true);
+              }}
+            >
               <AddOutlinedIcon />
               {t("add")}
             </Button>

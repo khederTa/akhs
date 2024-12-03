@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
   forwardRef,
@@ -33,6 +32,7 @@ import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
+import CustomDateRenderer from "./CustomDateRenderer";
 const paginationModel = { page: 0, pageSize: 5 };
 
 const Transition = forwardRef(function Transition(
@@ -113,7 +113,10 @@ export default function HistoryModal({
                 return {
                   ...packageRow,
                   activityTypes: packageRow.ActivityTypes,
-                  progress: `${numberOfAttendedActivity} of ${packageRow.ActivityTypes.length}`,
+                  progress: t("activityOfTotal", {
+                    count: numberOfAttendedActivity,
+                    total: packageRow.ActivityTypes.length,
+                  }),
                 };
               }
             );
@@ -135,7 +138,7 @@ export default function HistoryModal({
         setIsLoading(false);
       }
     },
-    [activeTab]
+    [activeTab, t]
   );
 
   useEffect(() => {
@@ -167,7 +170,7 @@ export default function HistoryModal({
     );
   };
 
-  const columns = useMemo(() => {
+  const columns: any = useMemo(() => {
     if (activeTab === 0) {
       return [
         {
@@ -274,6 +277,9 @@ export default function HistoryModal({
           sortable: false,
           hideSortIcons: true,
           editable: false,
+          renderCell: (params: { value: string | Date }) => (
+            <CustomDateRenderer value={params.value} />
+          ),
           renderHeader: () => (
             <DateFilterHeader
               key={"startDate"}

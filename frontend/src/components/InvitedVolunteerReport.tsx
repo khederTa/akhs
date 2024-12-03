@@ -13,7 +13,6 @@ import GenderFilterHeader from "./GenderFilterHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
-import DownloadButton from "./DownloadButton";
 import { Loading } from "./Loading";
 
 const InvitedVolunteerReport = () => {

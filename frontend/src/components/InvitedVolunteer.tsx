@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Typography, Paper, Box } from "@mui/material";
+import { Button, Paper, Box } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
@@ -172,7 +172,11 @@ const InvitedVolunteer = () => {
       addressId: volunteer?.Person?.Address?.id,
     }));
 
-    setRows(enrichedData);
+    const handledRows = enrichedData.filter(
+      (vol: { active_status: string }) => vol.active_status === "active"
+    );
+    setRows(handledRows);
+    setFilteredRows(handledRows);
     setIsLoading(false);
   }, [
     activityData,
@@ -573,7 +577,9 @@ const InvitedVolunteer = () => {
               label="Delete"
               disabled={rows.length === 1}
               onClick={() => {
-                setRows((prev: any[]) => prev.filter((row) => row?.volunteerId !== id));
+                setRows((prev: any[]) =>
+                  prev.filter((row) => row?.volunteerId !== id)
+                );
               }}
             />,
           ].filter(Boolean);

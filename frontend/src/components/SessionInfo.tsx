@@ -46,8 +46,14 @@ const SessionInfo = ({
       .then((response) => {
         const serviceproviders = response.data;
         console.log({ serviceproviders });
+        const activeServiceProvider = serviceproviders.filter(
+          (item: any) => {
+            console.log(item);
+            return item.Volunteer.active_status === "active";
+          }
+        );
         setServiceProviders(
-          serviceproviders.map((provider: any) => ({
+          activeServiceProvider.map((provider: any) => ({
             label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position?.name}`,
             value: provider.providerId,
             depId: provider.Department?.id,

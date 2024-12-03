@@ -184,6 +184,13 @@ export default function ActivitySummary() {
           // sessions.map((session)=>{
 
           // })
+          const activeServiceProvider = providersResponse.data.filter(
+            (item: any) => {
+              console.log(item);
+              return item.Volunteer.active_status === "active";
+            }
+          );
+          console.log({ activeServiceProvider });
           const processedSessions = sessionsValue.map((session: any) => ({
             ...session,
             key: session?.id,
@@ -192,7 +199,7 @@ export default function ActivitySummary() {
               value: item.providerId,
               depId: item.departmentId,
             })),
-            serviceProviders: providersResponse.data,
+            serviceProviders: activeServiceProvider,
             dateValue: session.date,
             hallName: session.hall_name,
             sessionName: session.name,

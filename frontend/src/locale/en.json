@@ -236,5 +236,15 @@
   "Copyright © ": "Copyright © ",
   "Aga Khan For Health Services": "Aga Khan For Health Services",
   "change password": "Change Password",
-  "logout": "Logout"
+  "logout": "Logout",
+  "edit activity": "Edit Activity",
+  "invite volunteers": "Invite Volunteers",
+  "invited volunteer reports": "Invited Volunteer Reports",
+  "please fill out the form below to change the password.": "Please fill out the form below to change the password.",
+  "current password": "Current Password",
+  "new password": "New Password",
+  "change": "Change",
+  "progress": "Progress",
+  "activityOfTotal": "{{count}} of {{total}}",
+  "activity module management": "Activity Modules"
 }

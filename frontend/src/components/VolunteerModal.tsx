@@ -539,8 +539,11 @@ export default function VolunteerModal({
           const processedData = enrichedData.filter(
             (item: any) => !invitedVolunteerIds?.includes(item.volunteerId)
           );
-          setRows(processedData);
-          setFilteredRows(processedData);
+          const handledRows = processedData.filter(
+            (vol: { active_status: string }) => vol.active_status === "active"
+          );
+          setRows(handledRows);
+          setFilteredRows(handledRows);
           console.log("enricheddata is ", enrichedData);
         } else {
           console.error("Unexpected response:", response);

@@ -943,23 +943,7 @@ export function UserManagement() {
               work: user?.ServiceProvider?.Volunteer?.Person?.work,
               nationalNumber:
                 user?.ServiceProvider?.Volunteer?.Person?.nationalNumber,
-              address: `${
-                user?.ServiceProvider?.Volunteer?.Person?.Address?.state?.split(
-                  "/"
-                )[1]
-              } - ${
-                user?.ServiceProvider?.Volunteer?.Person?.Address?.city?.split(
-                  "/"
-                )[1]
-              } - ${
-                user?.ServiceProvider?.Volunteer?.Person?.Address?.district?.split(
-                  "/"
-                )[1]
-              } - ${
-                user?.ServiceProvider?.Volunteer?.Person?.Address?.village?.split(
-                  "/"
-                )[1]
-              }`,
+              address: `${user?.ServiceProvider?.Volunteer?.Person?.Address?.state} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.city} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.district} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.village}`,
               gender: user?.ServiceProvider?.Volunteer?.Person?.gender,
               bDate: user?.ServiceProvider?.Volunteer?.Person?.bDate,
               active_status: user?.ServiceProvider?.Volunteer?.active_status,

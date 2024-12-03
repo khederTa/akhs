@@ -235,7 +235,17 @@
   "Copyright © ": "جميع الحقوق محفوظة © ",
   "Aga Khan For Health Services": "أغا خان للخدمات الصحية",
   "change password": "تغيير كلمة المرور",
-  "logout": "تسجيل الخروج"
+  "logout": "تسجيل الخروج",
+  "edit activity": "تعديل النشاط",
+  "invite volunteers": "دعوة المتطوعين",
+  "invited volunteer reports": "تقارير المتطوعين المدعوين",
+  "please fill out the form below to change the password.": "يرجى ملء النموذج أدناه لتغيير كلمة المرور",
+  "current password": "كلمة المرور الحالية",
+  "new password": "كلمة المرور الجديدة",
+  "change": "تغيير",
+  "progress": "التقدم",
+  "activityOfTotal": "{{count}} من {{total}}",
+  "activity module management": "وحدات النشاط"
 
 
 }

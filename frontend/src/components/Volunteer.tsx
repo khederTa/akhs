@@ -10,7 +10,6 @@ import {
 } from "@mui/material";
 import {
   DataGrid,
-  GridColDef,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
@@ -18,7 +17,7 @@ import {
 import { Loading } from "./Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
@@ -271,10 +270,10 @@ const Volunteer = () => {
   );
 
   // Open delete confirmation dialog
-  const handleOpenDeleteDialog = useCallback((id: any) => {
-    setSelectedRow(id);
-    setIsDeleteDialogOpen(true);
-  }, []);
+  // const handleOpenDeleteDialog = useCallback((id: any) => {
+  //   setSelectedRow(id);
+  //   setIsDeleteDialogOpen(true);
+  // }, []);
   // Open promote confirmation dialog
   const handleOpenPromoteDialog = useCallback((id: any) => {
     setSelectedRow(id);

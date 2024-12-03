@@ -313,8 +313,10 @@ export default function ExecuteActivity() {
 
   const handleSave = async () => {
     try {
-      await axios.put(`/activity/complete/${activityId}`, { done: false });
-      setDone(false);
+      if (userRole === "admin") {
+        await axios.put(`/activity/complete/${activityId}`, { done: false });
+        setDone(false);
+      }
       for (const row of rows) {
         console.log({ row });
         const rowSessions = Object.fromEntries(
