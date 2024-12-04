@@ -103,7 +103,7 @@ export default function MenuContent() {
           // Conditionally render the ListItem based on the permission
           return (
             hasPermission && (
-              <ListItem key={index} disablePadding sx={{ display: "block" }}>
+              <ListItem key={index} disablePadding sx={{ mt : 2.5, display: "block" }}>
                 <ListItemButton
                   selected={index === selectedItemIndex}
                   onClick={() => {

@@ -66,6 +66,7 @@ const Activity = () => {
       minWidth: 100,
       sortable: true,
       editable: false,
+    
     },
     {
       field: "title",
@@ -330,7 +331,9 @@ const Activity = () => {
             rows={filteredRows}
             columns={columns}
             // processRowUpdate={handleProcessRowUpdate}
-            initialState={{ pagination: { paginationModel } }}
+            initialState={{ pagination: { paginationModel } ,    sorting: {
+              sortModel: [{ field: "id", sort: "desc" }], // Default sorting model
+          }, }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
             getRowId={(row) => row.id} // Ensure the correct row ID is used
