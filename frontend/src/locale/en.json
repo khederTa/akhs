@@ -246,5 +246,9 @@
   "change": "Change",
   "progress": "Progress",
   "activityOfTotal": "{{count}} of {{total}}",
-  "activity module management": "Activity Modules"
+  "activity module management": "Activity Modules",
+  "activity report": "Activity Report",
+  "attended": "Attended",
+  "not attended": "Not Attended",
+  "attendance table": "Attendance Table"
 }

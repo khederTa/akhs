@@ -14,7 +14,9 @@ import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
 import DateFilterHeader from "./DateFilterHeader";
-import SummarizeIcon from "@mui/icons-material/Summarize";
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import TaskIcon from "@mui/icons-material/Task";
+import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import { usePermissionStore } from "../store/permissionStore";
 import { Tooltip } from "@mui/material";
 const Activity = () => {
@@ -66,7 +68,6 @@ const Activity = () => {
       minWidth: 100,
       sortable: true,
       editable: false,
-    
     },
     {
       field: "title",
@@ -183,7 +184,7 @@ const Activity = () => {
       field: "actions",
       headerName: t("actions"),
       type: "actions",
-      minWidth: 200,
+      minWidth: 250,
       getActions: ({ id }: any) => {
         const row: any = rows.find((item: any) => item.id === id);
         return [
@@ -204,10 +205,28 @@ const Activity = () => {
               />
             </Tooltip>
           ) : null,
-          <Tooltip title={t("reports")}>
+          row.done === true && (
+            <Tooltip title={t("activity preview")}>
+              <GridActionsCellItem
+                icon={<TaskIcon />}
+                label="activity preview"
+                onClick={() => navigate("/activity-report", { state: { id } })}
+              />
+            </Tooltip>
+          ),
+          <Tooltip title={t("attended volunteers")}>
             <GridActionsCellItem
-              icon={<SummarizeIcon />}
-              label="Report"
+              icon={<AssignmentIndIcon />}
+              label="attended volunteers"
+              onClick={() =>
+                navigate("/attended-volunteer-report", { state: { id } })
+              }
+            />
+          </Tooltip>,
+          <Tooltip title={t("invited volunteers")}>
+            <GridActionsCellItem
+              icon={<AssignmentIcon />}
+              label="invited volunteers"
               onClick={() =>
                 navigate("/invited-volunteer-report", { state: { id } })
               }
@@ -331,9 +350,12 @@ const Activity = () => {
             rows={filteredRows}
             columns={columns}
             // processRowUpdate={handleProcessRowUpdate}
-            initialState={{ pagination: { paginationModel } ,    sorting: {
-              sortModel: [{ field: "id", sort: "desc" }], // Default sorting model
-          }, }}
+            initialState={{
+              pagination: { paginationModel },
+              sorting: {
+                sortModel: [{ field: "id", sort: "desc" }], // Default sorting model
+              },
+            }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
             getRowId={(row) => row.id} // Ensure the correct row ID is used

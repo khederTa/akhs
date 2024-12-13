@@ -277,24 +277,23 @@ export default function ActivitySummary() {
     }
 
     // If all sessions are complete, navigate to the next page
-    if(numSessions > 0)
-    {navigate("/volunteer-page");
-  console.log("number of sessions after accept is in create" , numSessions);}
-  
-  else
-  alert("there is no sessions add new one")
-  }, [navigate, sessions]);
+    if (numSessions > 0) {
+      navigate("/volunteer-page");
+      console.log("number of sessions after accept is in create", numSessions);
+    } else alert("there is no sessions add new one");
+  }, [navigate, numSessions, sessions]);
 
   const handleEditNext = useCallback(() => {
     // If all sessions are complete, navigate to the next page
-    if(numSessions > 0)
-    {navigate("/invited-volunteer");
-    console.log("number of sessions after accept is in edit" , numSessions);}
-    else
-    {console.log("add new session when editing" , numSessions);
-    
-      alert("there is no sessions")}
-  }, [navigate, sessions]);
+    if (numSessions > 0) {
+      navigate("/invited-volunteer");
+      console.log("number of sessions after accept is in edit", numSessions);
+    } else {
+      console.log("add new session when editing", numSessions);
+
+      alert("there is no sessions");
+    }
+  }, [navigate, numSessions]);
 
   const handleChangeDepartment = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {

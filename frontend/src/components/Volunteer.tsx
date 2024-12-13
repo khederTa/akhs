@@ -930,6 +930,18 @@ const Volunteer = () => {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
+          if (
+            !updatedRow.nationalNumber ||
+            updatedRow.nationalNumber.length === 0
+          ) {
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+            setAlertMessage("national number is required, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            return oldRow;
+          }
           const updatedAddress = `${newAddress?.state || ""} - ${
             newAddress?.city || ""
           } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
@@ -991,8 +1003,6 @@ const Volunteer = () => {
             fileId,
           });
 
-         
-
           if (
             volunteerResponse.status === 200 &&
             personResponse.status === 200
@@ -1021,7 +1031,6 @@ const Volunteer = () => {
                   : row;
               })
             );
-         
 
             return {
               ...updatedRow,
@@ -1056,7 +1065,7 @@ const Volunteer = () => {
         if (updatedFile) {
           handleFileUpload(oldRow.file);
         }
-       
+
         return oldRow;
       }
     },

@@ -15,9 +15,15 @@ button.MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
 }
 
 button.MuiButtonBase-root.MuiButton-root.MuiButton-contained,
-.MuiButton-containedPrimary.MuiButton-sizeMedium.MuiButton-containedSizeMedium.MuiButton-colorPrimary.MuiButton-root.MuiButton-contained.MuiButton-containedPrimary.MuiButton-sizeMedium.MuiButton-containedSizeMedium.MuiButton-colorPrimary{   
+.MuiButton-containedPrimary.MuiButton-sizeMedium.MuiButton-containedSizeMedium.MuiButton-colorPrimary.MuiButton-root.MuiButton-contained.MuiButton-containedPrimary.MuiButton-sizeMedium.MuiButton-containedSizeMedium.MuiButton-colorPrimary {
   /* background-color: hsl(220deg 6.91% 14.8%); */
   background-image: none !important;
   box-shadow: none !important;
   border: none !important;
+}
+
+.MuiListItemText-primary {
+  font-size: 0.94rem !important;
+  font-weight: 600 !important;
+  line-height: 1.5 !important;
 }

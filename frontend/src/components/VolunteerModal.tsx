@@ -56,7 +56,7 @@ export default function VolunteerModal({
     activityType: state.activityType,
   }));
 
-  console.log({ invitedVolunteerIds });
+  // console.log({ invitedVolunteerIds });
   const {
     filteredRows,
     sortModel,

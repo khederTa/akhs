@@ -32,6 +32,7 @@ import InvitedVolunteer from "./components/InvitedVolunteer";
 import ExecuteActivity from "./components/ExecuteActivity";
 import InvitedVolunteerReport from "./components/InvitedVolunteerReport";
 import MainGrid from "./components/MainGrid";
+import ActivityReport from "./components/ActivityReport";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
@@ -121,6 +122,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
               element={
                 <Layout>
                   <InvitedVolunteerReport />
+                </Layout>
+              }
+            />
+            <Route
+              path="/activity-report"
+              element={
+                <Layout>
+                  <ActivityReport />
                 </Layout>
               }
             />

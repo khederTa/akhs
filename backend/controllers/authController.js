@@ -4,7 +4,7 @@ const {
   jwtExpiration,
   jwtRefreshExpiration,
 } = require("../config/auth");
-const { User, Person, Volunteer, ServiceProvider } = require("../models");
+const { User, Person, Volunteer, ServiceProvider, Role } = require("../models");
 const jwt = require("jsonwebtoken");
 const { sequelize } = require("../models");
 const bcrypt = require("bcryptjs");
@@ -119,6 +119,39 @@ exports.changePassword = async (req, res) => {
     const isMatch = await user.validatePassword(currentPassword);
     if (!isMatch) {
       return res.status(401).json({ message: "Password Incorrect" });
+    }
+
+    // Update the password
+    user.password = newPassword;
+    await user.save(); // This will trigger the `beforeUpdate` hook to hash the password
+
+    res.status(200).json({ message: "Password changed correctly" });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+};
+
+exports.changePasswordByAdmin = async (req, res) => {
+  try {
+    const { newPassword } = req.body;
+    const { id } = req.params;
+    const currentUser = await User.findByPk(req.user.userId, {
+      include: {
+        model: Role,
+      },
+    });
+    console.log(currentUser);
+    if (!currentUser || currentUser.Role.name !== "admin") {
+      console.log("Peeeeeeep")
+      return res.sendStatus(403);
+    }
+    // Find the user by userId
+    const user = await User.findOne({
+      where: { userId: id },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: "User Not Found" });
     }
 
     // Update the password

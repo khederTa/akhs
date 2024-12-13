@@ -826,13 +826,9 @@ const ServiceProvider = () => {
             position: provider.Position?.name,
             department: provider.Department?.name,
             ...(provider.Volunteer.Person || {}),
-            address: `${
-              provider?.Volunteer?.Person?.Address?.state || ""
-            } - ${
+            address: `${provider?.Volunteer?.Person?.Address?.state || ""} - ${
               provider?.Volunteer?.Person?.Address?.city || ""
-            } - ${
-              provider?.Volunteer?.Person?.Address?.district || ""
-            } - ${
+            } - ${provider?.Volunteer?.Person?.Address?.district || ""} - ${
               provider?.Volunteer?.Person?.Address?.village || ""
             }`,
             personId: provider?.Volunteer?.Person?.id,
@@ -956,6 +952,18 @@ const ServiceProvider = () => {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
+          if (
+            !updatedRow.nationalNumber ||
+            updatedRow.nationalNumber.length === 0
+          ) {
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+            setAlertMessage("national number is required, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            return oldRow;
+          }
           const updatedAddress = `${newAddress?.state || ""} - ${
             newAddress?.city || ""
           } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
@@ -1033,6 +1041,9 @@ const ServiceProvider = () => {
             providerResponse.status === 200 &&
             personResponse.status === 200
           ) {
+            setAlertMessage("service provider updated successfully");
+            setAlertSeverity("success");
+            setAlertOpen(true);
             setRows((prevRows: any) =>
               prevRows.map((row: any) =>
                 row.providerId === providerId

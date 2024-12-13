@@ -245,7 +245,10 @@
   "change": "تغيير",
   "progress": "التقدم",
   "activityOfTotal": "{{count}} من {{total}}",
-  "activity module management": "وحدات النشاط"
-
+  "activity module management": "وحدات النشاط",
+  "activity report": "تقرير النشاط",
+  "attended": "تم الحضور",
+  "not attended": "لم يحضر",
+  "attendance table": "جدول الحضور"
 
 }

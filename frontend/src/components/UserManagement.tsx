@@ -3,7 +3,6 @@
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   DataGrid,
-  GridColDef,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
@@ -37,6 +36,7 @@ import { useTranslation } from "react-i18next";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { usePermissionStore } from "../store/permissionStore";
 import { useAuthStore } from "../store/auth";
+import ChangePasswordByAdminModal from "./ChangePasswordByAdminModal";
 // type UserType = {
 //   userId: number;
 //   ServiceProvider: {
@@ -90,7 +90,8 @@ export function UserManagement() {
   const [selectedRow, setSelectedRow] = useState(null);
   const [address, setAddress] = useState<number | null>(null);
   const userId = useAuthStore((state) => state.allUserData?.userId);
-
+  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
+  const [selectedUserId, setSelectedUserId] = useState<number>(-1);
   const [addressId, setAddressId] = useState<number | null>(null);
   const [newAddress, setNewAddress] = useState<number | any>(null);
   const [fileId, setFileId] = useState<number | null>(null);
@@ -322,7 +323,7 @@ export function UserManagement() {
     setIsDeleteDialogOpen(true);
   }, []);
 
-  const columns: GridColDef[] = useMemo(
+  const columns: any[] = useMemo(
     () => [
       {
         field: "userId",
@@ -580,8 +581,10 @@ export function UserManagement() {
         sortable: false,
         hideSortIcons: true,
         editable: true,
-        renderCell: (params) => <CustomDateRenderer value={params.value} />,
-        renderEditCell: (_params) => (
+        renderCell: (params: { value: string | Date }) => (
+          <CustomDateRenderer value={params.value} />
+        ),
+        renderEditCell: (_params: any) => (
           <TextField
             type="date"
             value={newBdate}
@@ -688,7 +691,9 @@ export function UserManagement() {
             clearFilter={clearFilter}
           />
         ),
-        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
+        renderEditCell: (_params: any) => (
+          <Address setAddressId={setAddressId} />
+        ),
       },
       {
         field: "smoking",
@@ -788,7 +793,9 @@ export function UserManagement() {
         headerName: t("cv"),
         hideSortIcons: true,
         sortable: false,
-        renderCell: (params) => {
+        renderCell: (params: {
+          row: { fname: any; file: number[] | null };
+        }) => {
           // console.log(params.row);
           return (
             <DownloadButton
@@ -798,7 +805,7 @@ export function UserManagement() {
           );
         },
         editable: true,
-        renderEditCell: (params) => {
+        renderEditCell: (params: { row: { fileId: number } }) => {
           console.log(params.row);
           return (
             <FileUpload
@@ -816,7 +823,7 @@ export function UserManagement() {
         headerName: t("actions"),
         type: "actions",
         width: 150,
-        getActions: ({ id }) => {
+        getActions: ({ id }: any) => {
           const row = rows.find((item) => item.userId === id);
           const isInEditMode = rowModesModel[id]?.mode === "edit";
           return [
@@ -832,6 +839,18 @@ export function UserManagement() {
                   />
                 </Tooltip>
               ),
+            !isInEditMode && userRole === "admin" && (
+              <Tooltip title={t("change password")}>
+                <GridActionsCellItem
+                  icon={<DeleteIcon />}
+                  label="change password"
+                  onClick={() => {
+                    setSelectedUserId(id);
+                    setChangePasswordModalOpen(true);
+                  }}
+                />
+              </Tooltip>
+            ),
             !isInEditMode &&
               ((userRole === "officer" && row.role === "data entry") ||
                 userRole === "admin") && (
@@ -1080,6 +1099,18 @@ export function UserManagement() {
     async (updatedRow: any) => {
       if (action === "save") {
         try {
+          if (
+            !updatedRow.nationalNumber ||
+            updatedRow.nationalNumber.length === 0
+          ) {
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+            setAlertMessage("national number is required, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            return oldRow;
+          }
           const updatedAddress = `${newAddress?.state || ""} - ${
             newAddress?.city || ""
           } - ${newAddress?.district || ""} - ${newAddress?.village || ""}`;
@@ -1132,15 +1163,18 @@ export function UserManagement() {
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
 
-          await axios.put(`/user/${userId}`, {
+          const userRes = await axios.put(`/user/${userId}`, {
             roleId: updatedRoleId,
           });
 
-          await axios.put(`/serviceprovider/${providerId}`, {
-            positionId: updatedPositionId,
-            departmentId: updatedDepartmentId,
-          });
-          await axios.put(`/person/${personId}`, {
+          const providerRes = await axios.put(
+            `/serviceprovider/${providerId}`,
+            {
+              positionId: updatedPositionId,
+              departmentId: updatedDepartmentId,
+            }
+          );
+          const personRes = await axios.put(`/person/${personId}`, {
             fname,
             lname,
             mname,
@@ -1161,6 +1195,16 @@ export function UserManagement() {
             addressId,
             fileId,
           });
+          console.log({ userRes, providerRes, personRes });
+          if (
+            userRes.status === 200 &&
+            providerRes.status === 200 &&
+            personRes.status === 200
+          ) {
+            setAlertMessage("user updated successfully");
+            setAlertSeverity("success");
+            setAlertOpen(true);
+          }
           console.log(updatedFile);
           setRows((prevRows: any) =>
             prevRows.map((row: any) =>
@@ -1314,7 +1358,11 @@ export function UserManagement() {
         handleClose={handleCloseDeleteDialog}
         onConfirm={handleDelete}
       />
-
+      <ChangePasswordByAdminModal
+        open={changePasswordModalOpen}
+        handleClose={() => setChangePasswordModalOpen(false)}
+        userId={selectedUserId}
+      />
       {isLoading ? (
         <Loading />
       ) : (
