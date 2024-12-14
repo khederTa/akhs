@@ -6,6 +6,7 @@ import NavigateNextRoundedIcon from "@mui/icons-material/NavigateNextRounded";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { URL_MAP } from "../utils/routeMap";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }: any) => ({
@@ -18,30 +19,7 @@ const StyledBreadcrumbs = styled(Breadcrumbs)(({ theme }: any) => ({
     alignItems: "center",
   },
 }));
-const URL_MAP = {
-  "/": "home",
-  "/user-management": "user management",
-  "/create-new-user": "create new user",
-  "/activity-management": "activity management",
-  "/activity-information": "activiy information",
-  "/activity-modules": "activity module management",
-  "/new-activity-module": "create new activiy module",
-  "/packages": "package management",
-  "/new-package": "create new package",
-  "/position": "position management",
-  "/departments": "department management",
-  "/volunteer": "volunteer management",
-  "/serviceprovider": "provider management",
-  "/new-position": "create new position",
-  "/new-department": "create new department",
-  "/serviceprovider-information": "create new service provider",
-  "/volunteer-information": "create new volunteer",
-  "/execute-activity": "execute activity",
-  "/activity-summary": "edit activity",
-  "/invited-volunteer": "edit activity",
-  "/invited-volunteer-report": "invited volunteer reports",
-  "/volunteer-page": "invite volunteers"
-};
+
 export default function NavbarBreadcrumbs() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
   const location = useLocation();

@@ -13,6 +13,7 @@ import {
   View,
   StyleSheet,
   Font,
+  Image,
 } from "@react-pdf/renderer";
 import { useLocation } from "react-router-dom";
 
@@ -31,7 +32,7 @@ Font.register({
 });
 
 const VOLUNTEERS_PER_PAGE = 10;
-const SESSIONS_PER_PAGE = 5;
+const SESSIONS_PER_PAGE = 7;
 
 export default function ActivityReport() {
   const [loading, setLoading] = useState(true);
@@ -47,18 +48,24 @@ export default function ActivityReport() {
 
   const styles = StyleSheet.create({
     page: {
-      padding: 40,
+      padding: "40 30",
       flexDirection: "column",
       textAlign: direction === "rtl" ? "right" : "left",
       fontSize: 11,
       fontFamily: "Cairo",
     },
+    logo: {
+      width: 100,
+      margin: "0 auto",
+      marginTop: "-30px"
+    },
     title: {
       fontSize: 18,
+      marginTop: 20,
       marginBottom: 10,
     },
     section: {
-      marginBottom: 10,
+      marginBottom: 5,
       textAlign: direction === "rtl" ? "right" : "left",
       alignSelf: direction === "rtl" ? "flex-end" : "flex-start",
       direction: direction,
@@ -164,6 +171,7 @@ export default function ActivityReport() {
       <Document title={t(activityTitle)}>
         {/* General Info Page */}
         <Page size="A4" style={styles.page}>
+          <Image src={"/Logo.png"} style={styles.logo} />
           <Text style={styles.title}>{t("activity report")}</Text>
           <Text style={styles.section}>{`${t(
             "title"

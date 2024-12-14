@@ -309,7 +309,7 @@ export default function ActivitySummary() {
     <Loading />
   ) : (
     <>
-      <Typography variant="h4">{t("activity summary")}</Typography>
+      {/* <Typography variant="h4">{t("activity summary")}</Typography> */}
 
       <Box
         sx={{
