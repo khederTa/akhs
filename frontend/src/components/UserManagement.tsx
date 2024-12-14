@@ -12,7 +12,7 @@ import Paper from "@mui/material/Paper";
 import { Stack, Tooltip } from "@mui/material";
 
 import { Loading } from "./Loading";
-
+import LockOpenIcon from '@mui/icons-material/LockOpen';
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -842,7 +842,7 @@ export function UserManagement() {
             !isInEditMode && userRole === "admin" && (
               <Tooltip title={t("change password")}>
                 <GridActionsCellItem
-                  icon={<DeleteIcon />}
+                  icon={<LockOpenIcon />}
                   label="change password"
                   onClick={() => {
                     setSelectedUserId(id);

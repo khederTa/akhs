@@ -289,11 +289,10 @@ export default function ActivitySummary() {
     if (numSessions > 0) {
       navigate("/volunteer-page");
       console.log("number of sessions after accept is in create", numSessions);
-    } else{ 
-
+    } else {
       setAlertMessage("there is no sessions add new one");
-          setAlertSeverity("error");
-          setAlertOpen(true);
+      setAlertSeverity("error");
+      setAlertOpen(true);
     }
   }, [navigate, numSessions, sessions]);
 
@@ -325,13 +324,13 @@ export default function ActivitySummary() {
     <Loading />
   ) : (
     <>
-     <AlertNotification
-            open={alertOpen}
-            message={alertMessage}
-            severity={alertSeverity}
-            onClose={handleAlertClose}
-          />
-      <Typography variant="h4">{t("activity summary")}</Typography>
+      <AlertNotification
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={handleAlertClose}
+      />
+      {/* <Typography variant="h4">{t("activity summary")}</Typography> */}
 
       <Box
         sx={{

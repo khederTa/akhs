@@ -1,29 +1,32 @@
-import * as React from 'react';
-import { styled } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Box from '@mui/material/Box';
-import Stack from '@mui/material/Stack';
-import MuiToolbar from '@mui/material/Toolbar';
-import { tabsClasses } from '@mui/material/Tabs';
-import Typography from '@mui/material/Typography';
-import MenuRoundedIcon from '@mui/icons-material/MenuRounded';
-import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
-import SideMenuMobile from './SideMenuMobile';
-import MenuButton from './MenuButton';
-import { DirectionContext } from '../shared-theme/AppTheme';
+import * as React from "react";
+import { styled } from "@mui/material/styles";
+import AppBar from "@mui/material/AppBar";
+import Box from "@mui/material/Box";
+import Stack from "@mui/material/Stack";
+import MuiToolbar from "@mui/material/Toolbar";
+import { tabsClasses } from "@mui/material/Tabs";
+import Typography from "@mui/material/Typography";
+import MenuRoundedIcon from "@mui/icons-material/MenuRounded";
+import DashboardRoundedIcon from "@mui/icons-material/DashboardRounded";
+import SideMenuMobile from "./SideMenuMobile";
+import MenuButton from "./MenuButton";
+import { DirectionContext } from "../shared-theme/AppTheme";
+import { URL_MAP } from "../utils/routeMap";
+import { useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 const Toolbar = styled(MuiToolbar)({
-  width: '100%',
-  padding: '12px',
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'start',
-  justifyContent: 'center',
-  gap: '12px',
+  width: "100%",
+  padding: "12px",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "start",
+  justifyContent: "center",
+  gap: "12px",
   flexShrink: 0,
   [`& ${tabsClasses.flexContainer}`]: {
-    gap: '8px',
-    p: '8px',
+    gap: "8px",
+    p: "8px",
     pb: 0,
   },
 });
@@ -31,7 +34,8 @@ const Toolbar = styled(MuiToolbar)({
 export default function AppNavbar() {
   const [open, setOpen] = React.useState(false);
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
-
+  const location = useLocation();
+  const { t } = useTranslation();
   const toggleDrawer = (newOpen: boolean) => () => {
     setOpen(newOpen);
   };
@@ -40,13 +44,13 @@ export default function AppNavbar() {
     <AppBar
       position="fixed"
       sx={{
-        display: { xs: 'auto', md: 'none' },
+        display: { xs: "auto", md: "none" },
         boxShadow: 0,
-        bgcolor: 'background.paper',
-        backgroundImage: 'none',
-        borderBottom: '1px solid',
-        borderColor: 'divider',
-        top: 'var(--template-frame-height, 0px)',
+        bgcolor: "background.paper",
+        backgroundImage: "none",
+        borderBottom: "1px solid",
+        borderColor: "divider",
+        top: "var(--template-frame-height, 0px)",
       }}
       dir={direction}
     >
@@ -54,16 +58,20 @@ export default function AppNavbar() {
         <Stack
           direction="row"
           sx={{
-            justifyContent: 'space-between',
-            alignItems: 'center',
+            justifyContent: "space-between",
+            alignItems: "center",
             flexGrow: 1,
-            width: '100%',
+            width: "100%",
           }}
         >
-          <Stack direction="row" spacing={1} sx={{ justifyContent: 'center' }}>
-            <CustomIcon />
-            <Typography variant="h4" component="h1" sx={{ color: 'text.primary' }}>
-              Dashboard
+          <Stack direction="row" spacing={1} sx={{ justifyContent: "center" }}>
+            <img src={"/AKH_Logo.png"} width={"40px"} />
+            <Typography
+              variant="h4"
+              component="h1"
+              sx={{ color: "text.primary" }}
+            >
+              {t(URL_MAP[location.pathname as keyof typeof URL_MAP])}
             </Typography>
           </Stack>
           <MenuButton aria-label="menu" onClick={toggleDrawer(true)}>
@@ -80,23 +88,23 @@ export function CustomIcon() {
   return (
     <Box
       sx={{
-        width: '1.5rem',
-        height: '1.5rem',
-        bgcolor: 'black',
-        borderRadius: '999px',
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'center',
+        width: "1.5rem",
+        height: "1.5rem",
+        bgcolor: "black",
+        borderRadius: "999px",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        alignSelf: "center",
         backgroundImage:
-          'linear-gradient(135deg, hsl(210, 98%, 60%) 0%, hsl(210, 100%, 35%) 100%)',
-        color: 'hsla(210, 100%, 95%, 0.9)',
-        border: '1px solid',
-        borderColor: 'hsl(210, 100%, 55%)',
-        boxShadow: 'inset 0 2px 5px rgba(255, 255, 255, 0.3)',
+          "linear-gradient(135deg, hsl(210, 98%, 60%) 0%, hsl(210, 100%, 35%) 100%)",
+        color: "hsla(210, 100%, 95%, 0.9)",
+        border: "1px solid",
+        borderColor: "hsl(210, 100%, 55%)",
+        boxShadow: "inset 0 2px 5px rgba(255, 255, 255, 0.3)",
       }}
     >
-      <DashboardRoundedIcon color="inherit" sx={{ fontSize: '1rem' }} />
+      <DashboardRoundedIcon color="inherit" sx={{ fontSize: "1rem" }} />
     </Box>
   );
 }

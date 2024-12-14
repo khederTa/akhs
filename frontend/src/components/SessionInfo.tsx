@@ -46,12 +46,10 @@ const SessionInfo = ({
       .then((response) => {
         const serviceproviders = response.data;
         console.log({ serviceproviders });
-        const activeServiceProvider = serviceproviders.filter(
-          (item: any) => {
-            console.log(item);
-            return item.Volunteer.active_status === "active";
-          }
-        );
+        const activeServiceProvider = serviceproviders.filter((item: any) => {
+          console.log(item);
+          return item.Volunteer.active_status === "active";
+        });
         setServiceProviders(
           activeServiceProvider.map((provider: any) => ({
             label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position?.name}`,
@@ -160,7 +158,11 @@ const SessionInfo = ({
           <TextField
             id="startTime"
             type="time"
-            value={startTime || dayjs(startTime).format("HH:mm")}
+            value={
+              (startTime &&
+                `${startTime.split(":")[0]}:${startTime.split(":")[1]}`) ||
+              dayjs(startTime).format("HH:mm")
+            }
             onChange={(e) => {
               const val = e.target.value;
               if (
@@ -183,7 +185,11 @@ const SessionInfo = ({
           <TextField
             id="endTime"
             type="time"
-            value={endTime || dayjs(endTime).format("HH:mm")}
+            value={
+              (endTime &&
+                `${endTime.split(":")[0]}:${endTime.split(":")[1]}`) ||
+              dayjs(endTime).format("HH:mm")
+            }
             onChange={(e) => {
               const val = e.target.value;
               if (
