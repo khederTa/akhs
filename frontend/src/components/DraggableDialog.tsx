@@ -68,7 +68,7 @@ export default function DraggableDialog({
       setTypedTextError(true);
       setTypedTextErrorMessage(t("please enter 'delete' to confirm"));
       isValid = false;
-    } else if (typedText !== t("delete")) {
+    } else if (typedText.toLowerCase() !== t("delete").toLowerCase()) {
       setTypedTextError(true);
       setTypedTextErrorMessage(t("the typed text must be 'delete'"));
       isValid = false;
@@ -134,7 +134,10 @@ export default function DraggableDialog({
               type="submit"
               onClick={validateInputs}
               color="error"
-              sx={{ backgroundColor: isLoading ? "grey.400" : "error.main", color: "white" }}
+              sx={{
+                backgroundColor: isLoading ? "grey.400" : "error.main",
+                color: "white",
+              }}
               disabled={isLoading}
               startIcon={
                 isLoading ? (

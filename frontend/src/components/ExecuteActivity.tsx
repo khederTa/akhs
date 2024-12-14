@@ -20,6 +20,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import AlertNotification from "./AlertNotification";
 import { usePermissionStore } from "../store/permissionStore";
 import dayjs from "dayjs";
+import { formatDate } from "../utils/dateUtils";
 type VolunteerRow = {
   id: number;
   fullName: string;
@@ -173,9 +174,11 @@ export default function ExecuteActivity() {
 
   const columns: GridColDef[] = useMemo(() => {
     const sessionColumns = sessions.map((session) => ({
-      
       field: `${session.sessionName}_${session.key}`, // Use the session name directly
-      headerName: (`${session.sessionName} in ${session.dateValue}` ),
+      headerName: t("sessionNameHeader", {
+        name: session.sessionName,
+        date: formatDate(session.dateValue),
+      }),
       width: 200,
       sortable: false,
       hideSortIcons: true,
@@ -394,8 +397,7 @@ export default function ExecuteActivity() {
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
-  console.log("sessions in excute activity is" , sessions);
-  
+  console.log("sessions in excute activity is", sessions);
 
   useEffect(() => {
     // Filter rows to include only the visible columns

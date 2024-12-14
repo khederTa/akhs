@@ -245,10 +245,14 @@
   "change": "تغيير",
   "progress": "التقدم",
   "activityOfTotal": "{{count}} من {{total}}",
+  "sessionNameHeader": "{{name}} في {{date}}",
   "activity module management": "وحدات النشاط",
   "activity report": "تقرير النشاط",
   "attended": "تم الحضور",
   "not attended": "لم يحضر",
-  "attendance table": "جدول الحضور"
+  "attendance table": "جدول الحضور",
+  "invited volunteers": "المطتوعين المدعوين",
+  "attended volunteers": "المتطوعين الذين حضروا",
+  "activity preview": "معاينة النشاط"
 
 }
