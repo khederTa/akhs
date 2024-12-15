@@ -21,4 +21,5 @@ export const URL_MAP = {
   "/invited-volunteer": "edit activity",
   "/invited-volunteer-report": "invited volunteer reports",
   "/volunteer-page": "invite volunteers",
+  "/activity-report": "activity report"
 };
