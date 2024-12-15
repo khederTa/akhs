@@ -45,7 +45,7 @@ const ServiceProvider = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [address, setAddress] = useState<number | null>(null);
-
+  const [users, setUsers] = useState([]);
   const [addressId, setAddressId] = useState<number | null>(null);
   const [newAddress, setNewAddress] = useState<number | any>(null);
   const [fileId, setFileId] = useState<number | null>(null);
@@ -717,11 +717,17 @@ const ServiceProvider = () => {
       },
       {
         field: "actions",
-        headerName: t("action"),
+        headerName: t("actions"),
         type: "actions",
         width: 250,
         getActions: ({ id }) => {
           const isInEditMode = rowModesModel[id]?.mode === "edit";
+          const isUser = users.find(
+            (user: { providerId: number }) => user.providerId === id
+          )
+            ? true
+            : false;
+
           return [
             !isInEditMode && (
               <Tooltip title={t("edit")}>
@@ -732,7 +738,7 @@ const ServiceProvider = () => {
                 />
               </Tooltip>
             ),
-            !isInEditMode && (
+            !isInEditMode && !isUser && (
               <Tooltip title={t("promote")}>
                 <GridActionsCellItem
                   icon={<PersonAddAlt1RoundedIcon />}
@@ -805,6 +811,7 @@ const ServiceProvider = () => {
       newBdate,
       handleDateFilterChange,
       rowModesModel,
+      users,
       rows,
       handleEditClick,
       handleOpenPromoteDialog,
@@ -814,6 +821,24 @@ const ServiceProvider = () => {
     ]
   );
   useEffect(() => {
+    async function fetchUserData() {
+      try {
+        const response = await axios.get("/user");
+        if (response.status === 200) {
+          const userRows = response.data.map((user: any) => {
+            return {
+              providerId: user?.ServiceProvider?.providerId,
+            };
+          });
+          setUsers(userRows);
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
     async function fetchServiceProviders() {
       setIsLoading(true);
       try {
@@ -849,6 +874,7 @@ const ServiceProvider = () => {
       }
     }
     fetchServiceProviders();
+    fetchUserData();
   }, []);
   // Handle row edit
 
@@ -1009,13 +1035,6 @@ const ServiceProvider = () => {
             koboSkill,
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
-          const providerResponse = await axios.put(
-            `/serviceprovider/${providerId}`,
-            {
-              positionId: updatedPositionId,
-              departmentId: updatedDepartmentId,
-            }
-          );
           const personResponse = await axios.put(`/person/${personId}`, {
             fname,
             lname,
@@ -1037,6 +1056,28 @@ const ServiceProvider = () => {
             addressId,
             fileId,
           });
+          if (personResponse.status !== 200) {
+            setAlertMessage("nationalNumber must be unique, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+
+            if (updatedFile) {
+              handleFileUpload(oldRow.file);
+            }
+
+            return oldRow;
+          }
+          const providerResponse = await axios.put(
+            `/serviceprovider/${providerId}`,
+            {
+              positionId: updatedPositionId,
+              departmentId: updatedDepartmentId,
+            }
+          );
+
           if (
             providerResponse.status === 200 &&
             personResponse.status === 200
@@ -1085,7 +1126,18 @@ const ServiceProvider = () => {
           };
         } catch (error) {
           console.error("Error updating row:", error);
-          throw error;
+          setAlertMessage("nationalNumber must be unique, please try again");
+          setAlertSeverity("error");
+          setAlertOpen(true);
+          const oldRow: any = rows.find(
+            (row: any) => row.userId === updatedRow.userId
+          );
+
+          if (updatedFile) {
+            handleFileUpload(oldRow.file);
+          }
+
+          return oldRow;
         }
       } else if (action === "cancel") {
         const oldRow: any = rows.find(

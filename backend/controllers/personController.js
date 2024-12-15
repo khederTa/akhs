@@ -1,4 +1,5 @@
-const { Person , Address } = require("../models");
+const { Person, Address } = require("../models");
+const { Op } = require("sequelize");
 
 exports.getAllPersons = async (req, res) => {
   const persons = await Person.findAll();
@@ -35,7 +36,9 @@ exports.createPerson = async (req, res) => {
     res.status(201).json(person);
   } catch (error) {
     console.error("Error creating person:", error);
-    res.status(500).json({ error: "An error occurred while creating the person" });
+    res
+      .status(500)
+      .json({ error: "An error occurred while creating the person" });
   }
 };
 
@@ -45,8 +48,40 @@ exports.getPersonById = async (req, res) => {
 };
 
 exports.updatePerson = async (req, res) => {
-  await Person.update(req.body, { where: { id: req.params.id } });
-  res.json({ message: "Person updated" });
+  try {
+    const nationalNumber = req.body.nationalNumber;
+    const person = await Person.findAll({
+      where: { nationalNumber: nationalNumber, id: { [Op.ne]: req.params.id } },
+    });
+
+    if (person && person.length > 0) {
+      console.log(person  )
+      return res.status(400).json({
+        error: "ValidationError",
+        message: "nationalNumber must be unique", // Provides the exact message (e.g., "nationalNumber must be unique")
+        field: "nationalNumber", // Provides the field causing the error (e.g., "nationalNumber")
+      });
+    } else {
+      await Person.update(req.body, { where: { id: req.params.id } });
+      res.json({ message: "Person updated" });
+    }
+  } catch (error) {
+    console.error("Error creating user:", error);
+
+    // Handle Sequelize unique constraint errors
+    if (error.name === "SequelizeUniqueConstraintError") {
+      return res.status(400).json({
+        error: "ValidationError",
+        message: error.errors[0].message, // Provides the exact message (e.g., "nationalNumber must be unique")
+        field: error.errors[0].path, // Provides the field causing the error (e.g., "nationalNumber")
+      });
+    }
+
+    // Handle other errors
+    res.status(500).json({
+      error: "An error occurred while creating the user",
+    });
+  }
 };
 
 exports.deletePerson = async (req, res) => {

@@ -253,6 +253,16 @@
   "attendance table": "جدول الحضور",
   "invited volunteers": "المطتوعين المدعوين",
   "attended volunteers": "المتطوعين الذين حضروا",
-  "activity preview": "معاينة النشاط"
+  "activity preview": "معاينة النشاط",
+  "nationalNumber must be unique, please try again": "الرقم الوطني موجود مسبقاً، يرجى المحاولة مرة أخرى",
+  "national number is required, please try again": "حقل الرقم الوطني مطلوب، يرجي المحاولة مرة أخرى",
+  "service provider updated successfully": "تم تعديل بيانات مزود الخدمة بنجاح",
+  "user updated successfully": "تم تعديل بيانات المستخدم بنجاح",
+  "upload CV": "ارفع السيرة الذاتية",
+  "download CV": "تحميل السيرة الذاتية"
+
+
+
+
 
 }

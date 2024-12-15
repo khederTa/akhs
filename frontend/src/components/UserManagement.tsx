@@ -12,7 +12,7 @@ import Paper from "@mui/material/Paper";
 import { Stack, Tooltip } from "@mui/material";
 
 import { Loading } from "./Loading";
-import LockOpenIcon from '@mui/icons-material/LockOpen';
+import LockOpenIcon from "@mui/icons-material/LockOpen";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
@@ -1162,18 +1162,6 @@ export function UserManagement() {
             koboSkill,
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
-
-          const userRes = await axios.put(`/user/${userId}`, {
-            roleId: updatedRoleId,
-          });
-
-          const providerRes = await axios.put(
-            `/serviceprovider/${providerId}`,
-            {
-              positionId: updatedPositionId,
-              departmentId: updatedDepartmentId,
-            }
-          );
           const personRes = await axios.put(`/person/${personId}`, {
             fname,
             lname,
@@ -1195,6 +1183,33 @@ export function UserManagement() {
             addressId,
             fileId,
           });
+
+          if (personRes.status !== 200) {
+            setAlertMessage("nationalNumber must be unique, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+
+            if (updatedFile) {
+              handleFileUpload(oldRow.file);
+            }
+
+            return oldRow;
+          }
+          const userRes = await axios.put(`/user/${userId}`, {
+            roleId: updatedRoleId,
+          });
+
+          const providerRes = await axios.put(
+            `/serviceprovider/${providerId}`,
+            {
+              positionId: updatedPositionId,
+              departmentId: updatedDepartmentId,
+            }
+          );
+
           console.log({ userRes, providerRes, personRes });
           if (
             userRes.status === 200 &&
@@ -1251,7 +1266,18 @@ export function UserManagement() {
           };
         } catch (error) {
           console.error("Error updating row:", error);
-          throw error;
+          setAlertMessage("nationalNumber must be unique, please try again");
+          setAlertSeverity("error");
+          setAlertOpen(true);
+          const oldRow: any = rows.find(
+            (row: any) => row.userId === updatedRow.userId
+          );
+
+          if (updatedFile) {
+            handleFileUpload(oldRow.file);
+          }
+
+          return oldRow;
         }
       } else if (action === "cancel") {
         const oldRow: any = rows.find(

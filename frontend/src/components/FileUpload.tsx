@@ -8,6 +8,7 @@ import {
   List,
   ListItem,
   ListItemText,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import {
@@ -115,10 +116,12 @@ const FileUpload = ({
   return (
     <>
       {mode === "edit" ? (
-        <IconButton component="label">
-          <UploadFileIcon />
-          <input type="file" hidden onChange={handleFileChange} />
-        </IconButton>
+        <Tooltip title={t("upload CV")}>
+          <IconButton component="label">
+            <UploadFileIcon />
+            <input type="file" hidden onChange={handleFileChange} />
+          </IconButton>
+        </Tooltip>
       ) : (
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
           <Button

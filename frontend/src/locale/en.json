@@ -254,5 +254,11 @@
   "attendance table": "Attendance Table",
   "invited volunteers": "Invited Volunteers",
   "attended volunteers": "Attended Volunteers",
-  "activity preview": "Activity Preview"
+  "activity preview": "Activity Preview",
+  "nationalNumber must be unique, please try again": "National Number must be unique, please try again",
+  "national number is required, please try again": "National Number is required, please try again",
+  "service provider updated successfully": "Service provider updated successfully",
+  "user updated successfully": "User updated successfully",
+  "upload CV": "Upload CV",
+  "download CV": "Dwnload CV"
 }

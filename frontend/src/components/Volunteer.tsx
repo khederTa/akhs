@@ -973,13 +973,6 @@ const Volunteer = () => {
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
           // Update volunteer data
-          const volunteerResponse = await axios.put(
-            `/volunteer/${volunteerId}`,
-            {
-              active_status,
-            }
-          );
-
           // Update person data
           const personResponse = await axios.put(`/person/${personId}`, {
             fname,
@@ -1002,6 +995,26 @@ const Volunteer = () => {
             addressId,
             fileId,
           });
+          if (personResponse.status !== 200) {
+            setAlertMessage("nationalNumber must be unique, please try again");
+            setAlertSeverity("error");
+            setAlertOpen(true);
+            const oldRow: any = rows.find(
+              (row: any) => row.userId === updatedRow.userId
+            );
+
+            if (updatedFile) {
+              handleFileUpload(oldRow.file);
+            }
+
+            return oldRow;
+          }
+          const volunteerResponse = await axios.put(
+            `/volunteer/${volunteerId}`,
+            {
+              active_status,
+            }
+          );
 
           if (
             volunteerResponse.status === 200 &&
@@ -1050,8 +1063,18 @@ const Volunteer = () => {
           }
         } catch (error) {
           console.error("Error updating row:", error);
-          setAlertMessage("failed to update volunteer");
+          setAlertMessage("nationalNumber must be unique, please try again");
           setAlertSeverity("error");
+          setAlertOpen(true);
+          const oldRow: any = rows.find(
+            (row: any) => row.userId === updatedRow.userId
+          );
+
+          if (updatedFile) {
+            handleFileUpload(oldRow.file);
+          }
+
+          return oldRow;
         } finally {
           setAlertOpen(true);
         }

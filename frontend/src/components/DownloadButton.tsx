@@ -1,6 +1,7 @@
 import React from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip } from "@mui/material";
 import { SaveAlt as SaveAltIcon } from "@mui/icons-material";
+import { useTranslation } from "react-i18next";
 
 type DownloadButtonProps = {
   fileBinary: number[] | null;
@@ -11,6 +12,7 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   fileBinary,
   fileName,
 }) => {
+  const { t } = useTranslation();
   const handleDownload = () => {
     if (!fileBinary || fileBinary.length === 0) {
       console.error("No file data available for download.");
@@ -39,12 +41,14 @@ const DownloadButton: React.FC<DownloadButtonProps> = ({
   };
 
   return (
-    <IconButton
-      onClick={handleDownload}
-      disabled={!fileBinary || fileBinary.length === 0}
-    >
-      <SaveAltIcon />
-    </IconButton>
+    <Tooltip title={t("download CV")}>
+      <IconButton
+        onClick={handleDownload}
+        disabled={!fileBinary || fileBinary.length === 0}
+      >
+        <SaveAltIcon />
+      </IconButton>
+    </Tooltip>
   );
 };
 
