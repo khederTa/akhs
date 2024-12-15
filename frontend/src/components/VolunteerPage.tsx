@@ -21,6 +21,7 @@ import { DirectionContext } from "../shared-theme/AppTheme";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import SaveIcon from "@mui/icons-material/Save";
+import AlertNotification from "./AlertNotification";
 export default function VolunteerPage() {
   const [rows, setRows] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -29,6 +30,14 @@ export default function VolunteerPage() {
   const paginationModel = { page: 0, pageSize: 5 };
   const navigate = useNavigate();
   const [getEligible, setGetEligible] = useState(true);
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
 
   // Zustand store session state management
   const {
@@ -598,7 +607,6 @@ export default function VolunteerPage() {
   const handleSubmit = async (event: any) => {
     event.preventDefault();
     console.log({ sessions });
-    if (selectedRowsIds.length === 0) return;
     const processedSessions = sessions.map((session) => ({
       ...session,
       dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
@@ -623,11 +631,21 @@ export default function VolunteerPage() {
       },
     };
     console.log({ payload });
-    const response = await axios.post("/activity", payload);
-    console.log(response);
 
-    if (response.status === 200) {
-      navigate("/activity-management");
+    if (selectedRowsIds.length > 0) {
+      const response = await axios.post("/activity", payload);
+      console.log(response);
+
+      if (response.status === 200) {
+        navigate("/activity-management");
+        setAlertMessage("the activity is created successfully");
+        setAlertSeverity("success");
+        setAlertOpen(true);
+      }
+    } else {
+      setAlertMessage("you should invite at least one volunteer");
+      setAlertSeverity("error");
+      setAlertOpen(true);
     }
   };
   return (
@@ -636,6 +654,12 @@ export default function VolunteerPage() {
         <Loading />
       ) : (
         <>
+          <AlertNotification
+            open={alertOpen}
+            message={alertMessage}
+            severity={alertSeverity}
+            onClose={handleAlertClose}
+          />
           {/* <Typography variant="h4">Volunteer Information</Typography>
           <Typography variant="body1">Activity Title: {title}</Typography>
           <Typography variant="body1">Department: {department.name}</Typography>

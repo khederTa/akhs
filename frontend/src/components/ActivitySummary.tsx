@@ -18,6 +18,7 @@ import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useTranslation } from "react-i18next";
+import AlertNotification from "./AlertNotification";
 type ItemType = {
   id: number;
   name: string;
@@ -90,6 +91,14 @@ export default function ActivitySummary() {
     setMode: state.setMode,
     setActivityData: state.setActivityData,
   }));
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
   // const defaultActivityData: ActivityData = {
   //   id: 0,
   //   numSessions: 0,
@@ -280,7 +289,11 @@ export default function ActivitySummary() {
     if (numSessions > 0) {
       navigate("/volunteer-page");
       console.log("number of sessions after accept is in create", numSessions);
-    } else alert("there is no sessions add new one");
+    } else {
+      setAlertMessage("there is no sessions add new one");
+      setAlertSeverity("error");
+      setAlertOpen(true);
+    }
   }, [navigate, numSessions, sessions]);
 
   const handleEditNext = useCallback(() => {
@@ -290,7 +303,9 @@ export default function ActivitySummary() {
       console.log("number of sessions after accept is in edit", numSessions);
     } else {
       console.log("add new session when editing", numSessions);
-
+      setAlertMessage("there is no sessions");
+      setAlertSeverity("error");
+      setAlertOpen(true);
       alert("there is no sessions");
     }
   }, [navigate, numSessions]);
@@ -309,6 +324,12 @@ export default function ActivitySummary() {
     <Loading />
   ) : (
     <>
+      <AlertNotification
+        open={alertOpen}
+        message={alertMessage}
+        severity={alertSeverity}
+        onClose={handleAlertClose}
+      />
       {/* <Typography variant="h4">{t("activity summary")}</Typography> */}
 
       <Box

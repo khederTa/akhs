@@ -181,7 +181,9 @@ export default function MainGrid() {
             rows={rows}
             columns={columns}
             // processRowUpdate={handleProcessRowUpdate}
-            initialState={{ pagination: { paginationModel } }}
+            initialState={{ pagination: { paginationModel } ,    sorting: {
+              sortModel: [{ field: "id", sort: "desc" }], // Default sorting model
+          }, }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
             getRowId={(row: any) => row.id} // Ensure the correct row ID is used
