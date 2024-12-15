@@ -1,21 +1,16 @@
-import React from 'react'
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
-import {
-  DataGrid,
-  GridColDef,
-  GridRenderCellParams,
-  GridRowModel,
-} from "@mui/x-data-grid";
-import { useLocation, useNavigate } from "react-router-dom";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { useLocation } from "react-router-dom";
 import axios from "../utils/axios";
 import useSessionStore from "../store/activityStore";
 import { useTranslation } from "react-i18next";
 import FilterHeader from "./FilterHeader";
-import { Box, Button, Paper } from "@mui/material";
+import { Paper } from "@mui/material";
 import GridCustomToolbar from "./GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-import AlertNotification from "./AlertNotification";
-import { usePermissionStore } from "../store/permissionStore";
+// import AlertNotification from "./AlertNotification";
+// import { usePermissionStore } from "../store/permissionStore";
 import dayjs from "dayjs";
 
 const AttendedVolunteerReport = () => {
@@ -27,19 +22,11 @@ const AttendedVolunteerReport = () => {
   const paginationModel = { page: 0, pageSize: 5 };
   const location = useLocation();
   const [rows, setRows] = useState<VolunteerRow[]>([]);
-  const [activityId, setActivityId] = useState();
-  const { userRole } = usePermissionStore((state) => state);
+  // const [activityId, setActivityId] = useState();
+  // const { userRole } = usePermissionStore((state) => state);
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
-  const [alertOpen, setAlertOpen] = useState(false);
-  const [alertMessage, setAlertMessage] = useState("");
-  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
-    "success"
-  );
-  const handleAlertClose = () => {
-    setAlertOpen(false);
-  };
+
   const {
     filteredRows,
     sortModel,
@@ -63,7 +50,6 @@ const AttendedVolunteerReport = () => {
     title,
     setTitle,
     setDone,
-    minSessions,
     setNumSessions,
     setMinSessions,
     setDepartment,
@@ -95,7 +81,7 @@ const AttendedVolunteerReport = () => {
 
       if (response.status === 200) {
         const activityData = response.data;
-        setActivityId(response.data.id);
+        // setActivityId(response.data.id);
         setTitle(activityData.title);
         setDone(activityData.done);
         setNumSessions(activityData.numSessions);
@@ -170,18 +156,13 @@ const AttendedVolunteerReport = () => {
 
   const columns: GridColDef[] = useMemo(() => {
     const sessionColumns = sessions.map((session) => ({
-      
       field: `${session.sessionName}_${session.key}`, // Use the session name directly
-      headerName: (`${session.sessionName} in ${session.dateValue}` ),
+      headerName: `${session.sessionName} in ${session.dateValue}`,
       width: 200,
       sortable: false,
       hideSortIcons: true,
       renderCell: (params: GridRenderCellParams) => (
-        <input
-          type="checkbox"
-          checked={params.value || false}
-       
-        />
+        <input type="checkbox" checked={params.value || false} />
       ),
     }));
 
@@ -215,11 +196,7 @@ const AttendedVolunteerReport = () => {
         sortable: false,
         hideSortIcons: true,
         renderCell: (params: GridRenderCellParams) => (
-          <input
-            type="checkbox"
-            checked={params.value || false}
-         
-          />
+          <input type="checkbox" checked={params.value || false} />
         ),
       },
       {
@@ -228,7 +205,6 @@ const AttendedVolunteerReport = () => {
         width: 300,
         sortable: false,
         hideSortIcons: true,
-       
       },
     ];
   }, [
@@ -237,15 +213,11 @@ const AttendedVolunteerReport = () => {
     filterVisibility,
     handleSortClick,
     handleTextFilterChange,
-    minSessions,
-    rows,
     sessions,
     setFilterVisibility,
     sortModel,
     t,
   ]);
-
-
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
@@ -258,8 +230,7 @@ const AttendedVolunteerReport = () => {
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
-  console.log("sessions in excute activity is" , sessions);
-  
+  console.log("sessions in excute activity is", sessions);
 
   useEffect(() => {
     // Filter rows to include only the visible columns
@@ -304,19 +275,18 @@ const AttendedVolunteerReport = () => {
 
   return (
     <>
-      <AlertNotification
+      {/* <AlertNotification
         open={alertOpen}
         message={alertMessage}
         severity={alertSeverity}
         onClose={handleAlertClose}
-      />
+      /> */}
       <h2>{title}</h2>
       <Paper sx={{ height: 500, width: "100%" }}>
         <DataGrid
           rows={filteredRows}
           getRowId={(row) => row.id} // Ensure the correct row ID is used
           columns={columns}
-          
           disableColumnFilter
           disableColumnMenu
           localeText={{
@@ -348,9 +318,8 @@ const AttendedVolunteerReport = () => {
           disableRowSelectionOnClick
         />
       </Paper>
-   
     </>
   );
-}
+};
 
-export default AttendedVolunteerReport
+export default AttendedVolunteerReport;

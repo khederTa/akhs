@@ -245,7 +245,7 @@
   "new password": "New Password",
   "change": "Change",
   "progress": "Progress",
-  "activityOfTotal": "{{count}} of {{total}}",
+  "activityOfTotal": "{{total}} of {{count}}",
   "sessionNameHeader": "{{name}} on {{date}}",
   "activity module management": "Activity Modules",
   "activity report": "Activity Report",

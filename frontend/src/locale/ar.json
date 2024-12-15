@@ -244,7 +244,7 @@
   "new password": "كلمة المرور الجديدة",
   "change": "تغيير",
   "progress": "التقدم",
-  "activityOfTotal": "{{count}} من {{total}}",
+  "activityOfTotal": "{{total}} من {{count}}",
   "sessionNameHeader": "{{name}} في {{date}}",
   "activity module management": "وحدات النشاط",
   "activity report": "تقرير النشاط",
