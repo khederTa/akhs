@@ -65,7 +65,7 @@ const Activity = () => {
     {
       field: "id",
       headerName: t("id"),
-      minWidth: 100,
+      minWidth: 125,
       sortable: true,
       editable: false,
     },
@@ -178,7 +178,7 @@ const Activity = () => {
     {
       field: "NumberOfFemales",
       headerName: t("Number Of Females"),
-      minWidth: 180,
+      minWidth: 150,
     },
     {
       field: "actions",

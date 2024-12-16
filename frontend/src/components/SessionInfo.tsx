@@ -149,7 +149,7 @@ const SessionInfo = ({
             renderInput={(params) => (
               <TextField {...params} variant="standard" />
             )}
-            sx={{ maxWidth: 250 }}
+            sx={{ maxWidth: 250, minWidth: 150 }}
           />
         </Stack>
 

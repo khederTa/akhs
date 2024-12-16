@@ -265,5 +265,11 @@
   "filter": "Filter",
   "sort": "Sort",
   "creating new user": "Creating New User...",
-  "your file size must be 2MB or less": "Your file size must be 2MB or less"
+  "your file size must be 2MB or less": "Your file size must be 2MB or less", 
+  "Number Of Attended Activity": "Number Of Attended Activity",
+  "Number Of Males": "Number Of Males",
+  "Number Of Females": "Number Of Females",
+  "end time must be after start time": "End Time must be after Start Time",
+  "start time must be before end time": "Start Time must be before End Time"
+
 }

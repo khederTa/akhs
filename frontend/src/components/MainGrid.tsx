@@ -34,7 +34,7 @@ export default function MainGrid() {
     {
       field: "id",
       headerName: t("id"),
-      minWidth: 100,
+      minWidth: 125,
       sortable: true,
       editable: false,
     },
@@ -51,12 +51,12 @@ export default function MainGrid() {
     {
       field: "numSessions",
       headerName: t("numSessions"),
-      minWidth: 150,
+      minWidth: 200,
     },
     {
       field: "minSessions",
       headerName: t("minSessions"),
-      minWidth: 150,
+      minWidth: 200,
     },
     {
       field: "startDate",
@@ -103,8 +103,8 @@ export default function MainGrid() {
         const filteredActivivty = activities.filter((activity: any) => {
           return !activity.done;
         });
-        console.log("activivtys is", activities);
-        console.log("filtered activivty is", filteredActivivty);
+        // console.log("activivtys is", activities);
+        // console.log("filtered activivty is", filteredActivivty);
 
         // Fetch volunteer attended activity data for each activity
         const activityRows: any = filteredActivivty.map((activity: any) => {
@@ -150,7 +150,7 @@ export default function MainGrid() {
       value: activity?.length || 0,
     },
   ];
-  console.log("user is", users);
+  // console.log("user is", users);
 
   return loading ? (
     <Loading />
