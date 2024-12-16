@@ -609,7 +609,7 @@ export default function VolunteerPage() {
     console.log({ sessions });
     const processedSessions = sessions.map((session) => ({
       ...session,
-      dateValue: dayjs(session.dateValue.$d).format("YYYY-MM-DD hh:mm:ss"),
+      dateValue: dayjs(session.dateValue).format("YYYY-MM-DD hh:mm:ss"),
       startTime: session.startTime,
       endTime: session.endTime,
     }));

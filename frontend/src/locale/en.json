@@ -260,5 +260,6 @@
   "service provider updated successfully": "Service provider updated successfully",
   "user updated successfully": "User updated successfully",
   "upload CV": "Upload CV",
-  "download CV": "Dwnload CV"
+  "download CV": "Dwnload CV",
+  "you should invite at least one volunteer": "You should invite at least one volunteer"
 }

@@ -44,6 +44,7 @@ export default function ActivitySummary() {
   const [loading, setLoading] = useState(true);
   // Zustand store session state management
   const {
+    hallName,
     numSessions,
     minSessions,
     sessions,
@@ -442,7 +443,7 @@ export default function ActivitySummary() {
                 // setTrainers={(value: any) =>
                 //   updateSession(session.key, "trainers", value)
                 // }
-                hallName={session.hallName}
+                hallName={mode === "edit" ? session.hallName : hallName}
                 setHallName={(value: any) =>
                   updateSession(session.key, "hallName", value)
                 }
