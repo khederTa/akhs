@@ -298,6 +298,32 @@ export default function ActivitySummary() {
   }, [navigate, numSessions, sessions]);
 
   const handleEditNext = useCallback(() => {
+    // Helper function to validate if a single session is complete
+    const isSessionComplete = (session: any) => {
+      return (
+        session.sessionName.trim() !== "" &&
+        session.serviceProviders.length > 0 &&
+        // session.trainers.length > 0 &&
+        session.hallName.trim() !== "" &&
+        session.dateValue &&
+        session.startTime &&
+        session.endTime
+      );
+    };
+
+    // Find incomplete sessions
+    const incompleteSessions = sessions.filter(
+      (session) => !isSessionComplete(session)
+    );
+
+    if (incompleteSessions.length > 0) {
+      // Display an alert with specific feedback if there are any incomplete sessions
+      alert(
+        `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
+      );
+      return; // Prevent navigation if any session is incomplete
+    }
+
     // If all sessions are complete, navigate to the next page
     if (numSessions > 0) {
       navigate("/invited-volunteer");
@@ -309,7 +335,7 @@ export default function ActivitySummary() {
       setAlertOpen(true);
       alert("there is no sessions");
     }
-  }, [navigate, numSessions]);
+  }, [navigate, numSessions,  sessions]);
 
   const handleChangeDepartment = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
