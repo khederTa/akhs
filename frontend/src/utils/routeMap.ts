@@ -5,7 +5,7 @@ export const URL_MAP = {
   "/activity-management": "activity management",
   "/activity-information": "activiy information",
   "/activity-modules": "activity module management",
-  "/new-activity-module": "create new activiy module",
+  "/new-activity-module": "create new activiy type",
   "/packages": "package management",
   "/new-package": "create new package",
   "/position": "position management",

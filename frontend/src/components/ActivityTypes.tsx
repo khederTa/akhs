@@ -386,7 +386,7 @@ export function ActivityTypes() {
       {
         field: "description",
         headerName: t("description"),
-        minWidth: 200,
+        minWidth: 300,
         sortable: false,
         hideSortIcons: true,
         editable: true,
@@ -429,7 +429,7 @@ export function ActivityTypes() {
         field: "actions",
         headerName: t("actions"),
         type: "actions",
-        width: 150,
+        minWidth: 150,
         getActions: (params: any) => {
           const isInEditMode = rowModesModel[params.id]?.mode === "edit";
 

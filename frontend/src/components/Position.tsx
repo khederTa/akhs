@@ -87,7 +87,7 @@ const Position = () => {
   // }, []);
   const columns: GridColDef[] = useMemo(
     () => [
-      { field: "id", headerName: t("id"), width: 200 },
+      { field: "id", headerName: t("id"), minWidth: 100 },
       {
         field: "name",
         headerName: t("name"),
@@ -112,7 +112,7 @@ const Position = () => {
       {
         field: "description",
         headerName: t("description"),
-        minWidth: 200,
+        minWidth: 300,
         sortable: false,
         hideSortIcons: true,
         editable: true,
@@ -134,7 +134,7 @@ const Position = () => {
         field: "actions",
         headerName: t("actions"),
         type: "actions",
-        width: 150,
+        minWidth: 150,
         getActions: (params) => {
           const isInEditMode = rowModesModel[params.id]?.mode === "edit";
 

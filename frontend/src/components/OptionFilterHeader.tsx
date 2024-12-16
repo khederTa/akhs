@@ -10,6 +10,7 @@ import {
   DialogContent,
   DialogActions,
   Button,
+  Tooltip,
 } from "@mui/material";
 import GridArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
@@ -69,21 +70,25 @@ function OptionFilterHeader({
   return (
     <Box display="flex" alignItems="center" gap={1}>
       <span>{t(field)}</span>
-      <IconButton size="small" onClick={() => handleSortClick(field)}>
-        {sortModel.field === field && sortModel.direction === "asc" ? (
-          <GridArrowUpwardIcon fontSize="small" />
-        ) : (
-          <ArrowDownwardIcon fontSize="small" />
-        )}
-      </IconButton>
-      <IconButton
-        size="small"
-        onClick={() =>
-          setFilterVisibility((prev) => ({ ...prev, [field]: !prev[field] }))
-        }
-      >
-        {filterModel[field] ? <FilterListOffIcon /> : <FilterListIcon />}
-      </IconButton>
+      <Tooltip title={t("sort")}>
+        <IconButton size="small" onClick={() => handleSortClick(field)}>
+          {sortModel.field === field && sortModel.direction === "asc" ? (
+            <GridArrowUpwardIcon fontSize="small" />
+          ) : (
+            <ArrowDownwardIcon fontSize="small" />
+          )}
+        </IconButton>
+      </Tooltip>
+      <Tooltip title={t("filter")}>
+        <IconButton
+          size="small"
+          onClick={() =>
+            setFilterVisibility((prev) => ({ ...prev, [field]: !prev[field] }))
+          }
+        >
+          {filterModel[field] ? <FilterListOffIcon /> : <FilterListIcon />}
+        </IconButton>
+      </Tooltip>
 
       <Dialog
         open={filterVisibility[field]}

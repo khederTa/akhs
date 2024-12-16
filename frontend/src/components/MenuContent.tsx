@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import * as React from "react";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
@@ -86,6 +85,11 @@ export default function MenuContent() {
   const [selectedItemIndex, setSelectedItemIndex] = React.useState(
     mainListItems.findIndex((item) => item.to === location.pathname)
   );
+  React.useEffect(() => {
+    setSelectedItemIndex(
+      mainListItems.findIndex((item) => item.to === location.pathname)
+    );
+  }, [location.pathname]);
   const { permissions } = usePermissionStore((state) => state);
   const navigate = useNavigate();
   const { t } = useTranslation();

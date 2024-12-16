@@ -148,7 +148,7 @@ const CreateNewDepartment = () => {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? t("creating new department...") : t("create new department")}
+          {isLoading ? t("creating new department") : t("create new department")}
         </Button>
       </Box>
     </Card>

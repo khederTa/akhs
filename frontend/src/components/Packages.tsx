@@ -239,7 +239,7 @@ export function Packages() {
       field: "actions",
       headerName: t("actions"),
       type: "actions",
-      width: 150,
+      minWidth: 150,
       getActions: (params) => {
         const isInEditMode = rowModesModel[params.id]?.mode === "edit";
 

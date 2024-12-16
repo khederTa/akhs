@@ -41,6 +41,8 @@ export function CreateActivityType() {
 
   const [descriptionError, setDescriptionError] = useState(false);
   const [descriptionErrorMessage, setDescriptionErrorMessage] = useState("");
+  const [departmentError, setDepartmentError] = useState(false);
+  const [departmentErrorMessage, setDepartmentErrorMessage] = useState("");
 
   const [nameError, setNameError] = useState(false);
   const [nameErrorMessage, setNameErrorMessage] = useState("");
@@ -126,6 +128,15 @@ export function CreateActivityType() {
       setDescriptionError(false);
       setDescriptionErrorMessage("");
     }
+    if (!selectedDepartment) {
+      setDepartmentError(true);
+      setDepartmentErrorMessage("department field is required");
+      isValid = false;
+    } else {
+      setDescriptionError(false);
+      setDescriptionErrorMessage("");
+    }
+
     setIsValidInput(isValid);
     return isValid;
   };
@@ -197,7 +208,15 @@ export function CreateActivityType() {
             }}
             getOptionLabel={(option) => option.name || ""}
             defaultValue={selectedDepartment}
-            renderInput={(params) => <TextField {...params} />}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                error={departmentError}
+                helperText={t(departmentErrorMessage)}
+                color={departmentError ? "error" : "primary"}
+                required
+              />
+            )}
           />
         </Box>
         <Box>

@@ -261,5 +261,9 @@
   "user updated successfully": "User updated successfully",
   "upload CV": "Upload CV",
   "download CV": "Dwnload CV",
-  "you should invite at least one volunteer": "You should invite at least one volunteer"
+  "you should invite at least one volunteer": "You should invite at least one volunteer",
+  "filter": "Filter",
+  "sort": "Sort",
+  "creating new user": "Creating New User...",
+  "your file size must be 2MB or less": "Your file size must be 2MB or less"
 }

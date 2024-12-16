@@ -148,7 +148,7 @@ const CreateNewPosition = () => {
           variant="contained"
           onClick={validateInputs}
         >
-          {isLoading ? t("creating new position...") : t("create new position")}
+          {isLoading ? t("creating new position") : t("create new position")}
         </Button>
       </Box>
     </Card>

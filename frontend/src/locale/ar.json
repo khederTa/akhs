@@ -69,7 +69,7 @@
   "create new user": "إنشاء مستخدم جديد",
   "activity management": "إدارة الأنشطة",
   "activiy information": "معلومات المتطوع",
-  "create new activiy type": "إنشاء وحدة النشاط جديدةو",
+  "create new activiy type": "إنشاء وحدة نشاط جديدة",
   "packages": "الحزم",
   "create new package": "إنشاء حزمة جديدة",
   "creating new package": "يتم إنشاء حزمة جديدة",
@@ -154,11 +154,11 @@
   "no positions available": "لا يوجد مناصب وظيفية متوفرة",
   "no departments available": "لا يوجد أقسام متوفرة",
   "no roles available": "لا يوجد أدوار متوفرة",
-  "create new activity type": "إنشاء نوع نشاط جديد",
+  "create new activity type": "إنشاء وحدة نشاط جديدة",
   "activity type prerequisite": "اعتمادية وحدة النشاط",
   "Public Health": "الصحة العامة",
   "Public Health Description": "وصف عن الصحة العامة",
-  "creating new activity type...": "يتم إنشاء نوع نشاط جديد...",
+  "creating new activity type...": "يتم إنشاء وحدة نشاط جديدة...",
   "activity type name is required": "حقل اسم وحدة النشاط مطلوب",
   "description field is required": "حقل الوصف مطلوب",
   "package name is required": "حقل اسم الحزمة مطلوب",
@@ -260,7 +260,11 @@
   "user updated successfully": "تم تعديل بيانات المستخدم بنجاح",
   "upload CV": "ارفع السيرة الذاتية",
   "download CV": "تحميل السيرة الذاتية",
-  "you should invite at least one volunteer": "يجب دعوة متطوع واحد على الأقل"
+  "you should invite at least one volunteer": "يجب دعوة متطوع واحد على الأقل",
+  "sort": "ترتيب",
+  "filter": "تصفية",
+  "creating new user": "يتم إنشاء مستخدم جديد...",
+  "your file size must be 2MB or less": "يجب أن يكون حجم السيرة الذاتية 2 ميغا بايت أو أقل"
 
 
 
