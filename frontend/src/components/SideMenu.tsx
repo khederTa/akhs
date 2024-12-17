@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 import { styled } from "@mui/material/styles";
 import Avatar from "@mui/material/Avatar";
@@ -11,6 +10,7 @@ import MenuContent from "./MenuContent";
 import OptionsMenu from "./OptionsMenu";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useAuthStore } from "../store/auth";
+import { useColorScheme } from "@mui/material/styles";
 
 const drawerWidth = 240;
 
@@ -28,12 +28,12 @@ const Drawer = styled(MuiDrawer)({
 export default function SideMenu() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
   const username = useAuthStore((state) => state.allUserData?.username);
-
+  const { mode, systemMode } = useColorScheme();
+  console.log({ ColorMode: mode, systemMode });
   return (
     <Drawer
       variant="permanent"
       sx={{
-       
         display: { xs: "none", md: "block" },
         [`& .${drawerClasses.paper}`]: {
           backgroundColor: "background.paper",
@@ -49,7 +49,17 @@ export default function SideMenu() {
           p: 1.5,
         }}
       >
-        <img src={"/vite.svg"} width={"150px"} />
+        {mode === "system" ? (
+          systemMode === "light" ? (
+            <img src={"/Logo.svg"} width={"150px"} />
+          ) : (
+            <img src={"/Logo_Dark.svg"} width={"150px"} />
+          )
+        ) : mode === "light" ? (
+          <img src={"/Logo.svg"} width={"150px"} />
+        ) : (
+          <img src={"/Logo_Dark.svg"} width={"150px"} />
+        )}
       </Box>
       <Divider />
       <MenuContent />
