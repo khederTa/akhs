@@ -34,10 +34,12 @@ exports.createActivity = async (req, res) => {
   const { activityData, sessionsData, invitedVolunteersData } = req.body;
 
   const activity = await Activity.create(activityData);
-
   const activityId = activity.id;
 
-  sessionsData.sessions.map(async (sessionDate) => {
+  // Sort sessions by id from smallest to largest
+  const sortedSessions = sessionsData.sessions.sort((a, b) => a.id - b.id);
+
+  sortedSessions.map(async (sessionDate) => {
     const {
       // id,
       sessionName,
@@ -49,7 +51,7 @@ exports.createActivity = async (req, res) => {
       providerNames,
     } = sessionDate;
     const session = await Session.create({
-      // id:id,
+      // id: id,
       name: sessionName,
       hall_name: hallName,
       date: dateValue,
@@ -84,6 +86,7 @@ exports.createActivity = async (req, res) => {
 
   res.json({ message: "Activity Added" });
 };
+
 exports.getActivityById = async (req, res) => {
   try {
     const { id } = req.params;
