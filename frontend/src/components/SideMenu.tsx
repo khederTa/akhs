@@ -29,7 +29,6 @@ export default function SideMenu() {
   const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
   const username = useAuthStore((state) => state.allUserData?.username);
   const { mode, systemMode } = useColorScheme();
-  console.log({ ColorMode: mode, systemMode });
   return (
     <Drawer
       variant="permanent"
