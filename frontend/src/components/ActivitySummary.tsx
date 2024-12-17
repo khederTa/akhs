@@ -263,12 +263,13 @@ export default function ActivitySummary() {
     const isSessionComplete = (session: any) => {
       return (
         session.sessionName.trim() !== "" &&
-        session.serviceProviders.length > 0 &&
+        // session.serviceProviders.length > 0 &&
         // session.trainers.length > 0 &&
         session.hallName.trim() !== "" &&
         session.dateValue &&
         session.startTime &&
-        session.endTime
+        session.endTime &&
+        session.providerNames.length > 0
       );
     };
 
@@ -277,7 +278,11 @@ export default function ActivitySummary() {
       (session) => !isSessionComplete(session)
     );
 
-    if (incompleteSessions.length > 0) {
+    if (
+      incompleteSessions.length > 0 ||
+      title.length === 0 ||
+      startDate.length === 0
+    ) {
       // Display an alert with specific feedback if there are any incomplete sessions
 
       setAlertMessage(
@@ -297,7 +302,7 @@ export default function ActivitySummary() {
       setAlertSeverity("error");
       setAlertOpen(true);
     }
-  }, [navigate, numSessions, sessions]);
+  }, [navigate, numSessions, sessions, startDate.length, title.length]);
 
   const handleEditNext = useCallback(() => {
     // Helper function to validate if a single session is complete
@@ -309,7 +314,8 @@ export default function ActivitySummary() {
         session.hallName.trim() !== "" &&
         session.dateValue &&
         session.startTime &&
-        session.endTime
+        session.endTime &&
+        session.providerNames.length > 0
       );
     };
 
@@ -318,7 +324,11 @@ export default function ActivitySummary() {
       (session) => !isSessionComplete(session)
     );
 
-    if (incompleteSessions.length > 0) {
+    if (
+      incompleteSessions.length > 0 ||
+      title.length === 0 ||
+      startDate.length === 0
+    ) {
       // Display an alert with specific feedback if there are any incomplete sessions
       // alert(
       //   `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
@@ -342,7 +352,7 @@ export default function ActivitySummary() {
       setAlertOpen(true);
       // alert("there is no sessions");
     }
-  }, [navigate, numSessions, sessions]);
+  }, [navigate, numSessions, sessions, startDate.length, title.length]);
 
   const handleChangeDepartment = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
