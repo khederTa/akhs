@@ -44,7 +44,6 @@ export default function ActivitySummary() {
   const [loading, setLoading] = useState(true);
   // Zustand store session state management
   const {
-    hallName,
     numSessions,
     minSessions,
     sessions,
@@ -280,9 +279,12 @@ export default function ActivitySummary() {
 
     if (incompleteSessions.length > 0) {
       // Display an alert with specific feedback if there are any incomplete sessions
-      alert(
+
+      setAlertMessage(
         `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
       );
+      setAlertSeverity("error");
+      setAlertOpen(true);
       return; // Prevent navigation if any session is incomplete
     }
 
@@ -318,9 +320,14 @@ export default function ActivitySummary() {
 
     if (incompleteSessions.length > 0) {
       // Display an alert with specific feedback if there are any incomplete sessions
-      alert(
-        `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
+      // alert(
+      //   `Please complete all information for each session. You have ${incompleteSessions.length} session(s) with missing information.`
+      // );
+      setAlertMessage(
+        "there are some missing sessions' information, please complete all information for each session."
       );
+      setAlertSeverity("error");
+      setAlertOpen(true);
       return; // Prevent navigation if any session is incomplete
     }
 
@@ -333,9 +340,9 @@ export default function ActivitySummary() {
       setAlertMessage("there is no sessions");
       setAlertSeverity("error");
       setAlertOpen(true);
-      alert("there is no sessions");
+      // alert("there is no sessions");
     }
-  }, [navigate, numSessions,  sessions]);
+  }, [navigate, numSessions, sessions]);
 
   const handleChangeDepartment = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -469,7 +476,7 @@ export default function ActivitySummary() {
                 // setTrainers={(value: any) =>
                 //   updateSession(session.key, "trainers", value)
                 // }
-                hallName={mode === "edit" ? session.hallName : hallName}
+                hallName={session.hallName}
                 setHallName={(value: any) =>
                   updateSession(session.key, "hallName", value)
                 }

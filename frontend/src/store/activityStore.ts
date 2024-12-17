@@ -166,7 +166,8 @@ const useSessionStore = create<ActivityStore>((set) => ({
             sessionName: existingSession.sessionName || "",
             serviceProviders: existingSession.serviceProviders || [],
             trainers: existingSession.trainers || [],
-            hallName: existingSession.hallName || state.hallName,
+            hallName:
+              state.mode === "edit" ? existingSession.hallName : state.hallName,
             dateValue:
               (dayjs(state.startDate).isValid()
                 ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")

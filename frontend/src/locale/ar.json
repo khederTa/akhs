@@ -269,7 +269,11 @@
   "Number Of Males": "عدد الذكور الحضور",
   "Number Of Females": "عدد الإناث الحضور",
   "end time must be after start time": "وقت النهاية يجب أن يكون بعد وقت البداية",
-  "start time must be before end time": "وقت البداية يجب أن يكون قبل وقت النهاية"
+  "start time must be before end time": "وقت البداية يجب أن يكون قبل وقت النهاية",
+  "there is no sessions add new one": "يجب أن إنشاء جلسة واحدة على الأقل",
+  "there is no sessions": "يجب أن إنشاء جلسة واحدة على الأقل",
+  "there are some missing sessions' information, please complete all information for each session.": "هناك بعض المعلومات المفقودة عن الجلسات، يرجى استكمال كافة المعلومات لكل جلسة."
+
 
 
 

@@ -42,7 +42,8 @@ type PropsType = {
 export default function ActivityDraggableModal({ open, onClose }: PropsType) {
   const [activityTypes, setActivityTypes] = React.useState<ItemType[]>([]);
   const [departments, setDepartments] = React.useState<ItemType[]>([]);
-  const [selectedActivityModule, setSelectedActivityModule] = React.useState("");
+  const [selectedActivityModule, setSelectedActivityModule] =
+    React.useState("");
   const [selectedDepartment, setSelectedDepartment] = React.useState("");
   const navigate = useNavigate();
   const { t } = useTranslation();
@@ -59,6 +60,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     setStartDate,
     setDepartment,
     setActivityType,
+    setMode,
   } = useSessionStore((state) => ({
     hallName: state.hallName,
     setHallName: state.setHallName,
@@ -72,6 +74,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     setStartDate: state.setStartDate,
     setDepartment: state.setDepartment,
     setActivityType: state.setActivityType,
+    setMode: state.setMode,
   }));
 
   React.useEffect(() => {
@@ -97,6 +100,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     const activityModuleObject = activityTypes.find((act) => {
       return act.id === parseInt(selectedActivityModule);
     });
+    setMode("create");
     setDepartment(depObject);
     setActivityType(activityModuleObject);
     navigate("/activity-summary");
@@ -112,7 +116,7 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
       <DialogTitle style={{ cursor: "move" }} id="draggable-dialog-title">
         {t("create activity")}
       </DialogTitle>
-      <DialogContent sx={{minWidth: "300px"}}>
+      <DialogContent sx={{ minWidth: "300px" }}>
         <DialogContentText>
           {t("please fill out the form below to create a new activity.")}
         </DialogContentText>
