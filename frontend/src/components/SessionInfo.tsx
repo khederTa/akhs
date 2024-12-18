@@ -1,6 +1,7 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useMemo } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 import axios from "../utils/axios";
 import dayjs from "dayjs";
@@ -30,7 +31,7 @@ const SessionInfo = ({
   setEndTime,
 }: any) => {
   const { direction } = useContext(DirectionContext); // Get the current direction (ltr or rtl)
-  const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
+  // const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
   const { t } = useTranslation();
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -63,12 +64,14 @@ const SessionInfo = ({
       });
   }, []);
 
-  useEffect(() => {
-    const selectedProvider = serviceProviders.filter(
-      (serv: any) => serv.depId === parseInt(selectedDepartment)
+  const serviceProviderOptions = useMemo(() => {
+    return serviceProviders.filter(
+      (option: { value: any; depId: any }) =>
+        !providerNames.some(
+          (selected: { value: any }) => selected.value === option.value
+        ) && option.depId === parseInt(selectedDepartment)
     );
-    setSelectedServiceProvider(selectedProvider);
-  }, [serviceProviders, selectedDepartment]);
+  }, [providerNames, selectedDepartment, serviceProviders]);
 
   return (
     <>
@@ -142,9 +145,15 @@ const SessionInfo = ({
           <FormLabel>{t("service provider")}</FormLabel>
           <Autocomplete
             multiple
-            options={selectedServiceProvider || []}
-            value={Array.isArray(providerNames) ? providerNames : []}
-            onChange={(_event, newValue) => setProviderNames(newValue)}
+            options={serviceProviderOptions}
+            value={serviceProviders.filter((provider: { value: any }) =>
+              providerNames.some(
+                (selected: { value: any }) => selected.value === provider.value
+              )
+            )}
+            onChange={(_event, newValue) =>
+              setProviderNames(newValue.map((item) => ({ ...item })))
+            }
             getOptionLabel={(option) => option?.label || ""}
             renderInput={(params) => (
               <TextField {...params} variant="standard" />
