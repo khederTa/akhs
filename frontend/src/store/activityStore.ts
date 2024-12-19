@@ -2,6 +2,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { create } from "zustand";
 import dayjs from "dayjs";
+import isDateInFormat from "../utils/isDateInFormat";
 
 // Session type
 type SessionType = {
@@ -169,11 +170,13 @@ const useSessionStore = create<ActivityStore>((set) => ({
             hallName:
               state.mode === "edit" ? existingSession.hallName : state.hallName,
             dateValue:
-              (dayjs(state.startDate).isValid()
+              state.mode === "edit" || existingSession.dateValue
+                ? isDateInFormat(existingSession.dateValue, "YYYY-MM-DD")
+                  ? existingSession.dateValue
+                  : dayjs(existingSession.dateValue).format("YYYY-MM-DD")
+                : dayjs(state.startDate).isValid()
                 ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")
-                : "") ||
-              existingSession.dateValue ||
-              dayjs(existingSession.dateValue).format("YYYY-MM-DD"),
+                : "",
 
             providerNames: existingSession.providerNames || [],
             trainerName: existingSession.trainerName || [],
