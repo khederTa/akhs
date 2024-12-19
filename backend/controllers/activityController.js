@@ -461,11 +461,11 @@ exports.getCompletedActivity = async (req, res) => {
   try {
     const { id } = req.params;
     const completedActivity = await db.sequelize.query(
-      `SELECT DISTINCT * FROM activities as a
+      `SELECT DISTINCT a.id FROM activities as a
         JOIN activitytypes AS ats ON ats.id = a.activityTypeId
         JOIN VolunteerAttendedActivity AS vaa ON a.id = vaa.activityId
         WHERE vaa.volunteerId = ${id}
-          AND vaa.status = 'attended';`,
+          AND vaa.status = 'attended' and a.done = true;`,
       {
         type: QueryTypes.SELECT,
       }

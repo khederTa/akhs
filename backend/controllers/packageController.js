@@ -95,6 +95,7 @@ exports.deletePackage = async (req, res) => {
 exports.getCompletedPackages = async (req, res) => {
   try {
     const { id } = req.params;
+    console.log(id)
     const completedPackages = await db.sequelize.query(
       `SELECT DISTINCT p.*
         FROM akhs.packages AS p
@@ -108,7 +109,7 @@ exports.getCompletedPackages = async (req, res) => {
                   JOIN akhs.activities AS a ON ats.id = a.activityTypeId
                   JOIN akhs.volunteerattendedactivity AS vaa ON a.id = vaa.activityId
                   WHERE vaa.volunteerId = ${id}
-                    AND vaa.status = "attended"
+                    AND vaa.status = "attended" AND a.done = true
       )
       );
       `,
@@ -116,6 +117,7 @@ exports.getCompletedPackages = async (req, res) => {
         type: QueryTypes.SELECT,
       }
     );
+    console.log(completedPackages)
     const packages = await Package.findAll({
       include: {
         model: ActivityType,
@@ -132,7 +134,7 @@ exports.getCompletedPackages = async (req, res) => {
         JOIN activitytypes AS ats ON ats.id = a.activityTypeId
         JOIN VolunteerAttendedActivity AS vaa ON a.id = vaa.activityId
         WHERE vaa.volunteerId = ${id}
-          AND vaa.status = 'attended';`,
+          AND vaa.status = 'attended' and a.done = true;`,
       {
         type: QueryTypes.SELECT,
       }
