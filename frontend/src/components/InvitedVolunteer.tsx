@@ -172,11 +172,8 @@ const InvitedVolunteer = () => {
       addressId: volunteer?.Person?.Address?.id,
     }));
 
-    const handledRows = enrichedData.filter(
-      (vol: { active_status: string }) => vol.active_status === "active"
-    );
-    setRows(handledRows);
-    setFilteredRows(handledRows);
+    setRows(enrichedData);
+    setFilteredRows(enrichedData);
     setIsLoading(false);
   }, [
     activityData,

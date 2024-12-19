@@ -16,7 +16,6 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { useLocation } from "react-router-dom";
-
 // Register a font that supports Arabic
 Font.register({
   family: "Cairo",
@@ -39,6 +38,7 @@ export default function ActivityReport() {
   const [sessions, setSessions] = useState<any[]>([]);
   const [volunteers, setVolunteers] = useState<any[]>([]);
   const [activityTitle, setActivityTitle] = useState("");
+  const [requiredSessions, setRequiredSession] = useState("");
   const [startDate, setStartDate] = useState<string | null>(null);
   const [activityType, setActivityType] = useState<string>("");
   const [department, setDepartment] = useState<string>("");
@@ -57,7 +57,10 @@ export default function ActivityReport() {
     logo: {
       width: 100,
       margin: "0 auto",
-      marginTop: "-30px"
+      marginTop: "-30px",
+    },
+    cellImage: {
+      width: 10,
     },
     title: {
       fontSize: 18,
@@ -85,7 +88,7 @@ export default function ActivityReport() {
       fontWeight: 500,
       alignItems: "center",
       backgroundColor: "#ddd",
-      padding: 4,
+      padding: 2,
     },
   });
 
@@ -98,7 +101,8 @@ export default function ActivityReport() {
             axios.get("/department"),
             axios.get(`/activity/${location.state.id}`),
           ]);
-
+        // console.log(activityResponse.data)
+        setRequiredSession(activityResponse.data.minSessions);
         setActivityTitle(activityResponse.data.title);
         setStartDate(activityResponse.data.startDate);
         setActivityType(
@@ -185,6 +189,9 @@ export default function ActivityReport() {
           <Text style={styles.section}>{`${t("start date")}: ${formatDate(
             startDate
           )}`}</Text>
+          <Text style={styles.section}>{`${t(
+            "minSessions"
+          )}: ${requiredSessions}`}</Text>
           <View style={styles.table} key={0}>
             <View style={styles.row}>
               <Text style={[styles.cell, styles.header]}>
@@ -286,7 +293,7 @@ export default function ActivityReport() {
                 <View style={styles.table}>
                   <View style={styles.row}>
                     <Text style={[styles.cell, styles.header]}>
-                      {t("fullName")}
+                      {t("name")}
                     </Text>
                     {sessions.map((session) => (
                       <Text
@@ -297,7 +304,7 @@ export default function ActivityReport() {
                       </Text>
                     ))}
                     <Text style={[styles.cell, styles.header]}>
-                      {t("activity attended")}
+                      {t("done")}
                     </Text>
                     <Text style={[styles.cell, styles.header]}>
                       {t("notes")}
@@ -311,15 +318,25 @@ export default function ActivityReport() {
                           style={styles.cell}
                           key={`${session.id}_${volunteer.id}`}
                         >
-                          {volunteer[`${session.sessionName}_${session.id}`]
-                            ? t("attended")
-                            : t("not attended")}
+                          {volunteer[`${session.sessionName}_${session.id}`] ? (
+                            <Image
+                              src={"/check.png"}
+                              style={styles.cellImage}
+                            />
+                          ) : (
+                            <Image
+                              src={"/close.png"}
+                              style={styles.cellImage}
+                            />
+                          )}
                         </Text>
                       ))}
                       <Text style={styles.cell}>
-                        {volunteer.volunteerAttendedActivity
-                          ? t("yes")
-                          : t("no")}
+                        {volunteer.volunteerAttendedActivity ? (
+                          <Image src={"/check.png"} style={styles.cellImage} />
+                        ) : (
+                          <Image src={"/close.png"} style={styles.cellImage} />
+                        )}
                       </Text>
                       <Text style={styles.cell}>{volunteer.notes}</Text>
                     </View>
