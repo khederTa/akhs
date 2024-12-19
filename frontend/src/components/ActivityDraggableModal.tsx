@@ -81,7 +81,11 @@ export default function ActivityDraggableModal({ open, onClose }: PropsType) {
     const fetchData = async () => {
       try {
         const activityResponse = await axios.get("/activityType");
-        setActivityTypes(activityResponse.data);
+        const processedActivityType = activityResponse.data.filter(
+          (activityType: { active_status: string }) =>
+            activityType.active_status !== "inactive"
+        );
+        setActivityTypes(processedActivityType);
         const departmentResponse = await axios.get("/department");
         setDepartments(departmentResponse.data);
       } catch (error) {

@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import FormLabel from "@mui/material/FormLabel";
@@ -16,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import PasswordInput from "./PasswordInput";
 import { Loading } from "./Loading";
 import { usePermissionStore } from "../store/permissionStore";
+import { FormEvent, useContext, useState } from "react";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -56,12 +56,13 @@ const Card = styled(MuiCard)(({ theme }) => ({
 // }));
 
 export default function SignIn() {
-  const [emailError, setEmailError] = React.useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = React.useState("");
-  const [passwordError, setPasswordError] = React.useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = React.useState("");
-  // const [open, setOpen] = React.useState(false);
-  const { direction } = React.useContext(DirectionContext); // Use DirectionContext to toggle direction
+  const [emailError, setEmailError] = useState(false);
+  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
+  
+  // const [open, setOpen] =useState(false);
+  const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   // const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -74,7 +75,7 @@ export default function SignIn() {
   // if (isLoggedIn()) {
   //   navigate("/");
   // }
-  // React.useEffect(() => {
+  //useEffect(() => {
   // }, [isLoggedIn, navigate]);
 
   // const handleClickOpen = () => {
@@ -85,7 +86,7 @@ export default function SignIn() {
   //   setOpen(false);
   // };
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     setLoading(true);
@@ -95,12 +96,12 @@ export default function SignIn() {
       const password = data.get("password") as string;
       const response = await login(email, password);
       if (response.error) {
-        alert(response.error);
+        alert(t(response.error))
       } else {
         navigate("/");
       }
     } catch (error) {
-      alert(error);
+      alert(error)
     } finally {
       setLoading(false);
     }

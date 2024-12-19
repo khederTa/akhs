@@ -53,6 +53,12 @@ exports.login = async (req, res) => {
     if (!volunteer) {
       return res.status(401).json({ message: "Volunteer Not Found" });
     }
+    if (volunteer.active_status !== "active") {
+      console.log("your account has been deactivated");
+      return res
+        .status(401)
+        .json({ message: "your account has been deactivated" });
+    }
     // 3. Find the ServiceProvider linked to Volunteer
     const serviceProvider = await ServiceProvider.findOne({
       where: { volunteerId: volunteer.volunteerId },
@@ -142,7 +148,6 @@ exports.changePasswordByAdmin = async (req, res) => {
     });
     console.log(currentUser);
     if (!currentUser || currentUser.Role.name !== "admin") {
-      console.log("Peeeeeeep")
       return res.sendStatus(403);
     }
     // Find the user by userId

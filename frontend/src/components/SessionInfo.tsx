@@ -14,6 +14,7 @@ const SessionInfo = ({
   selectedDepartment,
   removeSession,
   sessionName,
+  done,
   setSessionName,
   serviceProviders,
   setServiceProviders,
@@ -46,11 +47,16 @@ const SessionInfo = ({
       .get("/serviceprovider")
       .then((response) => {
         const serviceproviders = response.data;
-        console.log({ serviceproviders });
-        const activeServiceProvider = serviceproviders.filter((item: any) => {
-          console.log(item);
-          return item.Volunteer.active_status === "active";
-        });
+        let activeServiceProvider = [];
+        if (done) {
+          activeServiceProvider = serviceproviders;
+        } else {
+          activeServiceProvider = serviceproviders.filter((item: any) => {
+            console.log(item);
+            return item.Volunteer.active_status !== "inactive";
+          });
+        }
+
         setServiceProviders(
           activeServiceProvider.map((provider: any) => ({
             label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position?.name}`,

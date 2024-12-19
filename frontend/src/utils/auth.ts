@@ -46,7 +46,7 @@ export const login = async (
     authStore.setLoading(false); // Set loading to false on failure
     return {
       data: null,
-      error: error.response?.data?.detail || "Something went wrong",
+      error: error?.response?.data?.message || "Something went wrong",
     };
   }
 };

@@ -754,7 +754,7 @@ const ServiceProvider = () => {
             //     onClick={() => handleOpenDeleteDialog(id)}
             //   />
             // ),
-            !isInEditMode && (
+            !isInEditMode && !isUser && (
               <Tooltip title={t("active / inactive")}>
                 <Stack
                   spacing={1}

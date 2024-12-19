@@ -273,5 +273,11 @@
   "start time must be before end time": "Start Time must be before End Time",
   "there is no sessions add new one": "You should create at least one session",
   "there is no sessions": "You should create at least one session",
-  "there are some missing sessions' information, please complete all information for each session.": "Some details are missing. Please complete all required fields for the activity and each session."
+  "there are some missing sessions' information, please complete all information for each session.": "Some details are missing. Please complete all required fields for the activity and each session.",
+  "your account has been deactivated": "Your account has been deactivated",
+  "Password Incorrect": "Please make sure the data is correct",
+  "Person Not Found": "Please make sure the data is correct",
+  "User Not Found": "Please make sure the data is correct",
+  "Volunteer Not Found": "Please make sure the data is correct",
+  "ServiceProvider Not Found": "Please make sure the data is correct"
 }

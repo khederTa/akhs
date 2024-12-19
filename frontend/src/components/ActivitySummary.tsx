@@ -53,6 +53,7 @@ export default function ActivitySummary() {
     department,
     mode,
     activityData,
+    done,
     setActivityType,
     setDepartment,
     setStartDate,
@@ -66,6 +67,7 @@ export default function ActivitySummary() {
     setSessionValues,
     setMode,
     setActivityData,
+    setDone,
   } = useSessionStore((state) => ({
     numSessions: state.numSessions,
     sessions: state.sessions,
@@ -77,6 +79,7 @@ export default function ActivitySummary() {
     department: state.department,
     mode: state.mode,
     activityData: state.activityData,
+    done: state.done,
     setTitle: state.setTitle,
     setDepartment: state.setDepartment,
     setActivityType: state.setActivityType,
@@ -90,6 +93,7 @@ export default function ActivitySummary() {
     setSessionValues: state.setSessionValues,
     setMode: state.setMode,
     setActivityData: state.setActivityData,
+    setDone: state.setDone,
   }));
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -176,7 +180,15 @@ export default function ActivitySummary() {
             location.state?.id &&
             axios.get(`/activity/${location.state?.id}`),
         ]);
-        setActivityTypes(activityTypeResponse.data);
+        if (activityResponse?.data?.done) {
+          setActivityTypes(activityTypeResponse?.data);
+        } else {
+          const processedActivityType = activityTypeResponse.data.filter(
+            (activityType: { active_status: string }) =>
+              activityType?.active_status !== "inactive"
+          );
+          setActivityTypes(processedActivityType);
+        }
         setDepartments(departmentResponse.data);
         setActivityData(activityResponse.data);
         const sessionsValue: any = activityResponse.data.Sessions;
@@ -184,6 +196,7 @@ export default function ActivitySummary() {
         console.log("activity respone is ", activityResponse);
         if (activityResponse.status === 200) {
           setMode("edit");
+          setDone(activityResponse.data?.done);
           setTitle(activityResponse.data?.title);
           setNumSessions(activityResponse.data?.numSessions);
           setMinSessions(activityResponse.data?.minSessions);
@@ -193,12 +206,19 @@ export default function ActivitySummary() {
           // sessions.map((session)=>{
 
           // })
-          const activeServiceProvider = providersResponse.data.filter(
-            (item: any) => {
-              console.log(item);
-              return item.Volunteer.active_status === "active";
-            }
-          );
+          let activeServiceProvider = [];
+          console.log({ active_status: activityResponse.data?.done });
+          if (activityResponse.data?.done) {
+            activeServiceProvider = providersResponse.data;
+          } else {
+            activeServiceProvider = providersResponse.data.filter(
+              (item: any) => {
+                console.log(item);
+                return item.Volunteer?.active_status !== "inactive";
+              }
+            );
+          }
+
           console.log({ activeServiceProvider });
           const processedSessions = sessionsValue.map((session: any) => ({
             ...session,
@@ -245,6 +265,7 @@ export default function ActivitySummary() {
     location.state,
     navigate,
     setActivityData,
+    setDone,
     setMinSessions,
     setMode,
     setNumSessions,
@@ -473,6 +494,7 @@ export default function ActivitySummary() {
               </Typography>
               <SessionInfo
                 key={session.key}
+                done={done}
                 sessionName={session.sessionName}
                 selectedDepartment={selectedDepartment}
                 setSessionName={(value: any) =>
