@@ -279,5 +279,6 @@
   "Person Not Found": "Please make sure the data is correct",
   "User Not Found": "Please make sure the data is correct",
   "Volunteer Not Found": "Please make sure the data is correct",
-  "ServiceProvider Not Found": "Please make sure the data is correct"
+  "ServiceProvider Not Found": "Please make sure the data is correct",
+  "remove volunteer": "Remove Volunteer"
 }

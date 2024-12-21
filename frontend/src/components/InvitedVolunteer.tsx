@@ -1,8 +1,7 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState, useMemo, useCallback, useContext } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button, Paper, Box } from "@mui/material";
+import { Button, Paper, Box, Tooltip } from "@mui/material";
 import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
 import FilterHeader from "./FilterHeader";
 import DateFilterHeader from "./DateFilterHeader";
@@ -569,16 +568,18 @@ const InvitedVolunteer = () => {
         getActions: ({ id }: any) => {
           // console.log(id);
           return [
-            <GridActionsCellItem
-              icon={<DeleteIcon />}
-              label="Delete"
-              disabled={rows.length === 1}
-              onClick={() => {
-                setRows((prev: any[]) =>
-                  prev.filter((row) => row?.volunteerId !== id)
-                );
-              }}
-            />,
+            <Tooltip title={t("remove volunteer")}>
+              <GridActionsCellItem
+                icon={<DeleteIcon />}
+                label="Delete"
+                disabled={rows.length === 1}
+                onClick={() => {
+                  setRows((prev: any[]) =>
+                    prev.filter((row) => row?.volunteerId !== id)
+                  );
+                }}
+              />
+            </Tooltip>,
           ].filter(Boolean);
         },
       },
