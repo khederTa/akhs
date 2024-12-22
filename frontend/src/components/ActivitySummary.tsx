@@ -106,6 +106,14 @@ export default function ActivitySummary() {
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
+  const [sortedSessions, setSortedSession] = useState<any>([]);
+  useEffect(() => {
+    const processedSessions = sessions.sort(
+      (a, b) =>
+        new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+    );
+    setSortedSession(processedSessions);
+  }, [sessions]);
   // const defaultActivityData: ActivityData = {
   //   id: 0,
   //   numSessions: 0,
@@ -498,7 +506,7 @@ export default function ActivitySummary() {
           InputLabelProps={{ shrink: true }}
         />
 
-        {sessions.map((session, index) => {
+        {sortedSessions.map((session: any, index: number) => {
           console.log(session);
           return (
             <div key={session.key} style={{ width: "100%" }}>

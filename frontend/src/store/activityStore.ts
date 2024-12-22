@@ -93,7 +93,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
       invitedVolunteerIds: [],
       done: false,
       sessionIds: [],
-      mode: ""
+      mode: "",
     }),
   // Add a new session with default values
   addSession: () =>
@@ -165,6 +165,15 @@ const useSessionStore = create<ActivityStore>((set) => ({
   // Sync sessions with numSessions
   syncSessionsWithNum: () =>
     set((state: any) => {
+      const maxDateObject = (state.sessions || []).reduce(
+        (session: any, obj: any) => {
+          return new Date(session.dateValue) > new Date(obj.dateValue)
+            ? session
+            : obj;
+        },
+        { dateValue: "1970-01-01" }
+      );
+      const maxDate = dayjs(maxDateObject.dateValue);
       const updatedSessions = Array.from(
         { length: state.numSessions },
         (_, index) => {
@@ -173,23 +182,29 @@ const useSessionStore = create<ActivityStore>((set) => ({
             existingSession.id && existingSession.id > 0
               ? existingSession.id
               : -1 * (state.numSessions - index);
+
+          const newDateValue =
+            state.mode === "edit" || existingSession.dateValue
+              ? isDateInFormat(existingSession.dateValue, "YYYY-MM-DD")
+                ? existingSession.dateValue
+                : existingSession.id > 0
+                ? dayjs(existingSession.dateValue).format("YYYY-MM-DD")
+                : maxDate.add(1, "day").format("YYYY-MM-DD")
+              : dayjs(state.startDate).isValid()
+              ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")
+              : maxDate.add(index + 1, "day").format("YYYY-MM-DD");
           return {
             id,
             key: index + 1,
             sessionName: existingSession.sessionName || "",
-            serviceProviders: existingSession.serviceProviders || state.serviceProvidersInfo || [],
+            serviceProviders:
+              existingSession.serviceProviders ||
+              state.serviceProvidersInfo ||
+              [],
             trainers: existingSession.trainers || [],
             hallName:
               state.mode === "edit" ? existingSession.hallName : state.hallName,
-            dateValue:
-              state.mode === "edit" || existingSession.dateValue
-                ? isDateInFormat(existingSession.dateValue, "YYYY-MM-DD")
-                  ? existingSession.dateValue
-                  : dayjs(existingSession.dateValue).format("YYYY-MM-DD")
-                : dayjs(state.startDate).isValid()
-                ? dayjs(state.startDate).add(index, "day").format("YYYY-MM-DD")
-                : "",
-
+            dateValue: newDateValue,
             providerNames: existingSession.providerNames || [],
             trainerName: existingSession.trainerName || [],
             startTime:
