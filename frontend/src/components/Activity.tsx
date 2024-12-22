@@ -14,15 +14,16 @@ import FilterBooleanHeader from "./FilterBooleanHeader";
 import GridCustomToolbar from "./GridCustomToolbar";
 import CustomDateRenderer from "./CustomDateRenderer";
 import DateFilterHeader from "./DateFilterHeader";
-import AssignmentIcon from '@mui/icons-material/Assignment';
+import AssignmentIcon from "@mui/icons-material/Assignment";
 import TaskIcon from "@mui/icons-material/Task";
 import AssignmentIndIcon from "@mui/icons-material/AssignmentInd";
 import { usePermissionStore } from "../store/permissionStore";
 import { Tooltip } from "@mui/material";
+import useSessionStore from "../store/activityStore";
 const Activity = () => {
   const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
-
+  const resetStore = useSessionStore((state) => state.resetStore);
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { permissions } = usePermissionStore((state) => state);
@@ -288,9 +289,9 @@ const Activity = () => {
         setLoading(false); // Ensure loading is stopped in case of error
       }
     }
-
+    resetStore();
     fetchActivityData();
-  }, [setFilteredRows]);
+  }, [resetStore, setFilteredRows]);
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);

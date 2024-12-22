@@ -1,23 +1,21 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
-import { useState, useEffect, useContext, useMemo } from "react";
+import { useState, useContext, useMemo, useEffect } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
-import axios from "../utils/axios";
+// import axios from "../utils/axios";
 import dayjs from "dayjs";
 import isDateInFormat from "../utils/isDateInFormat";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useTranslation } from "react-i18next";
 import AlertNotification from "./AlertNotification";
+import useSessionStore from "../store/activityStore";
 
 const SessionInfo = ({
   selectedDepartment,
   removeSession,
   sessionName,
-  done,
   setSessionName,
   serviceProviders,
-  setServiceProviders,
   hallName,
   setHallName,
   dateValue,
@@ -42,42 +40,49 @@ const SessionInfo = ({
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
-  useEffect(() => {
-    axios
-      .get("/serviceprovider")
-      .then((response) => {
-        const serviceproviders = response.data;
-        let activeServiceProvider = [];
-        if (done) {
-          activeServiceProvider = serviceproviders;
-        } else {
-          activeServiceProvider = serviceproviders.filter((item: any) => {
-            console.log(item);
-            return item.Volunteer.active_status !== "inactive";
-          });
-        }
+  const mode = useSessionStore((state) => state.mode);
+  const serviceProvidersInfo = useSessionStore(
+    (state) => state.serviceProvidersInfo
+  );
+  const [transformedProviders, setTransformedProviders] = useState([]);
+  // useEffect(() => {
+  //   console.log({ serviceProviders });
+  //   const transformedProviders = serviceProviders.map((provider) => ({
+  //     label: `${provider.Volunteer.Person.fname} ${
+  //       provider.Volunteer.Person.lname
+  //     } - ${provider.Position?.name || "N/A"}`,
+  //     value: provider.providerId,
+  //     depId: provider.Department?.id,
+  //   }));
+  //   setServiceProviders(transformedProviders);
+  // }, [serviceProviders]);
 
-        setServiceProviders(
-          activeServiceProvider.map((provider: any) => ({
-            label: `${provider.Volunteer.Person.fname} ${provider.Volunteer.Person.lname} - ${provider.Position?.name}`,
-            value: provider.providerId,
-            depId: provider.Department?.id,
-          }))
-        );
+  useEffect(() => {
+    const processedProviders = (serviceProviders || serviceProvidersInfo).map(
+      (provider: {
+        Volunteer: { Person: { fname: any; lname: any } };
+        Position: { name: any };
+        providerId: any;
+        Department: { id: any };
+      }) => ({
+        label: `${provider.Volunteer.Person.fname} ${
+          provider.Volunteer.Person.lname
+        } - ${provider.Position?.name || "N/A"}`,
+        value: provider.providerId,
+        depId: provider.Department?.id,
       })
-      .catch((error) => {
-        console.error("Error fetching data:", error);
-      });
-  }, []);
+    );
+    setTransformedProviders(processedProviders);
+  }, [mode, serviceProviders, serviceProvidersInfo]);
 
   const serviceProviderOptions = useMemo(() => {
-    return serviceProviders.filter(
-      (option: { value: any; depId: any }) =>
+    return transformedProviders.filter(
+      (option: { value: any; depId: number }) =>
         !providerNames.some(
           (selected: { value: any }) => selected.value === option.value
         ) && option.depId === parseInt(selectedDepartment)
     );
-  }, [providerNames, selectedDepartment, serviceProviders]);
+  }, [providerNames, selectedDepartment, transformedProviders]);
 
   return (
     <>
@@ -152,7 +157,7 @@ const SessionInfo = ({
           <Autocomplete
             multiple
             options={serviceProviderOptions}
-            value={serviceProviders.filter((provider: { value: any }) =>
+            value={transformedProviders.filter((provider: { value: any }) =>
               providerNames.some(
                 (selected: { value: any }) => selected.value === provider.value
               )
@@ -160,7 +165,7 @@ const SessionInfo = ({
             onChange={(_event, newValue) =>
               setProviderNames(newValue.map((item) => ({ ...item })))
             }
-            getOptionLabel={(option) => option?.label || ""}
+            getOptionLabel={(option: { label: string }) => option?.label || ""}
             renderInput={(params) => (
               <TextField {...params} variant="standard" />
             )}

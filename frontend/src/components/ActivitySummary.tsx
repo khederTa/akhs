@@ -68,6 +68,7 @@ export default function ActivitySummary() {
     setMode,
     setActivityData,
     setDone,
+    setServiceProvidersInfo,
   } = useSessionStore((state) => ({
     numSessions: state.numSessions,
     sessions: state.sessions,
@@ -94,6 +95,8 @@ export default function ActivitySummary() {
     setMode: state.setMode,
     setActivityData: state.setActivityData,
     setDone: state.setDone,
+    serviceProvidersInfo: state.serviceProvidersInfo,
+    setServiceProvidersInfo: state.setServiceProvidersInfo,
   }));
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -182,11 +185,20 @@ export default function ActivitySummary() {
         ]);
         if (activityResponse?.data?.done) {
           setActivityTypes(activityTypeResponse?.data);
+          setServiceProvidersInfo(providersResponse.data);
         } else {
           const processedActivityType = activityTypeResponse.data.filter(
             (activityType: { active_status: string }) =>
               activityType?.active_status !== "inactive"
           );
+          const processedProviders = providersResponse.data.filter(
+            (item: any) => {
+              console.log(item);
+              return item.Volunteer?.active_status !== "inactive";
+            }
+          );
+          setServiceProvidersInfo(processedProviders);
+
           setActivityTypes(processedActivityType);
         }
         setDepartments(departmentResponse.data);
@@ -269,6 +281,7 @@ export default function ActivitySummary() {
     setMinSessions,
     setMode,
     setNumSessions,
+    setServiceProvidersInfo,
     setSessionValues,
     setStartDate,
     setTitle,

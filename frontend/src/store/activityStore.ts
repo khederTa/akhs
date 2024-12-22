@@ -33,6 +33,8 @@ type ActivityStore = {
   invitedVolunteerIds: number[];
   mode: string;
   activityData: any;
+  serviceProvidersInfo: any[];
+  setServiceProvidersInfo: (value: any[]) => void;
   setInvitedVolunteerIds: (value: number[]) => void;
   setSessionIds: (value: number[]) => void;
   setTitle: (value: string) => void;
@@ -70,6 +72,14 @@ const useSessionStore = create<ActivityStore>((set) => ({
   sessionIds: [],
   mode: "",
   activityData: {},
+  serviceProvidersInfo: [],
+  setServiceProvidersInfo: (value: any) =>
+    set((state: any) => {
+      return {
+        ...state,
+        serviceProvidersInfo: value,
+      };
+    }),
   resetStore: () =>
     set({
       sessions: [],
@@ -79,33 +89,35 @@ const useSessionStore = create<ActivityStore>((set) => ({
       activityType: {},
       title: "",
       startDate: "",
+      hallName: "",
       invitedVolunteerIds: [],
       done: false,
       sessionIds: [],
+      mode: ""
     }),
   // Add a new session with default values
   addSession: () =>
     set((state: any) => {
-      const newKey = state.sessions.length
-        ? Math.max(...state.sessions.map((s: any) => s.key)) + 1
-        : 1;
+      // const newKey = state.sessions.length
+      //   ? Math.max(...state.sessions.map((s: any) => s.key)) + 1
+      //   : 1;
 
       return {
-        sessions: [
-          ...state.sessions,
-          {
-            key: newKey,
-            sessionName: "",
-            serviceProviders: [],
-            trainers: [],
-            hallName: state.hallName,
-            dateValue: dayjs(),
-            providerNames: [],
-            trainerName: [],
-            startTime: dayjs().format("HH:mm"),
-            endTime: dayjs().format("HH:mm"),
-          },
-        ],
+        // sessions: [
+        //   ...state.sessions,
+        //   {
+        //     key: newKey,
+        //     sessionName: "",
+        //     serviceProviders: [],
+        //     trainers: [],
+        //     hallName: state.hallName,
+        //     dateValue: dayjs(),
+        //     providerNames: [],
+        //     trainerName: [],
+        //     startTime: dayjs().format("HH:mm"),
+        //     endTime: dayjs().format("HH:mm"),
+        //   },
+        // ],
         numSessions: state.numSessions + 1,
       };
     }),
@@ -165,7 +177,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
             id,
             key: index + 1,
             sessionName: existingSession.sessionName || "",
-            serviceProviders: existingSession.serviceProviders || [],
+            serviceProviders: existingSession.serviceProviders || state.serviceProvidersInfo || [],
             trainers: existingSession.trainers || [],
             hallName:
               state.mode === "edit" ? existingSession.hallName : state.hallName,
@@ -191,7 +203,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
           };
         }
       );
-
+      updatedSessions.sort((a, b) => a.key - b.key);
       return { sessions: updatedSessions };
     }),
 
