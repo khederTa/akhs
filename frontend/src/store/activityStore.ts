@@ -218,7 +218,6 @@ const useSessionStore = create<ActivityStore>((set) => ({
           };
         }
       );
-      updatedSessions.sort((a, b) => a.key - b.key);
       return { sessions: updatedSessions };
     }),
 

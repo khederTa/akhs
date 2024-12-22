@@ -68,6 +68,7 @@ export default function ActivitySummary() {
     setMode,
     setActivityData,
     setDone,
+    serviceProvidersInfo,
     setServiceProvidersInfo,
   } = useSessionStore((state) => ({
     numSessions: state.numSessions,
@@ -106,14 +107,14 @@ export default function ActivitySummary() {
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
-  const [sortedSessions, setSortedSession] = useState<any>([]);
-  useEffect(() => {
-    const processedSessions = sessions.sort(
-      (a, b) =>
-        new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
-    );
-    setSortedSession(processedSessions);
-  }, [sessions]);
+  // const [sortedSessions, setSortedSession] = useState<any>([]);
+  // useEffect(() => {
+  //   const processedSessions = sessions.sort(
+  //     (a, b) =>
+  //       new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+  //   );
+  //   setSortedSession(processedSessions);
+  // }, [sessions]);
   // const defaultActivityData: ActivityData = {
   //   id: 0,
   //   numSessions: 0,
@@ -253,7 +254,11 @@ export default function ActivitySummary() {
             hallName: session.hall_name,
             sessionName: session.name,
           }));
-          setSessionValues(processedSessions);
+          const sortedSessions = processedSessions.sort(
+            (a: any, b: any) =>
+              new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+          );
+          setSessionValues(sortedSessions);
           // const filteredProviders = providers.filter(
           //   (item: { providerId: any }) =>
           //     sessionsValue.ServiceProviders.find(
@@ -506,8 +511,8 @@ export default function ActivitySummary() {
           InputLabelProps={{ shrink: true }}
         />
 
-        {sortedSessions.map((session: any, index: number) => {
-          console.log(session);
+        {sessions.map((session: any, index: number) => {
+          // console.log(session);
           return (
             <div key={session.key} style={{ width: "100%" }}>
               <Typography>
@@ -521,7 +526,11 @@ export default function ActivitySummary() {
                 setSessionName={(value: any) =>
                   updateSession(session.key, "sessionName", value)
                 }
-                serviceProviders={session.serviceProviders}
+                serviceProviders={
+                  mode === "edit"
+                    ? session.serviceProviders
+                    : serviceProvidersInfo
+                }
                 setServiceProviders={(value: any) =>
                   updateSession(session.key, "serviceProviders", value)
                 }
