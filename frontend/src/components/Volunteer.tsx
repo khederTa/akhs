@@ -1203,12 +1203,15 @@ const Volunteer = () => {
         onClose={() => setHistoryModalOpen(false)}
         volunteerId={volunteerId as number}
       />
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <DraggableDialog
         open={isDeleteDialogOpen}
         handleClose={handleCloseDeleteDialog}

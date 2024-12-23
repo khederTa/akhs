@@ -89,12 +89,15 @@ export default function ChangePasswordByAdminModal({
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <Dialog
         open={open}
         onClose={handleClose}

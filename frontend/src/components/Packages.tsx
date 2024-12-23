@@ -410,12 +410,15 @@ export function Packages() {
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       {/* Delete Confirmation Dialog */}
       <DraggableDialog
         open={isDeleteDialogOpen}

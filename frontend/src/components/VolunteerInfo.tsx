@@ -166,12 +166,15 @@ const VolunteerInfo = () => {
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <Card variant="highlighted">
         <Typography
           component="h1"

@@ -442,12 +442,15 @@ export default function ExecuteActivity() {
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <h2>{title}</h2>
       <Paper sx={{ height: 500, width: "100%" }}>
         <DataGrid

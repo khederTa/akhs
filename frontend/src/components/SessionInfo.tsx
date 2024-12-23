@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { Autocomplete, Card, FormLabel, Stack, TextField } from "@mui/material";
-import { useState, useContext, useMemo, useEffect } from "react";
+import { useState, useContext, useMemo } from "react";
 import ClearIcon from "@mui/icons-material/Clear";
 // import axios from "../utils/axios";
 import dayjs from "dayjs";
@@ -8,29 +8,28 @@ import isDateInFormat from "../utils/isDateInFormat";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useTranslation } from "react-i18next";
 import AlertNotification from "./AlertNotification";
-import useSessionStore from "../store/activityStore";
+// import useSessionStore from "../store/activityStore";
 
-const SessionInfo = ({
-  selectedDepartment,
-  removeSession,
-  sessionName,
-  setSessionName,
-  serviceProviders,
-  hallName,
-  setHallName,
-  dateValue,
-  min,
-  max,
-  setDateValue,
-  providerNames,
-  setProviderNames,
-  startTime,
-  setStartTime,
-  endTime,
-  setEndTime,
-}: any) => {
+const SessionInfo = ({ sessionProps, timeProps, providerProps }: any) => {
+  const {
+    sessionName,
+    setSessionName,
+    hallName,
+    setHallName,
+    removeSession,
+    dateValue,
+    setDateValue,
+    min,
+    max,
+  } = sessionProps;
+  const { startTime, setStartTime, endTime, setEndTime } = timeProps;
+  const {
+    providerNames,
+    setProviderNames,
+    transformedProviders,
+    selectedDepartment,
+  } = providerProps;
   const { direction } = useContext(DirectionContext); // Get the current direction (ltr or rtl)
-  // const [selectedServiceProvider, setSelectedServiceProvider] = useState([]);
   const { t } = useTranslation();
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -40,40 +39,6 @@ const SessionInfo = ({
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
-  const mode = useSessionStore((state) => state.mode);
-  const serviceProvidersInfo = useSessionStore(
-    (state) => state.serviceProvidersInfo
-  );
-  const [transformedProviders, setTransformedProviders] = useState([]);
-  // useEffect(() => {
-  //   console.log({ serviceProviders });
-  //   const transformedProviders = serviceProviders.map((provider) => ({
-  //     label: `${provider.Volunteer.Person.fname} ${
-  //       provider.Volunteer.Person.lname
-  //     } - ${provider.Position?.name || "N/A"}`,
-  //     value: provider.providerId,
-  //     depId: provider.Department?.id,
-  //   }));
-  //   setServiceProviders(transformedProviders);
-  // }, [serviceProviders]);
-
-  useEffect(() => {
-    const processedProviders = (serviceProviders || serviceProvidersInfo).map(
-      (provider: {
-        Volunteer: { Person: { fname: any; lname: any } };
-        Position: { name: any };
-        providerId: any;
-        Department: { id: any };
-      }) => ({
-        label: `${provider.Volunteer.Person.fname} ${
-          provider.Volunteer.Person.lname
-        } - ${provider.Position?.name || "N/A"}`,
-        value: provider.providerId,
-        depId: provider.Department?.id,
-      })
-    );
-    setTransformedProviders(processedProviders);
-  }, [mode, serviceProviders, serviceProvidersInfo]);
 
   const serviceProviderOptions = useMemo(() => {
     return transformedProviders.filter(
@@ -84,14 +49,33 @@ const SessionInfo = ({
     );
   }, [providerNames, selectedDepartment, transformedProviders]);
 
+  const selectedProviders = useMemo(() => {
+    return transformedProviders.filter((provider: { value: string }) =>
+      providerNames.some(
+        (selected: { value: string }) => selected.value === provider.value
+      )
+    );
+  }, [providerNames, transformedProviders]);
+
+  const isRtl = direction === "rtl";
+  const clearIconStyle: any = {
+    position: "absolute",
+    top: 8,
+    [isRtl ? "left" : "right"]: 8,
+    cursor: "pointer",
+  };
+
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
+
       <Card
         sx={{
           position: "relative",
@@ -102,15 +86,7 @@ const SessionInfo = ({
         }}
       >
         {/* Clear Button */}
-        <ClearIcon
-          onClick={removeSession}
-          style={{
-            position: "absolute",
-            top: 8,
-            [direction === "rtl" ? "left" : "right"]: 8,
-            cursor: "pointer",
-          }}
-        />
+        <ClearIcon onClick={removeSession} style={clearIconStyle} />
 
         {/* Session Fields */}
         <Stack>
@@ -157,11 +133,7 @@ const SessionInfo = ({
           <Autocomplete
             multiple
             options={serviceProviderOptions}
-            value={transformedProviders.filter((provider: { value: any }) =>
-              providerNames.some(
-                (selected: { value: any }) => selected.value === provider.value
-              )
-            )}
+            value={selectedProviders}
             onChange={(_event, newValue) =>
               setProviderNames(newValue.map((item) => ({ ...item })))
             }

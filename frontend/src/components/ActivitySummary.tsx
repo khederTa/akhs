@@ -53,7 +53,6 @@ export default function ActivitySummary() {
     department,
     mode,
     activityData,
-    done,
     setActivityType,
     setDepartment,
     setStartDate,
@@ -81,7 +80,6 @@ export default function ActivitySummary() {
     department: state.department,
     mode: state.mode,
     activityData: state.activityData,
-    done: state.done,
     setTitle: state.setTitle,
     setDepartment: state.setDepartment,
     setActivityType: state.setActivityType,
@@ -411,16 +409,30 @@ export default function ActivitySummary() {
     [sessions, updateSession]
   );
 
+  const transformedProviders = useMemo(() => {
+    const providers = serviceProvidersInfo.map((provider: any) => ({
+      label: `${provider.Volunteer.Person.fname} ${
+        provider.Volunteer.Person.lname
+      } - ${provider.Position?.name || "N/A"}`,
+      value: provider.providerId,
+      depId: provider.Department?.id,
+    }));
+    return providers;
+  }, [serviceProvidersInfo]);
+
   return loading ? (
     <Loading />
   ) : (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
+
       {/* <Typography variant="h4">{t("activity summary")}</Typography> */}
 
       <Box
@@ -513,12 +525,52 @@ export default function ActivitySummary() {
 
         {sessions.map((session: any, index: number) => {
           // console.log(session);
+          const sessionProps = {
+            key: session.key,
+            sessionName: session.sessionName,
+            setSessionName: (value: any) =>
+              updateSession(session.key, "sessionName", value),
+            hallName: session.hallName,
+            setHallName: (value: any) =>
+              updateSession(session.key, "hallName", value),
+            dateValue: session.dateValue,
+            setDateValue: (value: any) =>
+              updateSession(session.key, "dateValue", value),
+            min: index > 0 ? sessions[index - 1]?.dateValue : null,
+            max:
+              index < numSessions - 1 ? sessions[index + 1]?.dateValue : null,
+            removeSession: () => removeSession(session.key),
+          };
+
+          const timeProps = {
+            startTime: session.startTime,
+            setStartTime: (value: any) =>
+              updateSession(session.key, "startTime", value),
+            endTime: session.endTime,
+            setEndTime: (value: any) =>
+              updateSession(session.key, "endTime", value),
+          };
+
+          const providerProps = {
+            providerNames: session.providerNames,
+            setProviderNames: (value: any) =>
+              updateSession(session.key, "providerNames", value),
+            transformedProviders,
+            selectedDepartment,
+          };
+
           return (
             <div key={session.key} style={{ width: "100%" }}>
               <Typography>
                 {t("session")} {index + 1}
               </Typography>
               <SessionInfo
+                sessionProps={sessionProps}
+                timeProps={timeProps}
+                providerProps={providerProps}
+              />
+
+              {/* <SessionInfo
                 key={session.key}
                 done={done}
                 sessionName={session.sessionName}
@@ -531,6 +583,7 @@ export default function ActivitySummary() {
                     ? session.serviceProviders
                     : serviceProvidersInfo
                 }
+                transformedProviders={transformedProviders}
                 setServiceProviders={(value: any) =>
                   updateSession(session.key, "serviceProviders", value)
                 }
@@ -569,7 +622,7 @@ export default function ActivitySummary() {
                   updateSession(session.key, "endTime", value)
                 }
                 removeSession={() => removeSession(session.key)}
-              />
+              /> */}
             </div>
           );
         })}

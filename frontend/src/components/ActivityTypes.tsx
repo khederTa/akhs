@@ -616,12 +616,15 @@ export function ActivityTypes() {
   // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       {isLoading ? (
         <Loading />
       ) : (

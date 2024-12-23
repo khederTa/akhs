@@ -99,12 +99,15 @@ export default function ChangePasswordModal({ open, handleClose }: PropsType) {
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <Dialog
         open={open}
         onClose={handleClose}

@@ -1248,12 +1248,15 @@ const ServiceProvider = () => {
 
   return (
     <>
-      <AlertNotification
-        open={alertOpen}
-        message={alertMessage}
-        severity={alertSeverity}
-        onClose={handleAlertClose}
-      />
+      {alertOpen && (
+  <AlertNotification
+    open={alertOpen}
+    message={alertMessage}
+    severity={alertSeverity}
+    onClose={handleAlertClose}
+  />
+)}
+
       <DraggableDialog
         open={isDeleteDialogOpen}
         handleClose={handleCloseDeleteDialog}
