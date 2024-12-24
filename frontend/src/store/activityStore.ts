@@ -203,7 +203,7 @@ const useSessionStore = create<ActivityStore>((set) => ({
               [],
             trainers: existingSession.trainers || [],
             hallName:
-              state.mode === "edit" ? existingSession.hallName : state.hallName,
+              existingSession.hallName || state.hallName || "",
             dateValue: newDateValue,
             providerNames: existingSession.providerNames || [],
             trainerName: existingSession.trainerName || [],

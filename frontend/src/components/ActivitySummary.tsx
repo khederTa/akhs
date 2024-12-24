@@ -299,6 +299,8 @@ export default function ActivitySummary() {
   ]);
 
   console.log("session number is", numSessions);
+  
+  
 
   // console.log("providers in activity summary is ", providers.current);
   const { direction } = useContext(DirectionContext);
