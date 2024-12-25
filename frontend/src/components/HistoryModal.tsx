@@ -96,12 +96,12 @@ export default function HistoryModal({
         if (response.status === 200) {
           console.log(response);
           if (activeTab === 0) {
-            const activitySet = new Set();
             const handledData = response.data.packages.map(
               (packageRow: { ActivityTypes: any[] }) => {
                 let numberOfAttendedActivity = 0;
 
                 packageRow.ActivityTypes.forEach((actRow: { id: number }) => {
+                  const activitySet = new Set();
                   response.data.activityData.forEach(
                     (activity: { activityTypeId: number }) => {
                       if (!activitySet.has(activity.activityTypeId)) {
