@@ -97,7 +97,13 @@ const AttendedVolunteerReport = () => {
           startTime: session.startTime,
           endTime: session.endTime,
         }));
-        newSessions.forEach(
+
+        const sortedSessions = newSessions.sort(
+          (a: any, b: any) =>
+            new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+        );
+        
+        sortedSessions.forEach(
           (session: {
             key: any;
             sessionName?: string;

@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ limit: "2mb", extended: true })); // For URL-enc
 // Use cors middleware
 app.use(
   cors({
+    // origin: "http://localhost:8082", // Your frontend URL
     origin: "http://localhost:5173", // Your frontend URL
     // origin: "http://localhost:4173", // Your frontend URL
     credentials: true, // Allow cookies if needed

@@ -131,6 +131,11 @@ export default function ActivityReport() {
           })
         );
 
+        const sortedSessions = processedSessions.sort(
+          (a: any, b: any) =>
+            new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+        );
+
         const volunteersData = activityResponse.data.Volunteers.map(
           (volunteer: any) => {
             const attendance = activityResponse.data.Sessions.reduce(
@@ -157,7 +162,7 @@ export default function ActivityReport() {
         );
 
         setVolunteers(volunteersData);
-        setSessions(processedSessions);
+        setSessions(sortedSessions);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
