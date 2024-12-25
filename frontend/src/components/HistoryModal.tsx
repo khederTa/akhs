@@ -96,6 +96,7 @@ export default function HistoryModal({
         if (response.status === 200) {
           console.log(response);
           if (activeTab === 0) {
+            const activitySet = new Set();
             const handledData = response.data.packages.map(
               (packageRow: { ActivityTypes: any[] }) => {
                 let numberOfAttendedActivity = 0;
@@ -103,8 +104,11 @@ export default function HistoryModal({
                 packageRow.ActivityTypes.forEach((actRow: { id: number }) => {
                   response.data.activityData.forEach(
                     (activity: { activityTypeId: number }) => {
-                      if (actRow.id === activity.activityTypeId) {
-                        numberOfAttendedActivity++;
+                      if (!activitySet.has(activity.activityTypeId)) {
+                        if (actRow.id === activity.activityTypeId) {
+                          numberOfAttendedActivity++;
+                        }
+                        activitySet.add(activity.activityTypeId);
                       }
                     }
                   );
