@@ -115,7 +115,13 @@ export default function ExecuteActivity() {
           startTime: session.startTime,
           endTime: session.endTime,
         }));
-        newSessions.forEach(
+
+        const sortedSessions = newSessions.sort(
+          (a: any, b: any) =>
+            new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
+        );
+        
+        sortedSessions.forEach(
           (session: {
             key: any;
             sessionName?: string;
@@ -443,13 +449,13 @@ export default function ExecuteActivity() {
   return (
     <>
       {alertOpen && (
-  <AlertNotification
-    open={alertOpen}
-    message={alertMessage}
-    severity={alertSeverity}
-    onClose={handleAlertClose}
-  />
-)}
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
 
       <h2>{title}</h2>
       <Paper sx={{ height: 500, width: "100%" }}>
