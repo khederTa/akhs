@@ -101,10 +101,14 @@ export default function HistoryModal({
                 let numberOfAttendedActivity = 0;
 
                 packageRow.ActivityTypes.forEach((actRow: { id: number }) => {
+                  const activitySet = new Set();
                   response.data.activityData.forEach(
                     (activity: { activityTypeId: number }) => {
-                      if (actRow.id === activity.activityTypeId) {
-                        numberOfAttendedActivity++;
+                      if (!activitySet.has(activity.activityTypeId)) {
+                        if (actRow.id === activity.activityTypeId) {
+                          numberOfAttendedActivity++;
+                        }
+                        activitySet.add(activity.activityTypeId);
                       }
                     }
                   );
