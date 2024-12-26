@@ -251,7 +251,7 @@
   "attended": "تم الحضور",
   "not attended": "لم يحضر",
   "attendance table": "جدول الحضور",
-  "invited volunteers": "المطتوعين المدعوين",
+  "invited volunteers": "المتطوعين المدعوين",
   "attended volunteers": "المتطوعين الذين حضروا",
   "activity preview": "معاينة النشاط",
   "nationalNumber must be unique, please try again": "الرقم الوطني موجود مسبقاً، يرجى المحاولة مرة أخرى",
@@ -279,7 +279,8 @@
   "Volunteer Not Found": "يرجى التأكد من صحة البيانات",
   "Person Not Found": "يرجى التأكد من صحة البيانات",
   "User Not Found": "يرجى التأكد من صحة البيانات",
-  "remove volunteer": "حذف المتطوع"
+  "remove volunteer": "حذف المتطوع",
+  "attended volunteer report": "تقرير الحضور"
 
 
 
