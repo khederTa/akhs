@@ -3,37 +3,37 @@ import AppTheme, { DirectionContext } from "./shared-theme/AppTheme";
 import { useContext, useEffect } from "react";
 import { setUser } from "./utils/auth";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import { Layout } from "./components/Layout";
+import { Layout } from "./layouts/Layout";
 import SignIn from "./components/SignIn";
 import Header from "./components/Header";
 import { Stack } from "@mui/material";
 import { Loading } from "./components/Loading";
-import { UserManagement } from "./components/UserManagement";
-import CreateNewUser from "./components/CreateNewUser";
-import Activity from "./components/Activity";
-import VolunteerInfo from "./components/VolunteerInfo";
-import ServiceProviderInfo from "./components/ServiceProviderInfo";
-import { ActivityTypes } from "./components/ActivityTypes";
-import { CreateActivityType } from "./components/CreateActivityType";
-import { Packages } from "./components/Packages";
-import { CreatePackage } from "./components/CreatePackage";
-import Department from "./components/Department";
-import Position from "./components/Position";
-import CreateNewDepartment from "./components/CreateNewDepartment";
-import CreateNewPosition from "./components/CreateNewPosition";
-import Volunteer from "./components/Volunteer";
-import ServiceProvider from "./components/ServiceProvider";
-import ActivitySummary from "./components/ActivitySummary";
-import VolunteerPage from "./components/VolunteerPage";
+import { UserManagement } from "./pages/UserManagement";
+import CreateNewUser from "./pages/CreateNewUser";
+import Activity from "./pages/Activity";
+import VolunteerInfo from "./pages/VolunteerInfo";
+import ServiceProviderInfo from "./pages/ServiceProviderInfo";
+import { ActivityTypes } from "./pages/ActivityTypes";
+import { CreateActivityType } from "./pages/CreateActivityType";
+import { Packages } from "./pages/Packages";
+import { CreatePackage } from "./pages/CreatePackage";
+import Department from "./pages/Department";
+import Position from "./pages/Position";
+import CreateNewDepartment from "./pages/CreateNewDepartment";
+import CreateNewPosition from "./pages/CreateNewPosition";
+import Volunteer from "./pages/Volunteer";
+import ServiceProvider from "./pages/ServiceProvider";
+import ActivitySummary from "./pages/ActivitySummary";
+import VolunteerPage from "./pages/VolunteerPage";
 import { usePermissionStore } from "./store/permissionStore";
 import PermissionInitializer from "./components/PermissionInitializer";
 import { useAuthStore } from "./store/auth";
-import InvitedVolunteer from "./components/InvitedVolunteer";
-import ExecuteActivity from "./components/ExecuteActivity";
-import InvitedVolunteerReport from "./components/InvitedVolunteerReport";
-import MainGrid from "./components/MainGrid";
-import ActivityReport from "./components/ActivityReport";
-import AttendedVolunteerReport from "./components/AttendedVolunteerReport";
+import InvitedVolunteer from "./pages/InvitedVolunteer";
+import ExecuteActivity from "./pages/ExecuteActivity";
+import InvitedVolunteerReport from "./pages/InvitedVolunteerReport";
+import MainGrid from "./pages/MainGrid";
+import ActivityReport from "./pages/ActivityReport";
+import AttendedVolunteerReport from "./pages/AttendedVolunteerReport";
 export default function App(props: { disableCustomTheme?: boolean }) {
   const { direction } = useContext(DirectionContext); // Use DirectionContext to toggle direction
   const authLoading = useAuthStore((state) => state.loading);
@@ -71,7 +71,14 @@ export default function App(props: { disableCustomTheme?: boolean }) {
         <BrowserRouter>
           <Routes>
             {/* Protected Route with Layout as default */}
-            <Route path="/" element={<MainGrid />} />
+            <Route
+              path="/"
+              element={
+                <Layout>
+                  <MainGrid />
+                </Layout>
+              }
+            />
             <Route
               path="/user-management"
               element={
@@ -126,11 +133,11 @@ export default function App(props: { disableCustomTheme?: boolean }) {
                 </Layout>
               }
             />
-               <Route
+            <Route
               path="/attended-volunteer-report"
               element={
                 <Layout>
-                 <AttendedVolunteerReport/>
+                  <AttendedVolunteerReport />
                 </Layout>
               }
             />

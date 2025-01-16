@@ -1,32 +1,49 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useMemo, useState } from "react";
-import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
-import { useLocation } from "react-router-dom";
+import {
+  DataGrid,
+  GridColDef,
+  GridRenderCellParams,
+  GridRowModel,
+} from "@mui/x-data-grid";
+import { useLocation, useNavigate } from "react-router-dom";
 import axios from "../utils/axios";
 import useSessionStore from "../store/activityStore";
 import { useTranslation } from "react-i18next";
-import FilterHeader from "./FilterHeader";
-import { Paper } from "@mui/material";
-import GridCustomToolbar from "./GridCustomToolbar";
+import FilterHeader from "../components/FilterHeader";
+import { Box, Button, Paper } from "@mui/material";
+import GridCustomToolbar from "../components/GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-// import AlertNotification from "./AlertNotification";
-// import { usePermissionStore } from "../store/permissionStore";
+import AssignmentTurnedInIcon from "@mui/icons-material/AssignmentTurnedIn";
+import SaveIcon from "@mui/icons-material/Save";
+import CloseIcon from "@mui/icons-material/Close";
+import AlertNotification from "../components/AlertNotification";
+import { usePermissionStore } from "../store/permissionStore";
 import dayjs from "dayjs";
+import { formatDate } from "../utils/dateUtils";
+type VolunteerRow = {
+  id: number;
+  fullName: string;
+  [key: string]: any; // Dynamic columns for session attendance
+};
+const paginationModel = { page: 0, pageSize: 5 };
 
-const AttendedVolunteerReport = () => {
-  type VolunteerRow = {
-    id: number;
-    fullName: string;
-    [key: string]: any; // Dynamic columns for session attendance
-  };
-  const paginationModel = { page: 0, pageSize: 5 };
+export default function ExecuteActivity() {
   const location = useLocation();
   const [rows, setRows] = useState<VolunteerRow[]>([]);
-  // const [activityId, setActivityId] = useState();
-  // const { userRole } = usePermissionStore((state) => state);
+  const [activityId, setActivityId] = useState();
+  const { userRole } = usePermissionStore((state) => state);
 
   const { t } = useTranslation();
-
+  const navigate = useNavigate();
+  const [alertOpen, setAlertOpen] = useState(false);
+  const [alertMessage, setAlertMessage] = useState("");
+  const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
+    "success"
+  );
+  const handleAlertClose = () => {
+    setAlertOpen(false);
+  };
   const {
     filteredRows,
     sortModel,
@@ -50,6 +67,7 @@ const AttendedVolunteerReport = () => {
     title,
     setTitle,
     setDone,
+    minSessions,
     setNumSessions,
     setMinSessions,
     setDepartment,
@@ -81,7 +99,7 @@ const AttendedVolunteerReport = () => {
 
       if (response.status === 200) {
         const activityData = response.data;
-        // setActivityId(response.data.id);
+        setActivityId(response.data.id);
         setTitle(activityData.title);
         setDone(activityData.done);
         setNumSessions(activityData.numSessions);
@@ -102,7 +120,7 @@ const AttendedVolunteerReport = () => {
           (a: any, b: any) =>
             new Date(a.dateValue).getTime() - new Date(b.dateValue).getTime()
         );
-        
+
         sortedSessions.forEach(
           (session: {
             key: any;
@@ -163,12 +181,61 @@ const AttendedVolunteerReport = () => {
   const columns: GridColDef[] = useMemo(() => {
     const sessionColumns = sessions.map((session) => ({
       field: `${session.sessionName}_${session.key}`, // Use the session name directly
-      headerName: `${session.sessionName} in ${session.dateValue}`,
+      headerName: t("sessionNameHeader", {
+        name: session.sessionName,
+        date: formatDate(session.dateValue),
+      }),
       width: 200,
       sortable: false,
       hideSortIcons: true,
       renderCell: (params: GridRenderCellParams) => (
-        <input type="checkbox" checked={params.value || false} />
+        <input
+          type="checkbox"
+          checked={params.value || false}
+          onChange={async (e) => {
+            let flag = false;
+            if (e.target.checked) {
+              let numberOfAttendedSession = 1;
+              for (const key in params.row) {
+                if (
+                  sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
+                  params.row[key] === true
+                )
+                  numberOfAttendedSession++;
+              }
+              if (numberOfAttendedSession >= minSessions) {
+                flag = true;
+              } else {
+                flag = false;
+              }
+            } else {
+              let numberOfAttendedSession = 0;
+              for (const key in params.row) {
+                if (
+                  sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
+                  params.row[key] === true
+                )
+                  numberOfAttendedSession++;
+              }
+              if (numberOfAttendedSession - 1 >= minSessions) {
+                flag = true;
+              } else {
+                flag = false;
+              }
+            }
+            console.log(params.field);
+            const updatedRows = rows.map((row) =>
+              row.id === params.row.id
+                ? {
+                    ...row,
+                    [params.field]: e.target.checked,
+                    volunteerAttendedActivity: flag,
+                  }
+                : row
+            );
+            setRows(updatedRows);
+          }}
+        />
       ),
     }));
 
@@ -202,7 +269,34 @@ const AttendedVolunteerReport = () => {
         sortable: false,
         hideSortIcons: true,
         renderCell: (params: GridRenderCellParams) => (
-          <input type="checkbox" checked={params.value || false} />
+          <input
+            type="checkbox"
+            checked={params.value || false}
+            onChange={async (e) => {
+              if (e.target.checked) {
+                let numberOfAttendedSession = 0;
+                for (const key in params.row) {
+                  console.log({ key });
+                  console.log({ row: params.row[key] });
+                  if (
+                    sessions.some((s) => `${s.sessionName}_${s.key}` === key) &&
+                    params.row[key] === true
+                  )
+                    numberOfAttendedSession++;
+                }
+                if (numberOfAttendedSession < minSessions) {
+                  return;
+                }
+              }
+              console.log(params);
+              const updatedRows = rows.map((row) =>
+                row.id === params.row.id
+                  ? { ...row, [params.field]: e.target.checked }
+                  : row
+              );
+              setRows(updatedRows);
+            }}
+          />
         ),
       },
       {
@@ -211,6 +305,7 @@ const AttendedVolunteerReport = () => {
         width: 300,
         sortable: false,
         hideSortIcons: true,
+        editable: true,
       },
     ];
   }, [
@@ -219,11 +314,83 @@ const AttendedVolunteerReport = () => {
     filterVisibility,
     handleSortClick,
     handleTextFilterChange,
+    minSessions,
+    rows,
     sessions,
     setFilterVisibility,
     sortModel,
     t,
   ]);
+
+  const handleSave = async () => {
+    try {
+      if (userRole === "admin") {
+        await axios.put(`/activity/complete/${activityId}`, { done: false });
+        setDone(false);
+      }
+      for (const row of rows) {
+        console.log({ row });
+        const rowSessions = Object.fromEntries(
+          Object.entries(row).filter(([key]) =>
+            sessions.some(
+              (session) => `${session.sessionName}_${session.key}` === key
+            )
+          )
+        );
+
+        await axios.put(`/volunteerAttendedActivity/${row.id}/${activityId}`, {
+          notes: row.notes, // Save notes
+          attended: row.volunteerAttendedActivity, // Save activity attendance
+        });
+        Object.keys(rowSessions).forEach(async (key) => {
+          const sessionId = sessions.find(
+            (session) => `${session.sessionName}_${session.key}` === key
+          )?.key;
+          if (sessionId) {
+            await axios.put(
+              `/volunteerAttendedSession/${row.id}/${sessionId}`,
+              {
+                attended: rowSessions[key],
+              }
+            );
+          }
+        });
+      }
+      setAlertMessage("Changes saved successfully!");
+      setAlertSeverity("success");
+    } catch (error) {
+      console.error("Failed to save changes:", error);
+      alert("An error occurred while saving changes.");
+    } finally {
+      setAlertOpen(true);
+    }
+  };
+
+  const handleSaveAndComplete = async () => {
+    try {
+      await handleSave();
+      await axios.put(`/activity/complete/${activityId}`, { done: true });
+      setDone(true);
+      setAlertMessage("Activity saved and marked as complete!");
+      setAlertSeverity("success");
+      handleExit();
+    } catch (error) {
+      console.error("Failed to markactivity  as complete:", error);
+      alert("An error occurred while completing the activity.");
+    } finally {
+      setAlertOpen(true);
+    }
+  };
+
+  const handleExit = () => {
+    navigate("/activity-management");
+  };
+  const handleProcessRowUpdate = (newRow: GridRowModel) => {
+    setRows((prev: any) =>
+      prev.map((row: any) => (row.id === newRow.id ? newRow : row))
+    );
+    return newRow;
+  };
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
   const [selectedRows, setSelectedRows] = useState([]);
@@ -281,21 +448,22 @@ const AttendedVolunteerReport = () => {
 
   return (
     <>
-      {/* {alertOpen && (
-  <AlertNotification
-    open={alertOpen}
-    message={alertMessage}
-    severity={alertSeverity}
-    onClose={handleAlertClose}
-  />
-)}
- */}
+      {alertOpen && (
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
+
       <h2>{title}</h2>
       <Paper sx={{ height: 500, width: "100%" }}>
         <DataGrid
           rows={filteredRows}
           getRowId={(row) => row.id} // Ensure the correct row ID is used
           columns={columns}
+          processRowUpdate={handleProcessRowUpdate}
           disableColumnFilter
           disableColumnMenu
           localeText={{
@@ -327,8 +495,34 @@ const AttendedVolunteerReport = () => {
           disableRowSelectionOnClick
         />
       </Paper>
+      <Box justifyContent={"flex-start"} mt={2}>
+        {userRole !== "data entry" && (
+          <Button
+            onClick={handleSaveAndComplete}
+            sx={{ minWidth: "250px", margin: "0 15px", gap: "10px" }}
+            variant="contained"
+          >
+            <AssignmentTurnedInIcon fontSize="small" />
+            {t("save and complete")}
+          </Button>
+        )}
+        <Button
+          onClick={handleSave}
+          sx={{ minWidth: "150px", margin: "0 15px", gap: "10px" }}
+          variant="outlined"
+        >
+          <SaveIcon fontSize="small" />
+          {t("save as draft")}
+        </Button>
+        <Button
+          onClick={handleExit}
+          sx={{ minWidth: "150px", margin: "0 15px", gap: "10px" }}
+          variant="outlined"
+        >
+          <CloseIcon fontSize="small" />
+          {t("exit")}
+        </Button>
+      </Box>
     </>
   );
-};
-
-export default AttendedVolunteerReport;
+}

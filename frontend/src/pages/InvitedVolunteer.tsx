@@ -1,32 +1,111 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { Paper } from "@mui/material";
-import axios from "../utils/axios";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import FilterHeader from "./FilterHeader";
-import DateFilterHeader from "./DateFilterHeader";
-import CustomDateRenderer from "./CustomDateRenderer";
-import QAFilterHeader from "./QAFilterHeader";
-import GenderFilterHeader from "./GenderFilterHeader";
-import GridCustomToolbar from "./GridCustomToolbar";
+import { useEffect, useState, useMemo, useCallback, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button, Paper, Box, Tooltip } from "@mui/material";
+import { DataGrid, GridActionsCellItem, GridColDef } from "@mui/x-data-grid";
+import FilterHeader from "../components/FilterHeader";
+import DateFilterHeader from "../components/DateFilterHeader";
+import CustomDateRenderer from "../components/CustomDateRenderer";
+import QAFilterHeader from "../components/QAFilterHeader";
+import GenderFilterHeader from "../components/GenderFilterHeader";
+import GridCustomToolbar from "../components/GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
-import { Loading } from "./Loading";
-
-const InvitedVolunteerReport = () => {
+import DownloadButton from "../components/DownloadButton";
+import useSessionStore from "../store/activityStore";
+import { Loading } from "../components/Loading";
+import axios from "../utils/axios";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { DirectionContext } from "../shared-theme/AppTheme";
+import ArrowBackIcon from "@mui/icons-material/ArrowBack";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import SaveIcon from "@mui/icons-material/Save";
+const InvitedVolunteer = () => {
   const [rows, setRows] = useState<any>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { t } = useTranslation();
+  const { direction } = useContext(DirectionContext);
+
   const paginationModel = { page: 0, pageSize: 5 };
-  const location = useLocation();
+  const navigate = useNavigate();
+  const [getEligible, setGetEligible] = useState(false);
+
+  // Zustand store session state management
+  const {
+    sessions,
+    title,
+    startDate,
+    activityType,
+    department,
+    invitedVolunteerIds,
+    setInvitedVolunteerIds,
+    numSessions,
+    minSessions,
+    activityData,
+    setMode,
+  } = useSessionStore((state) => ({
+    sessions: state.sessions,
+    title: state.title,
+    startDate: state.startDate,
+    activityType: state.activityType,
+    department: state.department,
+    invitedVolunteerIds: state.invitedVolunteerIds,
+    setInvitedVolunteerIds: state.setInvitedVolunteerIds,
+    numSessions: state.numSessions,
+    minSessions: state.minSessions,
+    activityData: state.activityData,
+    setMode: state.setMode,
+  }));
+
+  console.log("activityData in invited volunteer is", activityData);
+  console.log("invitedVolunteerIds is ", invitedVolunteerIds);
+  const activivtyId = activityData.id;
+  console.log("activivtyId is", activivtyId);
+  const handleBack = () => {
+    navigate("/activity-summary");
+  };
+
+  const handleSubmit = async (event: any) => {
+    event.preventDefault();
+    setMode("");
+    const processedSessions = sessions.map((session) => ({
+      ...session,
+      dateValue: session.dateValue,
+      startTime: session.startTime,
+      endTime: session.endTime,
+    }));
+
+    const payload: any = {
+      activityData: {
+        title,
+        activityTypeId: activityType.id,
+        departmentId: department.id,
+        numSessions,
+        minSessions,
+        startDate,
+      },
+      sessionsData: {
+        sessions: processedSessions,
+      },
+      invitedVolunteersData: {
+        volunteerIds: invitedVolunteerIds,
+      },
+    };
+    console.log({ payload });
+    const response = await axios.put(`/activity/${activivtyId}`, payload);
+    console.log(response);
+
+    if (response.status === 200) {
+      navigate("/activity-management");
+    }
+  };
 
   const {
     filteredRows,
     sortModel,
     filterModel,
     filterVisibility,
+    setFilteredRows,
     setFilterVisibility,
     handleTextFilterChange,
     handleDateFilterChange,
@@ -76,30 +155,34 @@ const InvitedVolunteerReport = () => {
   });
 
   useEffect(() => {
-    async function getData() {
-      try {
-        const response = await axios.get(`/activity/${location.state.id}`);
-        const enrichedData = response.data?.Volunteers?.map(
-          (volunteer: any) => ({
-            volunteerId: volunteer.volunteerId,
-            ...(volunteer.Person || {}),
-            address: `${
-              volunteer?.Person?.Address?.state || ""
-            } - ${volunteer?.Person?.Address?.city || ""} - ${
-              volunteer?.Person?.Address?.district || ""
-            } - ${volunteer?.Person?.Address?.village || ""}`,
-          })
-        );
+    const enrichedData = activityData?.Volunteers?.map((volunteer: any) => ({
+      volunteerId: volunteer?.volunteerId,
+      active_status: volunteer.active_status,
+      ...(volunteer.Person || {}),
+      address: `${volunteer?.Person?.Address?.state || ""} - ${
+        volunteer?.Person?.Address?.city || ""
+      } - ${volunteer?.Person?.Address?.district || ""} - ${
+        volunteer?.Person?.Address?.village || ""
+      }`,
 
-        setRows(enrichedData);
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    getData();
-  }, [location.state.id]);
+      personId: volunteer?.Person?.id,
+      fileId: volunteer?.Person?.fileId,
+      file: volunteer?.Person?.File?.file?.data,
+      addressId: volunteer?.Person?.Address?.id,
+    }));
+
+    setRows(enrichedData);
+    setFilteredRows(enrichedData);
+    setIsLoading(false);
+  }, [
+    activityData,
+    activityData.Volunteers,
+    activityType,
+    getEligible,
+    navigate,
+    setFilteredRows,
+    setInvitedVolunteerIds,
+  ]);
 
   const columns: GridColDef[] = useMemo(
     () => [
@@ -312,7 +395,6 @@ const InvitedVolunteerReport = () => {
           />
         ),
       },
-      
 
       {
         field: "nationalNumber",
@@ -374,6 +456,7 @@ const InvitedVolunteerReport = () => {
           />
         ),
       },
+
       {
         field: "smoking",
         type: "singleSelect",
@@ -462,6 +545,44 @@ const InvitedVolunteerReport = () => {
           />
         ),
       },
+      {
+        field: "file",
+        headerName: t("cv"),
+        hideSortIcons: true,
+        sortable: false,
+        renderCell: (params) => {
+          // console.log(params.row);
+          return (
+            <DownloadButton
+              fileName={`${params.row.fname} CV`}
+              fileBinary={params.row.File?.file?.data}
+            />
+          );
+        },
+      },
+      {
+        field: "actions",
+        headerName: t("actions"),
+        type: "actions",
+        minWidth: 200,
+        getActions: ({ id }: any) => {
+          // console.log(id);
+          return [
+            <Tooltip title={t("remove volunteer")}>
+              <GridActionsCellItem
+                icon={<DeleteIcon />}
+                label="Delete"
+                disabled={rows.length === 1}
+                onClick={() => {
+                  setRows((prev: any[]) =>
+                    prev.filter((row) => row?.volunteerId !== id)
+                  );
+                }}
+              />
+            </Tooltip>,
+          ].filter(Boolean);
+        },
+      },
     ],
     [
       clearFilter,
@@ -470,58 +591,42 @@ const InvitedVolunteerReport = () => {
       handleDateFilterChange,
       handleSortClick,
       handleTextFilterChange,
+      rows.length,
       setFilterVisibility,
       sortModel,
       t,
     ]
   );
 
-  const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
+  useEffect(() => {
+    const volunteerIds = rows?.map((item: any) => item?.volunteerId);
+    setInvitedVolunteerIds(volunteerIds);
+  }, [rows, setInvitedVolunteerIds]);
+
+  const handleOnSave = useCallback(
+    (value: any) => {
+      console.log({ value });
+      console.log({ newRows: [...rows, ...value] });
+
+      setRows([...rows, ...value]);
+    },
+    [rows]
+  );
+  console.log("sessions in invited volunteer is", sessions);
+  console.log("department is");
+
+  const [columnVisibilityModel, setColumnVisibilityModel] = useState({});
   const [selectedRows, setSelectedRows] = useState([]);
-  const [selectedRowsToExport, setSelectedRowsToExport] = useState<any>([]);
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return rows.find((row: any) => row.volunteerId === selected);
+      return rows.find((row: any) => row?.volunteerId === selected);
     });
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
   };
 
-  useEffect(() => {
-    // Filter rows to include only the visible columns
-    const processedRows = selectedRows.map((row) => {
-      const newRow: any = {};
-      for (const col in row) {
-        if (columnVisibilityModel[col] !== false) {
-          // Include only if the column is visible
-          newRow[col] = row[col];
-        }
-      }
-      return newRow;
-    });
-
-    // Create a new array with translated keys
-    const translatedRows = processedRows.map((row: any) => {
-      if (!row) return;
-      const translatedRow: any = {};
-      Object.keys(row).forEach((key) => {
-        if (
-          !key.toLowerCase().includes("id") &&
-          !(key.toLowerCase() === "file") &&
-          !(key.toLowerCase() === "active_status")
-        )
-          translatedRow[t(key)] = row[key];
-      });
-
-      return translatedRow;
-    });
-
-    setSelectedRowsToExport(translatedRows);
-  }, [selectedRows, columnVisibilityModel, t]);
-
   // useEffect(() => console.log(selectedRows), [selectedRows]);
-  // useEffect(() => console.log(selectedRowsToExport), [selectedRowsToExport]);
   // useEffect(() => console.log(columnVisibilityModel), [columnVisibilityModel]);
 
   return (
@@ -530,10 +635,21 @@ const InvitedVolunteerReport = () => {
         <Loading />
       ) : (
         <>
+          {/* <Typography variant="h4">Volunteer Information</Typography>
+          <Typography variant="body1">Activity Title: {title}</Typography>
+          <Typography variant="body1">Department: {department.name}</Typography>
+          <Typography variant="body1">
+            Activity Module: {activityType.name}
+          </Typography>
+          <Typography variant="body1">Sessions: {sessions.length}</Typography>
+          <Typography variant="body1">Start Date: {startDate}</Typography> */}
+          {/* <Button variant="contained" sx={{ width: 200 }}>
+            Invite New Volunteers
+          </Button> */}
           <Paper sx={{ height: 500, width: "100%" }}>
             <DataGrid
               rows={filteredRows}
-              getRowId={(row) => row.volunteerId} // Ensure the correct row ID is used
+              getRowId={(row) => row?.volunteerId} // Ensure the correct row ID is used
               columns={columns}
               disableColumnFilter
               disableColumnMenu
@@ -545,9 +661,12 @@ const InvitedVolunteerReport = () => {
                 toolbar: () => (
                   <GridCustomToolbar
                     clearAllFilters={clearAllFilters}
-                    rows={selectedRowsToExport}
-                    navigateTo={""}
-                    mode={"exe"}
+                    rows={selectedRows}
+                    navigateTo={"/volunteer-information"}
+                    mode={"inviteMore"}
+                    setGetEligible={setGetEligible}
+                    getEligible={getEligible}
+                    onSave={(value: any) => handleOnSave(value)}
                   />
                 ),
               }}
@@ -566,10 +685,52 @@ const InvitedVolunteerReport = () => {
               disableRowSelectionOnClick
             />
           </Paper>
+
+          {direction === "ltr" ? (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowBackIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("save changes")}
+              </Button>
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                justifyContent: "space-between",
+              }}
+            >
+              <Button
+                variant="outlined"
+                sx={{ mt: 2, mr: 2 }}
+                onClick={handleBack}
+              >
+                <ArrowForwardIcon fontSize="small" />{" "}
+                {t("back to activity summary")}
+              </Button>
+              <Button variant="contained" sx={{ mt: 2 }} onClick={handleSubmit}>
+                <SaveIcon fontSize="small" /> {t("save changes")}
+              </Button>
+            </Box>
+          )}
         </>
       )}
     </>
   );
 };
 
-export default InvitedVolunteerReport;
+export default InvitedVolunteer;

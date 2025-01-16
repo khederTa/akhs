@@ -1,82 +1,39 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import { Paper, Stack, TextField, Tooltip } from "@mui/material";
 import {
   DataGrid,
+  GridColDef,
   GridRowModesModel,
   GridActionsCellItem,
   useGridApiRef,
 } from "@mui/x-data-grid";
-
-import Paper from "@mui/material/Paper";
-import { Stack, Tooltip } from "@mui/material";
-
-import { Loading } from "./Loading";
-import LockOpenIcon from "@mui/icons-material/LockOpen";
+import { Loading } from "../components/Loading";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+// import DeleteIcon from "@mui/icons-material/Delete";
+import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
-import DraggableDialog from "./DraggableDialog";
-import DownloadButton from "./DownloadButton";
-import Address from "./Address";
-import FileUpload from "./FileUpload";
-import { TextField } from "@mui/material";
-import FilterHeader from "./FilterHeader";
-import OptionFilterHeader from "./OptionFilterHeader";
-import GenderFilterHeader from "./GenderFilterHeader";
-import DateFilterHeader from "./DateFilterHeader";
-import CustomDateRenderer from "./CustomDateRenderer";
-import QAFilterHeader from "./QAFilterHeader";
-import { AntSwitch } from "./Volunteer";
-import GridCustomToolbar from "./GridCustomToolbar";
-import AlertNotification from "./AlertNotification";
-import { useTranslation } from "react-i18next";
+import DraggableDialog from "../components/DraggableDialog";
+import DownloadButton from "../components/DownloadButton";
+import Address from "../components/Address";
+import FileUpload from "../components/FileUpload";
+import FilterHeader from "../components/FilterHeader";
+import DateFilterHeader from "../components/DateFilterHeader";
+import CustomDateRenderer from "../components/CustomDateRenderer";
+import QAFilterHeader from "../components/QAFilterHeader";
+import GenderFilterHeader from "../components/GenderFilterHeader";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-import { usePermissionStore } from "../store/permissionStore";
-import { useAuthStore } from "../store/auth";
-import ChangePasswordByAdminModal from "./ChangePasswordByAdminModal";
-// type UserType = {
-//   userId: number;
-//   ServiceProvider: {
-//     Volunteer: {
-//       Person: {
-//         Address: {
-//           state: string;
-//           city: string;
-//           district: string;
-//           village: string;
-//         };
-//         fname: string;
-//         mname: string;
-//         momname: string;
-//         lname: string;
-//         email: string;
-//         phone: string;
-//         fixPhone: string;
-//         nationalNumber: string;
-//         city: string;
-//         street: string;
-//         study: string;
-//         work: string;
-//         gender: string;
-//         bDate: string;
-//         smoking: string;
-//         prevVol: string;
-//         compSkill: string;
-//         koboSkill: string;
-//         note: string;
-//         File: { id: number; file: { type: string; data: number[] } };
-//       };
-//     };
-//     Position: { name: string };
-//     Department: { name: string; description: string };
-//   };
-//   Role: { name: string; description: string };
-// };
+import { AntSwitch } from "./Volunteer";
+import GridCustomToolbar from "../components/GridCustomToolbar";
+import AlertNotification from "../components/AlertNotification";
+import { useTranslation } from "react-i18next";
+import OptionFilterHeader from "../components/OptionFilterHeader";
+import ProviderPromoteModal from "../components/ProviderPromoteModal";
 
-export function UserManagement() {
+const ServiceProvider = () => {
   const counterMount = useRef(0);
   useEffect(() => {
     counterMount.current += 1;
@@ -87,26 +44,22 @@ export function UserManagement() {
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [selectedRow, setSelectedRow] = useState(null);
   const [address, setAddress] = useState<number | null>(null);
-  const userId = useAuthStore((state) => state.allUserData?.userId);
-  const [changePasswordModalOpen, setChangePasswordModalOpen] = useState(false);
-  const [selectedUserId, setSelectedUserId] = useState<number>(-1);
+  const [users, setUsers] = useState([]);
   const [addressId, setAddressId] = useState<number | null>(null);
   const [newAddress, setNewAddress] = useState<number | any>(null);
   const [fileId, setFileId] = useState<number | null>(null);
-  const [updatedFile, setUpdatedFile] = useState<any>(null);
+  const [updatedFile, setUpdatedFile] = useState(null);
   const [departments, setDepartments] = useState<any>([{}]);
   const [positions, setPositions] = useState<any>([{}]);
   const apiRef = useGridApiRef();
   const paginationModel = { page: 0, pageSize: 5 };
   const [oldBdate, setOldBdate] = useState<any>(null);
   const [newBdate, setNewBdate] = useState<any>(null);
-
+  const [promoteProviderOpen, setPromoteProviderOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState(null);
   const [departmentId, setDepartmentId] = useState<number | null>(null); // Store selected department ID
   const [positionId, setPositionId] = useState<number | null>(null); // Track selected position ID
-  const [roles, setRoles] = useState<any>([{}]);
-  const [roleId, setRoleId] = useState<number | null>(null); // Track selected role ID
 
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
@@ -117,7 +70,11 @@ export function UserManagement() {
     setAlertOpen(false);
   }, []);
   const [uploadFileSizeError, setUploadFileSizeError] = useState("");
-
+  // Open promote confirmation dialog
+  const handleOpenPromoteDialog = useCallback((id: any) => {
+    setSelectedRow(id);
+    setPromoteProviderOpen(true);
+  }, []);
   useEffect(() => {
     if (uploadFileSizeError.length > 0) {
       setAlertMessage(uploadFileSizeError);
@@ -126,7 +83,6 @@ export function UserManagement() {
     }
   }, [uploadFileSizeError]);
   const { t } = useTranslation();
-  const { userRole } = usePermissionStore((state) => state);
   const {
     filteredRows,
     sortModel,
@@ -187,7 +143,7 @@ export function UserManagement() {
   // active / inactive volunteer
   const handleToggleActive = useCallback(
     async (id: number) => {
-      const rowIndex = rows.findIndex((row: any) => row.userId === id);
+      const rowIndex = rows.findIndex((row: any) => row.providerId === id);
       if (rowIndex === -1) return;
 
       const volunteerId = rows[rowIndex].volunteerId;
@@ -201,25 +157,23 @@ export function UserManagement() {
       console.log(volunteerId);
       try {
         // Update the backend
-        const response = await axios.put(`/volunteer/${volunteerId}`, {
+        await axios.put(`/volunteer/${volunteerId}`, {
           active_status: updatedActiveStatus,
         });
-        if (response.status === 200) {
-          console.log("Toggle is done");
-          // Update the rows state
-          const updatedRows = [...rows];
-          updatedRows[rowIndex] = updatedRow;
-          setRows(updatedRows);
 
-          // Update filteredRows if it includes the row
-          const filteredRowIndex = filteredRows.findIndex(
-            (row: any) => row.userId === id
-          );
-          if (filteredRowIndex !== -1) {
-            const updatedFilteredRows = [...filteredRows];
-            updatedFilteredRows[filteredRowIndex] = updatedRow as never;
-            setFilteredRows(updatedFilteredRows);
-          }
+        // Update the rows state
+        const updatedRows = [...rows];
+        updatedRows[rowIndex] = updatedRow;
+        setRows(updatedRows);
+
+        // Update filteredRows if it includes the row
+        const filteredRowIndex = filteredRows.findIndex(
+          (row: any) => row.id === id
+        );
+        if (filteredRowIndex !== -1) {
+          const updatedFilteredRows = [...filteredRows];
+          updatedFilteredRows[filteredRowIndex] = updatedRow as never;
+          setFilteredRows(updatedFilteredRows);
         }
       } catch (error) {
         console.error("Error updating active status:", error);
@@ -227,7 +181,11 @@ export function UserManagement() {
     },
     [filteredRows, rows, setFilteredRows]
   );
-
+  // Open delete confirmation dialog
+  // const handleOpenDeleteDialog = useCallback((id: any) => {
+  //   setSelectedRow(id);
+  //   setIsDeleteDialogOpen(true);
+  // }, []);
   // Initialize departments and positions with default values if empty
   const departmentOptions = useMemo(
     () =>
@@ -250,39 +208,6 @@ export function UserManagement() {
         : [{ label: "No Positions Available", id: null }],
     [positions]
   );
-  const roleOptions = useMemo(
-    () =>
-      roles.length > 0
-        ? roles.map((role: any) => ({
-            label: role.name,
-            id: role.id,
-          }))
-        : [{ label: "No Roles Available", id: null }],
-    [roles]
-  );
-
-  // Handle row edit
-  const handleEditClick = useCallback(
-    (id: any) => {
-      console.log({ rows });
-      const currentRow: any = rows.find((row: any) => row.userId === id);
-
-      if (currentRow) {
-        // Set the initial values when entering edit mode
-        setFileId(currentRow.fileId);
-        setAddressId(currentRow.addressId);
-        setAddress(currentRow.address);
-        setDepartmentId(currentRow?.departmentId || null);
-        setPositionId(currentRow?.positionId || null);
-        setRoleId(currentRow?.roleId || null); // Set the role ID
-        setOldBdate(currentRow?.bDate || null);
-      }
-
-      setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
-      apiRef.current.setCellFocus(id, "disable");
-    },
-    [apiRef, rows]
-  );
 
   // Save row updates
   const handleSave = useCallback(async (id: any) => {
@@ -290,48 +215,52 @@ export function UserManagement() {
     setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
   }, []);
 
+  const handleEditClick = useCallback(
+    (id: any) => {
+      // console.log({ rows });
+      const currentRow: any = rows.find((row: any) => row.providerId === id);
+      if (currentRow) {
+        // Set the initial departmentId when entering edit mode
+        setFileId(currentRow.fileId);
+        setAddressId(currentRow.addressId);
+        setAddress(currentRow.address);
+        setDepartmentId(currentRow?.departmentId || null);
+        setPositionId(currentRow?.positionId || null);
+        setOldBdate(currentRow?.bDate || null);
+      }
+      setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "edit" } }));
+      apiRef.current.setCellFocus(id, "disable");
+    },
+    [apiRef, rows]
+  );
+
   // Cancel row updates
   const handleCancel = useCallback(
     (id: any) => {
       setAction("cancel");
       setNewBdate(oldBdate);
+
       setFileId(null);
       setUpdatedFile(null);
       setAddressId(null);
       setAddress(null);
       setDepartmentId(null);
       setPositionId(null);
-      setRoleId(null);
-      setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } })); // Revert other state variables to their original values
+      setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } }));
     },
     [oldBdate]
   );
 
-  // const handleCancel = (id: any) => {
-
-  //   setAction("cancel"); setNewBdate(oldBdate);
-
-  //   setRowModesModel((prev: any) => ({ ...prev, [id]: { mode: "view" } })); // Revert other state variables to their original values
-
-  // setFileId(null);
-
-  // setAddressId(null); setAddress(null); setDepartmentId(null); setPositionId(null); setRoleId(null); };
-
-  // Open delete confirmation dialog
-  const handleOpenDeleteDialog = useCallback((id: any) => {
-    setSelectedRow(id);
-    setIsDeleteDialogOpen(true);
-  }, []);
-
-  const columns: any[] = useMemo(
+  const columns: GridColDef[] = useMemo(
     () => [
       {
-        field: "userId",
+        field: "providerId",
         headerName: t("id"),
         minWidth: 100,
         sortable: true,
         editable: false,
       },
+
       {
         field: "fname",
         headerName: t("fname"),
@@ -459,30 +388,6 @@ export function UserManagement() {
         ),
       },
       {
-        field: "role",
-        type: "singleSelect",
-        valueOptions: roleOptions.map((option: any) => option.label),
-        headerName: t("role"),
-        minWidth: 200,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <OptionFilterHeader
-            key={"role"}
-            field={"role"}
-            options={roleOptions.map((option: any) => option.label)}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
-      {
         field: "position",
         type: "singleSelect",
         valueOptions: positionOptions.map((option: any) => option.label),
@@ -530,49 +435,6 @@ export function UserManagement() {
           />
         ),
       },
-      {
-        field: "fixPhone",
-        headerName: t("fixPhone"),
-        minWidth: 200,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"fixPhone"}
-            field={"fixPhone"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
-
-      {
-        field: "nationalNumber",
-        headerName: t("nationalNumber"),
-        minWidth: 200,
-        sortable: false,
-        hideSortIcons: true,
-        editable: true,
-        renderHeader: () => (
-          <FilterHeader
-            key={"nationalNumber"}
-            field={"nationalNumber"}
-            filterModel={filterModel}
-            sortModel={sortModel}
-            filterVisibility={filterVisibility}
-            handleSortClick={handleSortClick}
-            handleFilterChange={handleTextFilterChange}
-            setFilterVisibility={setFilterVisibility}
-            clearFilter={clearFilter}
-          />
-        ),
-      },
 
       {
         field: "bDate",
@@ -581,10 +443,8 @@ export function UserManagement() {
         sortable: false,
         hideSortIcons: true,
         editable: true,
-        renderCell: (params: { value: string | Date }) => (
-          <CustomDateRenderer value={params.value} />
-        ),
-        renderEditCell: (_params: any) => (
+        renderCell: (params) => <CustomDateRenderer value={params.value} />,
+        renderEditCell: (_params) => (
           <TextField
             type="date"
             value={newBdate}
@@ -671,6 +531,49 @@ export function UserManagement() {
           />
         ),
       },
+
+      {
+        field: "nationalNumber",
+        headerName: t("nationalNumber"),
+        minWidth: 200,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"nationalNumber"}
+            field={"nationalNumber"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+      },
+      {
+        field: "fixPhone",
+        headerName: t("fixPhone"),
+        minWidth: 200,
+        sortable: false,
+        hideSortIcons: true,
+        editable: true,
+        renderHeader: () => (
+          <FilterHeader
+            key={"fixPhone"}
+            field={"fixPhone"}
+            filterModel={filterModel}
+            sortModel={sortModel}
+            filterVisibility={filterVisibility}
+            handleSortClick={handleSortClick}
+            handleFilterChange={handleTextFilterChange}
+            setFilterVisibility={setFilterVisibility}
+            clearFilter={clearFilter}
+          />
+        ),
+      },
       {
         field: "address",
         headerName: t("address"),
@@ -691,9 +594,7 @@ export function UserManagement() {
             clearFilter={clearFilter}
           />
         ),
-        renderEditCell: (_params: any) => (
-          <Address setAddressId={setAddressId} />
-        ),
+        renderEditCell: (_params) => <Address setAddressId={setAddressId} />,
       },
       {
         field: "smoking",
@@ -791,22 +692,18 @@ export function UserManagement() {
       {
         field: "file",
         headerName: t("cv"),
-        hideSortIcons: true,
-        sortable: false,
-        renderCell: (params: {
-          row: { fname: any; file: number[] | null };
-        }) => {
+        renderCell: (params) => {
           // console.log(params.row);
           return (
             <DownloadButton
               fileName={`${params.row.fname} CV`}
-              fileBinary={params.row?.file}
+              fileBinary={params.row.File?.file?.data}
             />
           );
         },
         editable: true,
-        renderEditCell: (params: { row: { fileId: number } }) => {
-          console.log(params.row);
+        renderEditCell: (params) => {
+          // console.log(params.row);
           return (
             <FileUpload
               fileId={params.row.fileId as number}
@@ -822,69 +719,62 @@ export function UserManagement() {
         field: "actions",
         headerName: t("actions"),
         type: "actions",
-        width: 150,
-        getActions: ({ id }: any) => {
-          const row = rows.find((item) => item.userId === id);
+        width: 250,
+        getActions: ({ id }) => {
           const isInEditMode = rowModesModel[id]?.mode === "edit";
+          const isUser = users.find(
+            (user: { providerId: number }) => user.providerId === id
+          )
+            ? true
+            : false;
+
           return [
-            !isInEditMode &&
-              ((userRole === "officer" && row.role === "data entry") ||
-                row.userId === userId ||
-                userRole === "admin") && (
-                <Tooltip title={t("edit")}>
-                  <GridActionsCellItem
-                    icon={<EditIcon />}
-                    label="Edit"
-                    onClick={() => handleEditClick(id)}
-                  />
-                </Tooltip>
-              ),
-            !isInEditMode && userRole === "admin" && (
-              <Tooltip title={t("change password")}>
+            !isInEditMode && (
+              <Tooltip title={t("edit")}>
                 <GridActionsCellItem
-                  icon={<LockOpenIcon />}
-                  label="change password"
-                  onClick={() => {
-                    setSelectedUserId(id);
-                    setChangePasswordModalOpen(true);
-                  }}
+                  icon={<EditIcon />}
+                  label="Edit"
+                  onClick={() => handleEditClick(id)}
                 />
               </Tooltip>
             ),
-            !isInEditMode &&
-              ((userRole === "officer" && row.role === "data entry") ||
-                userRole === "admin") && (
-                <Tooltip title={t("delete")}>
-                  <GridActionsCellItem
-                    icon={<DeleteIcon />}
-                    label="Delete"
-                    onClick={() => handleOpenDeleteDialog(id)}
+            !isInEditMode && !isUser && (
+              <Tooltip title={t("promote")}>
+                <GridActionsCellItem
+                  icon={<PersonAddAlt1RoundedIcon />}
+                  label="Promote"
+                  onClick={() => handleOpenPromoteDialog(id)}
+                />
+              </Tooltip>
+            ),
+            // !isInEditMode && (
+            //   <GridActionsCellItem
+            //     icon={<DeleteIcon />}
+            //     label="Delete"
+            //     onClick={() => handleOpenDeleteDialog(id)}
+            //   />
+            // ),
+            !isInEditMode && !isUser && (
+              <Tooltip title={t("active / inactive")}>
+                <Stack
+                  spacing={1}
+                  sx={{
+                    display: "flex",
+                    height: "100%",
+                    justifyContent: "center",
+                  }}
+                >
+                  <AntSwitch
+                    defaultChecked={
+                      rows.find((row) => row.providerId === id)
+                        ?.active_status === "active"
+                    }
+                    inputProps={{ "aria-label": "ant design" }}
+                    onChange={() => handleToggleActive(id as number)}
                   />
-                </Tooltip>
-              ),
-            !isInEditMode &&
-              ((userRole === "officer" && row.role === "data entry") ||
-                userRole === "admin") && (
-                <Tooltip title={t("active / inactive")}>
-                  <Stack
-                    spacing={1}
-                    sx={{
-                      display: "flex",
-                      height: "100%",
-                      justifyContent: "center",
-                    }}
-                  >
-                    <AntSwitch
-                      defaultChecked={
-                        rows.find((row: any) => row.userId === id)
-                          ?.active_status === "active"
-                      }
-                      inputProps={{ "aria-label": "ant design" }}
-                      onChange={() => handleToggleActive(id as number)}
-                    />
-                  </Stack>
-                </Tooltip>
-              ),
+                </Stack>
+              </Tooltip>
+            ),
             isInEditMode && (
               <Tooltip title={t("save")}>
                 <GridActionsCellItem
@@ -909,7 +799,6 @@ export function UserManagement() {
     ],
     [
       t,
-      roleOptions,
       positionOptions,
       departmentOptions,
       filterModel,
@@ -921,22 +810,16 @@ export function UserManagement() {
       clearFilter,
       newBdate,
       handleDateFilterChange,
-      rows,
       rowModesModel,
-      userRole,
-      userId,
+      users,
+      rows,
       handleEditClick,
-      handleOpenDeleteDialog,
+      handleOpenPromoteDialog,
       handleToggleActive,
       handleSave,
       handleCancel,
     ]
   );
-
-  useEffect(() => {
-    console.log(filteredRows);
-  }, [filteredRows]);
-
   useEffect(() => {
     async function fetchUserData() {
       try {
@@ -944,45 +827,10 @@ export function UserManagement() {
         if (response.status === 200) {
           const userRows = response.data.map((user: any) => {
             return {
-              userId: user?.userId,
-              fname: user?.ServiceProvider?.Volunteer?.Person?.fname,
-              mname: user?.ServiceProvider?.Volunteer?.Person?.mname,
-              momname: user?.ServiceProvider?.Volunteer?.Person?.momname,
-              lname: user?.ServiceProvider?.Volunteer?.Person?.lname,
-              email: user?.ServiceProvider?.Volunteer?.Person?.email,
-              phone: user?.ServiceProvider?.Volunteer?.Person?.phone,
-              fixPhone: user?.ServiceProvider?.Volunteer?.Person?.fixPhone,
-              smoking: user?.ServiceProvider?.Volunteer?.Person?.smoking,
-              prevVol: user?.ServiceProvider?.Volunteer?.Person?.prevVol,
-              compSkill: user?.ServiceProvider?.Volunteer?.Person?.compSkill,
-              koboSkill: user?.ServiceProvider?.Volunteer?.Person?.koboSkill,
-              note: user?.ServiceProvider?.Volunteer?.Person?.note,
-              position: user?.ServiceProvider?.Position?.name,
-              study: user?.ServiceProvider?.Volunteer?.Person?.study,
-              work: user?.ServiceProvider?.Volunteer?.Person?.work,
-              nationalNumber:
-                user?.ServiceProvider?.Volunteer?.Person?.nationalNumber,
-              address: `${user?.ServiceProvider?.Volunteer?.Person?.Address?.state} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.city} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.district} - ${user?.ServiceProvider?.Volunteer?.Person?.Address?.village}`,
-              gender: user?.ServiceProvider?.Volunteer?.Person?.gender,
-              bDate: user?.ServiceProvider?.Volunteer?.Person?.bDate,
-              active_status: user?.ServiceProvider?.Volunteer?.active_status,
-
-              role: user?.Role?.name,
-
-              department: user?.ServiceProvider?.Department?.name,
-
-              file: user?.ServiceProvider?.Volunteer?.Person?.File?.file.data,
               providerId: user?.ServiceProvider?.providerId,
-              personId: user?.ServiceProvider?.Volunteer?.Person?.id,
-              fileId: user?.ServiceProvider?.Volunteer?.Person?.fileId,
-
-              volunteerId: user?.ServiceProvider?.Volunteer?.volunteerId,
-              addressId: user?.ServiceProvider?.Volunteer?.Person?.Address?.id,
-              positionId: user?.ServiceProvider?.Position?.id,
-              departmentId: user?.ServiceProvider?.Department?.id,
             };
           });
-          setRows(userRows);
+          setUsers(userRows);
         }
       } catch (error) {
         console.error(error);
@@ -991,14 +839,54 @@ export function UserManagement() {
       }
     }
 
+    async function fetchServiceProviders() {
+      setIsLoading(true);
+      try {
+        const response = await axios.get("/serviceprovider");
+        if (response && response.status === 200) {
+          console.log(response.data);
+          const enrichedData = response.data.map((provider: any) => ({
+            providerId: provider.providerId,
+            volunteerId: provider.Volunteer.volunteerId,
+            position: provider.Position?.name,
+            department: provider.Department?.name,
+            ...(provider.Volunteer.Person || {}),
+            address: `${provider?.Volunteer?.Person?.Address?.state || ""} - ${
+              provider?.Volunteer?.Person?.Address?.city || ""
+            } - ${provider?.Volunteer?.Person?.Address?.district || ""} - ${
+              provider?.Volunteer?.Person?.Address?.village || ""
+            }`,
+            personId: provider?.Volunteer?.Person?.id,
+            fileId: provider?.Volunteer?.Person?.fileId,
+            file: provider?.Volunteer.Person?.File?.file.data,
+            addressId: provider?.Volunteer?.Person?.Address?.id,
+            positionId: provider.Position?.id,
+            departmentId: provider.Department?.id,
+            active_status: provider.Volunteer?.active_status,
+          }));
+          console.log("the enricheddata is ", enrichedData);
+          setRows(enrichedData);
+        }
+      } catch (error) {
+        console.error("Error fetching service providers:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    fetchServiceProviders();
     fetchUserData();
-    // const refreshToken = Cookies.get("refresh_token");
-    // getRefreshToken(refreshToken as string);
   }, []);
+  // Handle row edit
 
   // Close delete dialog
   const handleCloseDeleteDialog = useCallback(() => {
     setIsDeleteDialogOpen(false);
+    setSelectedRow(null);
+  }, []);
+
+  // Close delete dialog
+  const handleClosePromoteDialog = useCallback(() => {
+    setPromoteProviderOpen(false);
     setSelectedRow(null);
   }, []);
 
@@ -1019,53 +907,41 @@ export function UserManagement() {
 
   //fetch departments and position
   useEffect(() => {
-    async function fetchRoles() {
-      const res = await axios.get("role");
-      if (res.status === 200) {
-        setRoles(res.data);
-      }
-    }
-
-    // Fetch departments, positions, and roles
     async function fetchDepartment() {
       const res = await axios.get("department");
       if (res.status === 200) {
         setDepartments(res.data);
       }
     }
-
     async function fetchPosition() {
       const res = await axios.get("position");
       if (res.status === 200) {
         setPositions(res.data);
       }
     }
-
-    fetchRoles();
     fetchPosition();
+
     fetchDepartment();
 
     // console.log("departments", departments);
     // console.log("positions", positions);
-    // console.log("roles", roles);
   }, []);
 
   const handleDelete = useCallback(async () => {
     try {
-      // const row: any = rows.find((row: any) => row.userId === selectedRow);
-      await axios.delete(`/user/${selectedRow}`);
+      // const row: any = rows.find((row: any) => row.providerId === selectedRow);
 
-      // await axios.delete(`/serviceprovider/${row.providerId}`);
+      await axios.delete(`/serviceprovider/${selectedRow}`);
       // Delete volunteer data
       // await axios.delete(`/volunteer/${row.volunteerId}`);
       // Delete associated person and address data
       // await axios.delete(`/person/${row.personId}`);
       //  await axios.delete(`/address/${row.addressId}`);
       setRows((prevRows) =>
-        prevRows.filter((row: any) => row.userId !== selectedRow)
+        prevRows.filter((row: any) => row.providerId !== selectedRow)
       );
       setFilteredRows((prevRows) =>
-        prevRows.filter((row: any) => row.userId !== selectedRow)
+        prevRows.filter((row: any) => row.providerId !== selectedRow)
       );
       handleCloseDeleteDialog();
     } catch (error) {
@@ -1094,7 +970,10 @@ export function UserManagement() {
   //     console.error("File deletion failed:", error);
   //   }
   // };
-
+  // console.log("deprtmrntID is ", departmentId);
+  // console.log("positionID is ", positionId);
+  // console.log("print oldBdate", oldBdate);
+  // console.log("print newBdate", newBdate);
   const processRowUpdate = useCallback(
     async (updatedRow: any) => {
       if (action === "save") {
@@ -1122,13 +1001,8 @@ export function UserManagement() {
             (pos: any) => pos.label === updatedRow.position
           );
 
-          const selectedRole = roleOptions.find(
-            (rol: any) => rol.label === updatedRow.role
-          );
-
           const updatedDepartmentId = selectedDepartment?.id || departmentId;
           const updatedPositionId = selectedPosition?.id || positionId;
-          const updatedRoleId = selectedRole?.id || roleId;
           const updatedBdate = newBdate || oldBdate;
 
           // Ensure these IDs are included in the updatedRow before saving
@@ -1136,7 +1010,6 @@ export function UserManagement() {
           updatedRow.positionId = updatedPositionId;
           updatedRow.bDate = updatedBdate;
           const {
-            userId,
             providerId,
             personId,
             //  positionId,
@@ -1162,7 +1035,7 @@ export function UserManagement() {
             koboSkill,
           } = updatedRow;
           console.log("updatedRow: ", updatedRow);
-          const personRes = await axios.put(`/person/${personId}`, {
+          const personResponse = await axios.put(`/person/${personId}`, {
             fname,
             lname,
             mname,
@@ -1183,8 +1056,7 @@ export function UserManagement() {
             addressId,
             fileId,
           });
-
-          if (personRes.status !== 200) {
+          if (personResponse.status !== 200) {
             setAlertMessage("nationalNumber must be unique, please try again");
             setAlertSeverity("error");
             setAlertOpen(true);
@@ -1198,11 +1070,7 @@ export function UserManagement() {
 
             return oldRow;
           }
-          const userRes = await axios.put(`/user/${userId}`, {
-            roleId: updatedRoleId,
-          });
-
-          const providerRes = await axios.put(
+          const providerResponse = await axios.put(
             `/serviceprovider/${providerId}`,
             {
               positionId: updatedPositionId,
@@ -1210,59 +1078,51 @@ export function UserManagement() {
             }
           );
 
-          console.log({ userRes, providerRes, personRes });
           if (
-            userRes.status === 200 &&
-            providerRes.status === 200 &&
-            personRes.status === 200
+            providerResponse.status === 200 &&
+            personResponse.status === 200
           ) {
-            setAlertMessage("user updated successfully");
+            setAlertMessage("service provider updated successfully");
             setAlertSeverity("success");
             setAlertOpen(true);
+            setRows((prevRows: any) =>
+              prevRows.map((row: any) =>
+                row.providerId === providerId
+                  ? {
+                      ...updatedRow,
+                      address: updatedAddress ? updatedAddress : address,
+                      addressId: addressId,
+
+                      positionId: updatedPositionId,
+                      departmentId: updatedDepartmentId,
+                      bDate: updatedBdate,
+                      file: updatedFile ? updatedFile : updatedRow.file,
+                      File: updatedFile
+                        ? {
+                            id: fileId,
+                            file: updatedFile,
+                          }
+                        : updatedRow.File,
+                    }
+                  : row
+              )
+            );
           }
-          console.log(updatedFile);
-          setRows((prevRows: any) =>
-            prevRows.map((row: any) =>
-              row.userId === userId
-                ? {
-                    ...updatedRow,
-                    address: updatedAddress ? updatedAddress : address,
-                    addressId: addressId,
-                    roleId: updatedRoleId,
-                    positionId: updatedPositionId,
-                    departmentId: updatedDepartmentId,
-                    bDate: updatedBdate,
-                    file: updatedFile?.data
-                      ? updatedFile?.data
-                      : updatedRow.file,
-                    fileId,
-                  }
-                : row
-            )
-          );
-          console.log({
-            updatedRow: {
-              ...updatedRow,
-              address: updatedAddress ? updatedAddress : address,
-              addressId: addressId,
-              roleId: updatedRoleId,
-              positionId: updatedPositionId,
-              departmentId: updatedDepartmentId,
-              bDate: updatedBdate,
-              file: updatedFile?.data ? updatedFile?.data : updatedRow.file,
-              fileId,
-            },
-          });
           return {
             ...updatedRow,
-            address: updatedAddress ? updatedAddress : address,
-            addressId: addressId,
-            roleId: updatedRoleId,
+
+            file: updatedFile ? updatedFile : updatedRow.file,
+            File: updatedFile
+              ? {
+                  id: fileId,
+                  file: updatedFile,
+                }
+              : updatedRow.File,
+            address: address ? address : updatedRow.address,
+            addressId: addressId ? addressId : updatedRow.addressId,
             positionId: updatedPositionId,
             departmentId: updatedDepartmentId,
             bDate: updatedBdate,
-            file: updatedFile?.data ? updatedFile?.data : updatedRow.file,
-            fileId,
           };
         } catch (error) {
           console.error("Error updating row:", error);
@@ -1281,18 +1141,10 @@ export function UserManagement() {
         }
       } else if (action === "cancel") {
         const oldRow: any = rows.find(
-          (row: any) => row.userId === updatedRow.userId
+          (row: any) => row.providerId === updatedRow.providerId
         );
-        console.log({ oldRow });
-
-        // if (oldRow) {
-        //   setRows((prevRows: any) =>
-        //     prevRows.map((row: any) =>
-        //       row.userId === updatedRow.userId ? oldRow : row
-        //     )
-        //   );
-        //   return oldRow;
-        // }
+        // console.log({ oldRow });
+        // console.log({ updatedRow });
         if (updatedFile) {
           handleFileUpload(oldRow.file);
         }
@@ -1316,11 +1168,34 @@ export function UserManagement() {
       oldBdate,
       positionId,
       positionOptions,
-      roleId,
-      roleOptions,
       rows,
       updatedFile,
     ]
+  );
+
+  const handlePromote = useCallback(
+    async (data: any) => {
+      try {
+        const response = await axios.post("/user/promote/", {
+          ...data,
+          providerId: selectedRow,
+        });
+        if (response.status === 201) {
+          console.log({ selectedRow });
+          setRows((prevRows) =>
+            prevRows.filter((row: any) => row.providerId !== selectedRow)
+          );
+          setAlertMessage(t("provider has promoted to a user"));
+          setAlertSeverity("success");
+        }
+      } catch (error) {
+        setAlertMessage(t("failed to promote volunteer"));
+        setAlertSeverity("error");
+      } finally {
+        setAlertOpen(true);
+      }
+    },
+    [selectedRow, t]
   );
 
   const [columnVisibilityModel, setColumnVisibilityModel] = useState<any>({});
@@ -1329,7 +1204,7 @@ export function UserManagement() {
   const [selectedRowsIds, setSelectedRowsIds] = useState<any[]>([]);
   const handleSelectionChange = (newSelection: any[]) => {
     const newSelectedRows: any = newSelection.map((selected) => {
-      return rows.find((row: any) => row.id === selected);
+      return rows.find((row: any) => row.providerId === selected);
     });
     setSelectedRowsIds(newSelection);
     setSelectedRows(newSelectedRows);
@@ -1387,10 +1262,10 @@ export function UserManagement() {
         handleClose={handleCloseDeleteDialog}
         onConfirm={handleDelete}
       />
-      <ChangePasswordByAdminModal
-        open={changePasswordModalOpen}
-        handleClose={() => setChangePasswordModalOpen(false)}
-        userId={selectedUserId}
+      <ProviderPromoteModal
+        open={promoteProviderOpen}
+        handleClose={handleClosePromoteDialog}
+        onSubmit={handlePromote}
       />
       {isLoading ? (
         <Loading />
@@ -1403,7 +1278,7 @@ export function UserManagement() {
             initialState={{ pagination: { paginationModel } }}
             pageSizeOptions={[5, 10]}
             sx={{ border: 0 }}
-            getRowId={(row) => row.userId} // Ensure the correct row ID is used
+            getRowId={(row) => row.providerId} // Ensure the correct row ID is used
             disableColumnFilter
             disableColumnMenu
             slots={{
@@ -1411,7 +1286,7 @@ export function UserManagement() {
                 <GridCustomToolbar
                   clearAllFilters={clearAllFilters}
                   rows={selectedRowsToExport}
-                  navigateTo={"/create-new-user"}
+                  navigateTo={"/serviceprovider-information"}
                 />
               ),
             }}
@@ -1439,4 +1314,6 @@ export function UserManagement() {
       )}
     </>
   );
-}
+};
+
+export default ServiceProvider;

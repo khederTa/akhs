@@ -4,7 +4,7 @@ import axios from "../utils/axios";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useTranslation } from "react-i18next";
 import { formatDate } from "../utils/dateUtils";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import {
   PDFViewer,
   Document,

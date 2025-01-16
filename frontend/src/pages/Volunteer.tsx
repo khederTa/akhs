@@ -14,7 +14,7 @@ import {
   GridActionsCellItem,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 // import DeleteIcon from "@mui/icons-material/Delete";
@@ -22,22 +22,22 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import WorkHistoryIcon from "@mui/icons-material/WorkHistory";
 import axios from "../utils/axios";
-import DraggableDialog from "./DraggableDialog";
-import DownloadButton from "./DownloadButton";
-import Address from "./Address";
-import FileUpload from "./FileUpload";
+import DraggableDialog from "../components/DraggableDialog";
+import DownloadButton from "../components/DownloadButton";
+import Address from "../components/Address";
+import FileUpload from "../components/FileUpload";
 import { useTranslation } from "react-i18next";
-import FilterHeader from "./FilterHeader";
-import AlertNotification from "./AlertNotification";
-import DateFilterHeader from "./DateFilterHeader";
-import CustomDateRenderer from "./CustomDateRenderer";
-import QAFilterHeader from "./QAFilterHeader";
-import GenderFilterHeader from "./GenderFilterHeader";
-import GridCustomToolbar from "./GridCustomToolbar";
+import FilterHeader from "../components/FilterHeader";
+import AlertNotification from "../components/AlertNotification";
+import DateFilterHeader from "../components/DateFilterHeader";
+import CustomDateRenderer from "../components/CustomDateRenderer";
+import QAFilterHeader from "../components/QAFilterHeader";
+import GenderFilterHeader from "../components/GenderFilterHeader";
+import GridCustomToolbar from "../components/GridCustomToolbar";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import PersonAddAlt1RoundedIcon from "@mui/icons-material/PersonAddAlt1Rounded";
-import VolunteerPromoteModal from "./VolunteerPromoteModal";
-import HistoryModal from "./HistoryModal";
+import VolunteerPromoteModal from "../components/VolunteerPromoteModal";
+import HistoryModal from "../components/HistoryModal";
 import { usePermissionStore } from "../store/permissionStore";
 export const AntSwitch = styled(Switch)(({ theme }: any) => ({
   width: 28,

@@ -14,7 +14,7 @@ app.use(
   cors({
     // origin: "http://localhost:8082", // Your frontend URL
     origin: "http://localhost:5173", // Your frontend URL
-    origin: "http://192.168.1.3:5173", // Your frontend URL
+    // origin: "http://192.168.1.3:5173", // Your frontend URL
     // origin: "http://localhost:4173", // Your frontend URL
     credentials: true, // Allow cookies if needed
     // httpOnly: true,

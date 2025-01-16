@@ -8,7 +8,7 @@ import {
   GridActionsCellItem,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 // import DeleteIcon from "@mui/icons-material/Delete";
@@ -16,10 +16,10 @@ import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
-import FilterHeader from "./FilterHeader";
-import AlertNotification from "./AlertNotification";
+import FilterHeader from "../components/FilterHeader";
+import AlertNotification from "../components/AlertNotification";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-import GridCustomToolbar from "./GridCustomToolbar";
+import GridCustomToolbar from "../components/GridCustomToolbar";
 const Position = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [oldRow, setOldRow] = useState({});

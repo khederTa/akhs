@@ -23,13 +23,13 @@ import {
   Tooltip,
 } from "@mui/material";
 import axios from "../utils/axios";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import styled from "@emotion/styled";
-import FilterHeader from "./FilterHeader";
+import FilterHeader from "../components/FilterHeader";
 import { useTranslation } from "react-i18next";
-import AlertNotification from "./AlertNotification";
+import AlertNotification from "../components/AlertNotification";
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
-import GridCustomToolbar from "./GridCustomToolbar";
+import GridCustomToolbar from "../components/GridCustomToolbar";
 const paginationModel = { page: 0, pageSize: 5 };
 
 const AntSwitch = styled(Switch)(({ theme }: any) => ({

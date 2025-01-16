@@ -14,19 +14,19 @@ import {
   GridActionsCellItem,
   useGridApiRef,
 } from "@mui/x-data-grid";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import { useEffect, useState } from "react";
 import EditIcon from "@mui/icons-material/Edit";
 // import DeleteIcon from "@mui/icons-material/Delete";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
 import axios from "../utils/axios";
-import DraggableDialog from "./DraggableDialog"; // Import the dialog component
+import DraggableDialog from "../components/DraggableDialog"; // Import the dialog component
 import { useGridFilterSort } from "../hooks/useGridFilterSort";
 import { useTranslation } from "react-i18next";
-import FilterHeader from "./FilterHeader";
-import GridCustomToolbar from "./GridCustomToolbar";
-import AlertNotification from "./AlertNotification";
+import FilterHeader from "../components/FilterHeader";
+import GridCustomToolbar from "../components/GridCustomToolbar";
+import AlertNotification from "../components/AlertNotification";
 
 export function Packages() {
   const [rows, setRows] = useState<any[]>([]);
@@ -411,13 +411,13 @@ export function Packages() {
   return (
     <>
       {alertOpen && (
-  <AlertNotification
-    open={alertOpen}
-    message={alertMessage}
-    severity={alertSeverity}
-    onClose={handleAlertClose}
-  />
-)}
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <DraggableDialog

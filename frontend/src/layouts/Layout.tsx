@@ -2,9 +2,9 @@ import { ReactNode, useContext } from "react";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { alpha } from "@mui/material/styles";
 import { Box, Stack } from "@mui/material";
-import AppNavbar from "./AppNavbar";
-import SideMenu from "./SideMenu";
-import Header from "./Header";
+import AppNavbar from "../components/AppNavbar";
+import SideMenu from "../components/SideMenu";
+import Header from "../components/Header";
 import { useAuthStore } from "../store/auth";
 import { Navigate, useLocation } from "react-router-dom"; // Redirect to the sign-in page
 

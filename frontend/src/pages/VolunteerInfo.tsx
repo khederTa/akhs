@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiCard from "@mui/material/Card";
-
 import {
   Typography,
   Box,
@@ -10,19 +9,17 @@ import {
   FormLabel,
   TextField,
   Button,
-  MenuItem,
-  FormHelperText,
   RadioGroup,
-  FormControlLabel,
   Radio,
+  FormControlLabel,
+  FormHelperText,
 } from "@mui/material";
-import Select from "@mui/material/Select";
 import { useNavigate } from "react-router-dom";
-import FileUpload from "./FileUpload";
-import Address from "./Address";
+import FileUpload from "../components/FileUpload";
+import Address from "../components/Address";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
-import AlertNotification from "./AlertNotification";
+import AlertNotification from "../components/AlertNotification";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",
@@ -37,7 +34,7 @@ const Card = styled(MuiCard)(({ theme }) => ({
     "hsla(220, 30%, 5%, 0.05) 0px 5px 15px 0px, hsla(220, 25%, 10%, 0.05) 0px 15px 35px -5px",
 }));
 
-const ServiceProviderInfo = () => {
+const VolunteerInfo = () => {
   const [gender, setGender] = useState("Male");
   const [birthDate, setBirthDate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -48,19 +45,17 @@ const ServiceProviderInfo = () => {
   const [compSkill, setCompSkill] = useState("No");
   const [koboSkill, setKoboSkill] = useState("No");
   const [errors, setErrors] = useState<any>({});
-  const { t } = useTranslation();
-  const [department, setDepartment] = React.useState("");
-  const [position, setPosition] = React.useState("");
   const [alertOpen, setAlertOpen] = useState(false);
   const [alertMessage, setAlertMessage] = useState("");
   const [alertSeverity, setAlertSeverity] = useState<"success" | "error">(
     "success"
   );
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
   const handleAlertClose = () => {
     setAlertOpen(false);
   };
-
   const validateForm = () => {
     const newErrors: any = {};
     if (!gender) newErrors.gender = t("gender is required");
@@ -68,13 +63,11 @@ const ServiceProviderInfo = () => {
     if (!prevVol)
       newErrors.prevVol = t("previous volunteer experience is required");
     if (!compSkill)
-      newErrors.compSkill = t("microsoft office Skills is required");
+      newErrors.compSkill = t("microsoft office skills is required");
     if (!smoking) newErrors.smoking = t("smoking status is required");
-    if (!koboSkill) newErrors.koboSkill = t("Kobo tool experience is required");
+    if (!koboSkill) newErrors.koboSkill = t("kobo tool experience is required");
     // if (!fileId) newErrors.fileId = t("file upload is required");
     if (!addressId) newErrors.addressId = t("address is required");
-    if (!department) newErrors.departmentId = t("department is required");
-    if (!position) newErrors.positionId = t("position is required");
 
     // Validate required text fields
     [
@@ -104,23 +97,14 @@ const ServiceProviderInfo = () => {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const [departments, setDepartments] = useState<any>([{}]);
-  const [positions, setPositions] = useState<any>([{}]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!validateForm()) return;
 
     setIsLoading(true);
     const data = new FormData(event.currentTarget);
-    const selectedDepartment = departmentOptions.filter((depOption: any) => {
-      if (depOption.label === department) return depOption;
-    });
-    const sendedDepartmentId = selectedDepartment?.[0]?.id || null;
 
-    const selectedPosition = positionOptions.filter((posOption: any) => {
-      if (posOption.label === position) return posOption;
-    });
-    const sendedPositionId = selectedPosition?.[0].id || null;
     const payload = {
       personData: {
         fname: data.get("fname"),
@@ -146,19 +130,16 @@ const ServiceProviderInfo = () => {
       volunteerData: {
         active_status: "active",
       },
-      serviceProviderData: {
-        departmentId: sendedDepartmentId,
-        positionId: sendedPositionId,
-      },
     };
 
     try {
-      const response = await axios.post("/serviceprovider", payload);
+      const response = await axios.post("/volunteer", payload);
+
       if (response.status === 201) {
-        setAlertMessage("ServiceProvider created successfully!");
+        setAlertMessage("Volunteer created successfully!");
         setAlertSeverity("success");
         setAlertOpen(true);
-        navigate("/serviceprovider");
+        navigate("/volunteer");
       }
     } catch (error: any) {
       console.error("Error submitting form:", error);
@@ -183,70 +164,24 @@ const ServiceProviderInfo = () => {
     }
   };
 
-  // Initialize departments and positions with default values if empty
-  const departmentOptions = useMemo(
-    () =>
-      departments.length > 0
-        ? departments.map((department: any) => ({
-            label: department.name,
-            id: department.id,
-          }))
-        : [{ label: t("no departments available"), id: null }],
-    [departments, t]
-  );
-
-  const positionOptions = useMemo(
-    () =>
-      positions.length > 0
-        ? positions.map((position: any) => ({
-            label: position.name,
-            id: position.id,
-          }))
-        : [{ label: t("no positions available"), id: null }],
-    [positions, t]
-  );
-  // console.log("departmenoptions is", departmentOptions);
-  //fetch departments and position
-  useEffect(() => {
-    async function fetchDepartment() {
-      const res = await axios.get("department");
-      if (res.status === 200) {
-        setDepartments(res.data);
-        // console.log("departments", departments);
-      }
-    }
-    async function fetchPosition() {
-      const res = await axios.get("position");
-      if (res.status === 200) {
-        setPositions(res.data);
-        // console.log("positions", positions);
-      }
-    }
-    fetchPosition();
-
-    fetchDepartment();
-  }, [departments, positions]);
-
-  // console.log("department is", department);
-  // console.log("departmentId is", departmentId);
   return (
     <>
       {alertOpen && (
-  <AlertNotification
-    open={alertOpen}
-    message={alertMessage}
-    severity={alertSeverity}
-    onClose={handleAlertClose}
-  />
-)}
+        <AlertNotification
+          open={alertOpen}
+          message={alertMessage}
+          severity={alertSeverity}
+          onClose={handleAlertClose}
+        />
+      )}
 
       <Card variant="highlighted">
         <Typography
           component="h1"
           variant="h4"
-          sx={{ width: "100%", fontSize: "clamp(2rem, 10vw, 2.15rem)" }}
+          sx={{ width: "100%", fontSize: "clamp(1.8rem, 5vw, 2.5rem)" }}
         >
-          {t("create new service provider")}
+          {t("volunteer information")}
         </Typography>
         <Box
           component="form"
@@ -351,66 +286,6 @@ const ServiceProviderInfo = () => {
             )}
           </FormControl>
           <FormControl
-            component="fieldset"
-            sx={{ flex: { xs: "1 1 100%", md: "1 1 30%" } }}
-            error={!!errors.departmentId}
-          >
-            <FormLabel htmlFor="Department">{t("department")}</FormLabel>
-            <Select
-              labelId="Department"
-              id="Department"
-              value={department}
-              label="Department"
-              onChange={(e) => setDepartment(e.target.value)}
-            >
-              {departmentOptions?.map((departmentoption: any) => (
-                <MenuItem
-                  key={departmentoption.id}
-                  value={departmentoption.label}
-                >
-                  {departmentoption.label}
-                </MenuItem>
-              ))}
-            </Select>
-            {errors.departmentId && (
-              <FormHelperText>{errors.departmentId}</FormHelperText>
-            )}
-          </FormControl>
-          <FormControl
-            component="fieldset"
-            sx={{ flex: { xs: "1 1 100%", md: "1 1 40%" } }}
-            error={!!errors.positionId}
-          >
-            <FormLabel htmlFor="position">{t("position")}</FormLabel>
-            <Select
-              labelId="position"
-              id="position"
-              value={position}
-              onChange={(e) => setPosition(e.target.value)}
-            >
-              {positionOptions?.map((positionoption: any) => (
-                <MenuItem key={positionoption.id} value={positionoption.label}>
-                  {positionoption.label}
-                </MenuItem>
-              ))}
-            </Select>
-            {errors.positionId && (
-              <FormHelperText>{errors.positionId}</FormHelperText>
-            )}
-          </FormControl>
-          <FormControl
-            component="fieldset"
-            sx={{ flex: { xs: "1 1 100%", md: "1 1 40%" } }}
-            error={!!errors.addressId}
-          >
-            <FormLabel>{t("address")}</FormLabel>
-            <Address setAddressId={setAddressId} />
-            {errors.addressId && (
-              <FormHelperText>{errors.addressId}</FormHelperText>
-            )}
-          </FormControl>
-
-          <FormControl
             sx={{
               flex: { xs: "1 1 100%", md: "1 1 30%" },
               minWidth: "20%",
@@ -428,6 +303,17 @@ const ServiceProviderInfo = () => {
             />
             {errors["note"] && (
               <FormHelperText>{errors["note"]}</FormHelperText>
+            )}
+          </FormControl>
+          <FormControl
+            component="fieldset"
+            sx={{ flex: "1 1 40%" }}
+            error={!!errors.addressId}
+          >
+            <FormLabel>{t("address")}</FormLabel>
+            <Address setAddressId={setAddressId} />
+            {errors.addressId && (
+              <FormHelperText>{errors.addressId}</FormHelperText>
             )}
           </FormControl>
 
@@ -547,7 +433,7 @@ const ServiceProviderInfo = () => {
             component="fieldset"
             sx={{ flex: "1 1 50%" }}
           >
-            <FormLabel htmlFor="resume">{t("your resume")}</FormLabel>
+            <FormLabel htmlFor="compSkill">{t("your resume")}</FormLabel>
             <FileUpload fileId={fileId} setFileId={setFileId} />
             {errors.fileId && <FormHelperText>{errors.fileId}</FormHelperText>}
           </FormControl>
@@ -567,8 +453,8 @@ const ServiceProviderInfo = () => {
               disabled={isLoading}
             >
               {isLoading
-                ? t("creating new provider...")
-                : t("create new provider")}
+                ? t("creating new volunteer...")
+                : t("create new volunteer")}
             </Button>
           </Box>
         </Box>
@@ -577,4 +463,4 @@ const ServiceProviderInfo = () => {
   );
 };
 
-export default ServiceProviderInfo;
+export default VolunteerInfo;

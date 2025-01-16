@@ -18,13 +18,13 @@ import {
 } from "@mui/material";
 import Select from "@mui/material/Select";
 import { useNavigate } from "react-router-dom";
-import FileUpload from "./FileUpload";
-import Address from "./Address";
+import FileUpload from "../components/FileUpload";
+import Address from "../components/Address";
 import axios from "../utils/axios";
-import PasswordInput from "./PasswordInput";
+import PasswordInput from "../components/PasswordInput";
 import { useTranslation } from "react-i18next";
 import { usePermissionStore } from "../store/permissionStore";
-import AlertNotification from "./AlertNotification";
+import AlertNotification from "../components/AlertNotification";
 
 const Card = styled(MuiCard)(({ theme }) => ({
   display: "flex",

@@ -3,17 +3,16 @@ import * as React from "react";
 import Grid from "@mui/material/Grid2";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import Copyright from "./Copyright";
+import Copyright from "../components/Copyright";
 import axios from "../utils/axios";
 import { useTranslation } from "react-i18next";
-import StatCard, { StatCardProps } from "./StatCard";
-import CustomDateRenderer from "./CustomDateRenderer";
+import StatCard, { StatCardProps } from "../components/StatCard";
+import CustomDateRenderer from "../components/CustomDateRenderer";
 import { Paper } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import { usePermissionStore } from "../store/permissionStore";
 import { useNavigate } from "react-router-dom";
-import { Layout } from "./Layout";
 
 export default function MainGrid() {
   const [volunteers, setVolunteers] = React.useState<any>(null);
@@ -155,45 +154,46 @@ export default function MainGrid() {
   return loading ? (
     <Loading />
   ) : (
-    <Layout>
-      <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
-        {/* cards */}
-        <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
-          {t("statistics")}
-        </Typography>
-        <Grid
-          container
-          spacing={2}
-          columns={12}
-          sx={{ mb: (theme) => theme.spacing(2) }}
-        >
-          {data.map((card, index) => (
-            <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
-              <StatCard {...card} />
-            </Grid>
-          ))}
-        </Grid>
-        <Typography component="h2" variant="h6" sx={{ mb: 2, mt: 10 }}>
-          {t("upcoming activities")}
-        </Typography>
-        <Paper sx={{ height: 400, width: "99%" }}>
-          <DataGrid
-            rows={rows}
-            columns={columns}
-            // processRowUpdate={handleProcessRowUpdate}
-            initialState={{ pagination: { paginationModel } ,    sorting: {
+    <Box sx={{ width: "100%", maxWidth: { sm: "100%", md: "1700px" } }}>
+      {/* cards */}
+      <Typography component="h2" variant="h6" sx={{ mb: 2 }}>
+        {t("statistics")}
+      </Typography>
+      <Grid
+        container
+        spacing={2}
+        columns={12}
+        sx={{ mb: (theme) => theme.spacing(2) }}
+      >
+        {data.map((card, index) => (
+          <Grid key={index} size={{ xs: 12, sm: 6, lg: 3 }}>
+            <StatCard {...card} />
+          </Grid>
+        ))}
+      </Grid>
+      <Typography component="h2" variant="h6" sx={{ mb: 2, mt: 10 }}>
+        {t("upcoming activities")}
+      </Typography>
+      <Paper sx={{ height: 400, width: "99%" }}>
+        <DataGrid
+          rows={rows}
+          columns={columns}
+          // processRowUpdate={handleProcessRowUpdate}
+          initialState={{
+            pagination: { paginationModel },
+            sorting: {
               sortModel: [{ field: "id", sort: "desc" }], // Default sorting model
-          }, }}
-            pageSizeOptions={[5, 10]}
-            sx={{ border: 0 }}
-            getRowId={(row: any) => row.id} // Ensure the correct row ID is used
-            disableColumnFilter
-            disableColumnMenu
-          />
-        </Paper>
+            },
+          }}
+          pageSizeOptions={[5, 10]}
+          sx={{ border: 0 }}
+          getRowId={(row: any) => row.id} // Ensure the correct row ID is used
+          disableColumnFilter
+          disableColumnMenu
+        />
+      </Paper>
 
-        <Copyright sx={{ my: 4 }} />
-      </Box>
-    </Layout>
+      <Copyright sx={{ my: 4 }} />
+    </Box>
   );
 }

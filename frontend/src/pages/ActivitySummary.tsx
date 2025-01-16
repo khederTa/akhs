@@ -9,16 +9,16 @@ import React, {
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button, Typography, Box, TextField, MenuItem } from "@mui/material";
 import axios from "../utils/axios";
-import SessionInfo from "./SessionInfo";
+import SessionInfo from "../components/SessionInfo";
 import useSessionStore from "../store/activityStore"; // Import Zustand store
-import { Loading } from "./Loading";
+import { Loading } from "../components/Loading";
 import dayjs from "dayjs";
 import AddIcon from "@mui/icons-material/Add";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import { DirectionContext } from "../shared-theme/AppTheme";
 import { useTranslation } from "react-i18next";
-import AlertNotification from "./AlertNotification";
+import AlertNotification from "../components/AlertNotification";
 type ItemType = {
   id: number;
   name: string;
