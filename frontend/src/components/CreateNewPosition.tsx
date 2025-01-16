@@ -147,6 +147,7 @@ const CreateNewPosition = () => {
           fullWidth
           variant="contained"
           onClick={validateInputs}
+          disabled={isLoading}
         >
           {isLoading ? t("creating new position") : t("create new position")}
         </Button>

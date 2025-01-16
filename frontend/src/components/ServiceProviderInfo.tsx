@@ -564,6 +564,7 @@ const ServiceProviderInfo = () => {
               type="submit"
               variant="contained"
               sx={{ flex: "1 0 100%", mt: 2 }}
+              disabled={isLoading}
             >
               {isLoading
                 ? t("creating new provider...")

@@ -147,6 +147,7 @@ const CreateNewDepartment = () => {
           fullWidth
           variant="contained"
           onClick={validateInputs}
+          disabled={isLoading}
         >
           {isLoading ? t("creating new department") : t("create new department")}
         </Button>

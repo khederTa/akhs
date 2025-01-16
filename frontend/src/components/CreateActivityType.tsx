@@ -239,6 +239,7 @@ export function CreateActivityType() {
           fullWidth
           variant="contained"
           onClick={validateInputs}
+          disabled={isLoading}
         >
           {isLoading
             ? t("creating new activity type...")

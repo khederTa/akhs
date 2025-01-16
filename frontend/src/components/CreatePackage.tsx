@@ -206,6 +206,7 @@ export function CreatePackage() {
           fullWidth
           variant="contained"
           onClick={validateInputs}
+          disabled={isLoading}
         >
           {isLoading ? t("creating new package...") : t("create new package")}
         </Button>
